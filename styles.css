@@ -391,74 +391,84 @@ a:hover { color: #8CF7C7; }
 /* ---------- Clients ---------- */
 .section-note { color: var(--muted); font-size: 0.92rem; margin-bottom: 2.5rem; }
 
-.client-grid {
+.client-row {
+  margin-top: clamp(2rem, 5vw, 3.2rem);
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;                      /* hairlines drawn by the gap over a lit ground */
-  background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.client {
-  position: relative;
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  min-height: 140px;
-  padding: 2rem 1.25rem;
-  text-align: center;
-  background: var(--bg);
-  transition: background-color 300ms ease, box-shadow 300ms ease;
+  gap: 2.2rem 2.5rem;
 }
-.client::before {
+.client { display: flex; align-items: center; gap: 1.5rem; }
+
+/* Lens chip: opposing corners, one pair round and one pair tight */
+.client-chip {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 108px;
+  height: 108px;
+  background: rgba(53, 240, 154, 0.05);
+  border: 1px solid var(--line);
+  border-radius: 26px 6px 26px 6px;
+  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 500ms ease, box-shadow 500ms ease;
+}
+.client:hover .client-chip {
+  transform: translateY(-4px);
+  border-color: rgba(53, 240, 154, 0.42);
+  box-shadow: 0 14px 40px rgba(53, 240, 154, 0.14);
+}
+.client-chip img {
+  width: 82px;
+  height: 82px;
+  object-fit: contain;
+  filter: grayscale(1) brightness(1.6) opacity(0.7);
+  transition: filter 500ms ease;
+}
+.client:hover .client-chip img { filter: grayscale(0) brightness(1) opacity(1); }
+
+/* Monogram stand-in until a real logo is dropped in */
+.client-mono {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--em);
+  opacity: 0.75;
+  text-shadow: 0 0 22px rgba(53, 240, 154, 0.45);
+}
+.client-chip-nda { color: rgba(233, 245, 239, 0.4); }
+
+.client-meta h3 { font-size: 1.4rem; margin-bottom: 0.2rem; font-weight: 500; }
+.client-meta p { color: var(--muted); font-size: 0.94rem; max-width: 24rem; }
+
+/* Pulsing availability badge */
+.client-badge {
+  margin-top: clamp(2rem, 4vw, 3rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.8rem 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: rgba(53, 240, 154, 0.04);
+}
+.pulse { position: relative; width: 10px; height: 10px; flex-shrink: 0; }
+.pulse span { position: absolute; inset: 0; border-radius: 50%; background: var(--em); }
+.pulse::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, rgba(53, 240, 154, 0.1) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 300ms ease;
-  pointer-events: none;
+  border-radius: 50%;
+  background: var(--em);
+  animation: ping 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
-.client:hover { background: rgba(53, 240, 154, 0.04); }
-.client:hover::before { opacity: 1; }
-
-.client-name {
-  position: relative;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
-  letter-spacing: -0.01em;
-  color: var(--text);
-  transition: color 300ms ease, text-shadow 300ms ease;
+@keyframes ping {
+  from { transform: scale(1);   opacity: 0.7; }
+  to   { transform: scale(2.8); opacity: 0; }
 }
-.client:hover .client-name { color: var(--em); text-shadow: 0 0 24px rgba(53, 240, 154, 0.45); }
-
-.client-kind {
-  position: relative;
-  font-family: var(--font-display);
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(233, 245, 239, 0.42);
-}
-
-/* Optional real logo, in place of .client-name */
-.client-logo {
-  position: relative;
-  max-width: 78%;
-  max-height: 54px;
-  width: auto;
-  object-fit: contain;
-  filter: grayscale(1) brightness(1.7) opacity(0.62);
-  transition: filter 300ms ease;
-}
-.client:hover .client-logo { filter: grayscale(0) brightness(1.05) opacity(1); }
-
-.client-cta { margin-top: 1.8rem; font-size: 0.92rem; color: var(--muted); }
 
 /* ---------- Process ---------- */
 .steps {
@@ -629,7 +639,7 @@ html.anim-ready .hero-title .line-inner { transform: translateY(110%); }
 @media (max-width: 900px) {
   .bento { grid-template-columns: 1fr 1fr; }
   .card-feature { grid-column: span 2; }
-  .client-grid { grid-template-columns: 1fr 1fr; }
+  .client-row { grid-template-columns: minmax(0, 1fr); }
   .why-grid { grid-template-columns: 1fr; }
   .steps { grid-template-columns: 1fr 1fr; }
   .contact-grid { grid-template-columns: 1fr; }
@@ -642,6 +652,12 @@ html.anim-ready .hero-title .line-inner { transform: translateY(110%); }
   .steps { grid-template-columns: 1fr; }
   .hero-inner { padding-block: 8rem 4rem; }
   .nav-cta { padding: 0.6rem 1rem; font-size: 0.86rem; }
+  .client { gap: 1.1rem; }
+  .client-chip { width: 72px; height: 72px; border-radius: 18px 4px 18px 4px; }
+  .client-chip img { width: 52px; height: 52px; }
+  .client-chip-nda svg { width: 30px; height: 30px; }
+  .client-mono { font-size: 1.7rem; }
+  .client-meta h3 { font-size: 1.2rem; }
   .orb { filter: blur(60px); }
 }
 
@@ -649,7 +665,8 @@ html.anim-ready .hero-title .line-inner { transform: translateY(110%); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .orb, .hero-scroll span, .marquee-track { animation: none; }
-  .btn, .email-copy, .nav, .card, .client, .client-name, .client-logo { transition: none; }
+  .btn, .email-copy, .nav, .card, .client-chip, .client-chip img { transition: none; }
+  .pulse::before { animation: none; }
   .glow { display: none; }
   html.anim-ready .reveal,
   html.anim-ready .hero-el { opacity: 1; }
