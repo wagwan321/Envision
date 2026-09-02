@@ -143,7 +143,7 @@
       playHero();
     } else {
       window.addEventListener("env:loaded", playHero, { once: true });
-      setTimeout(playHero, 4500);   /* past the loader's hard cap; never leave the hero hidden */
+      setTimeout(playHero, 3500);   /* past the loader's hard cap; never leave the hero hidden */
     }
 
     /* Hero copy drifts up and fades as you scroll away */
