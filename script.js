@@ -114,6 +114,10 @@
       gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
       gsap.ticker.lagSmoothing(0);
       document.documentElement.style.scrollBehavior = "auto";
+
+      /* On a reload, Lenis inherits whatever offset the page opened at, so
+         snap it to the hero once it is driving the scroll. */
+      if (window.__envForceTop) lenis.scrollTo(0, { immediate: true });
       document.querySelectorAll('a[href^="#"]').forEach(function (a) {
         a.addEventListener("click", function (e) {
           var target = document.querySelector(a.getAttribute("href"));

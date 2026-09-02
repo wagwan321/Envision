@@ -86,6 +86,32 @@
     @media (prefers-reduced-motion: reduce) { .loader { display: none; } }
   </style>
   <noscript><style>.loader { display: none !important; }</style></noscript>
+
+  <!-- Runs in the head so it beats the browser's own scroll restoration. -->
+  <script>
+    /* A reload always lands on the hero. Browsers otherwise restore the old
+       scroll offset, which drops you mid-page behind the loading screen.
+       A shared link with a hash still jumps to its section on a fresh visit;
+       only reloads are forced back to the top. */
+    (function () {
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+
+      var entry = (performance.getEntriesByType &&
+                   performance.getEntriesByType("navigation")[0]) || null;
+      var isReload = entry
+        ? entry.type === "reload"
+        : !!(performance.navigation && performance.navigation.type === 1);
+
+      if (!isReload) return;
+
+      /* Drop the hash first, or the browser jumps to that section anyway */
+      if (location.hash) {
+        history.replaceState(null, "", location.pathname + location.search);
+      }
+      window.__envForceTop = true;
+      window.addEventListener("load", function () { window.scrollTo(0, 0); });
+    })();
+  </script>
 </head>
 <body>
 
@@ -111,6 +137,7 @@
       function finish() {
         if (done) return;
         done = true;
+        if (window.__envForceTop) window.scrollTo(0, 0);
         window.__envLoaderDone = true;
         el.classList.add("is-done");
         root.classList.remove("is-loading");
