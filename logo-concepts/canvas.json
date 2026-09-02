@@ -1,0 +1,12 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "title": "Direction A — Sightline", "x": 0, "y": 0, "w": 600, "h": 800 },
+    { "file": "DirectionB.dc.html", "title": "Direction B — Iris", "x": 700, "y": 0, "w": 600, "h": 800 },
+    { "file": "DirectionC.dc.html", "title": "Direction C — Wordmark", "x": 1400, "y": 0, "w": 600, "h": 800 },
+    { "file": "DirectionD.dc.html", "title": "Direction D — Point of View", "x": 2100, "y": 0, "w": 600, "h": 800 }
+  ],
+  "annotations": [
+    { "id": "brief-note", "x": 0, "y": -170, "w": 560, "text": "Four logo directions for Envision, all inside the site's existing system: pine #226C47 / forest #12291E / bone / brass, Familjen Grotesk.\nA evolves your current EV-eye; B, C and D are fresh takes. Pick one and I'll refine it into final files (SVG, favicon, dark/light variants)." }
+  ],
+  "launch": { "view": "canvas" }
+}
