@@ -61,10 +61,10 @@
       from { clip-path: polygon(-2% -2%, -2% -2%, -24% 102%, -24% 102%); }
       to   { clip-path: polygon(-2% -2%, 124% -2%, 102% 102%, -24% 102%); }
     }
-    .ls-1 { animation: ev-write 1.05s cubic-bezier(0.65, 0, 0.35, 1) 0.08s both; }
-    .ls-2 { animation: ev-write 0.60s cubic-bezier(0.65, 0, 0.35, 1) 0.42s both; }
-    /* the E's bottom bar draws slower, so the mark lands rather than snaps */
-    .ls-3 { animation: ev-write 1.15s cubic-bezier(0.65, 0, 0.35, 1) 0.60s both; }
+    .ls-1 { animation: ev-write 1.30s cubic-bezier(0.65, 0, 0.35, 1) 0.10s both; }
+    .ls-2 { animation: ev-write 0.78s cubic-bezier(0.65, 0, 0.35, 1) 0.52s both; }
+    /* the E's bottom bar is the quickest of the three, so the mark lands */
+    .ls-3 { animation: ev-write 1.00s cubic-bezier(0.65, 0, 0.35, 1) 0.75s both; }
 
     .loader-bar {
       position: relative;
@@ -79,7 +79,7 @@
       background: linear-gradient(90deg, transparent, #35F09A);
       transform: scaleX(0);
       transform-origin: left;
-      animation: ev-bar 1.5s cubic-bezier(0.5, 0, 0.2, 1) 0.2s forwards;
+      animation: ev-bar 1.75s cubic-bezier(0.5, 0, 0.2, 1) 0.2s forwards;
     }
     @keyframes ev-bar { to { transform: scaleX(1); } }
 
@@ -126,8 +126,8 @@
       }
 
       root.classList.add("is-loading");
-      /* MIN clears the last stroke (ends ~1.75s); HARD_CAP is the safety net */
-      var MIN = 2000, HARD_CAP = 3000, t0 = Date.now();
+      /* MIN clears the strokes (~1.75s) and the bar (~1.95s); HARD_CAP is the safety net */
+      var MIN = 2150, HARD_CAP = 3000, t0 = Date.now();
 
       function whenReady() {
         setTimeout(finish, Math.max(0, MIN - (Date.now() - t0)));
