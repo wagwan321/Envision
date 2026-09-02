@@ -25,8 +25,117 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Loader styles are inlined so the overlay paints before styles.css arrives,
+       and animate in pure CSS so a blocked GSAP CDN cannot stall them. -->
+  <style>
+    html.is-loading, html.is-loading body { overflow: hidden; }
+    .loader {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2.2rem;
+      background: #030706;
+      transition: opacity 600ms ease, visibility 600ms ease;
+    }
+    .loader::before {
+      content: "";
+      position: absolute;
+      width: min(72vw, 640px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(53, 240, 154, 0.13) 0%, transparent 68%);
+      filter: blur(40px);
+    }
+    .loader.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .loader-mark { position: relative; width: min(52vw, 380px); aspect-ratio: 2068 / 1058; }
+    .loader-mark .ls { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+    /* Each stroke is written on behind a slanted edge matching the mark's italic angle */
+    @keyframes ev-write {
+      from { clip-path: polygon(-2% -2%, -2% -2%, -24% 102%, -24% 102%); }
+      to   { clip-path: polygon(-2% -2%, 124% -2%, 102% 102%, -24% 102%); }
+    }
+    .ls-1 { animation: ev-write 1.05s cubic-bezier(0.65, 0, 0.35, 1) 0.08s both; }
+    .ls-2 { animation: ev-write 0.60s cubic-bezier(0.65, 0, 0.35, 1) 0.42s both; }
+    .ls-3 { animation: ev-write 0.68s cubic-bezier(0.65, 0, 0.35, 1) 0.60s both; }
+
+    .loader-bar {
+      position: relative;
+      width: 132px;
+      height: 1px;
+      background: rgba(53, 240, 154, 0.16);
+      overflow: hidden;
+    }
+    .loader-bar span {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, #35F09A);
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: ev-bar 1.5s cubic-bezier(0.5, 0, 0.2, 1) 0.2s forwards;
+    }
+    @keyframes ev-bar { to { transform: scaleX(1); } }
+
+    @media (prefers-reduced-motion: reduce) { .loader { display: none; } }
+  </style>
+  <noscript><style>.loader { display: none !important; }</style></noscript>
 </head>
 <body>
+
+  <!-- Loading screen: the EV mark writes itself on, then hands off to the hero -->
+  <div class="loader" id="loader" role="status" aria-label="Loading">
+    <div class="loader-mark" aria-hidden="true">
+      <img class="ls ls-1" src="assets/logo-stroke-1.png" alt="">
+      <img class="ls ls-2" src="assets/logo-stroke-2.png" alt="">
+      <img class="ls ls-3" src="assets/logo-stroke-3.png" alt="">
+    </div>
+    <div class="loader-bar" aria-hidden="true"><span></span></div>
+  </div>
+  <script>
+    /* Dismissal is deliberately defensive: the overlay lifts on window load,
+       after a minimum beat so the write-on can finish, and unconditionally
+       after a hard cap so a slow asset can never trap the visitor. */
+    (function () {
+      var el = document.getElementById("loader");
+      if (!el) return;
+      var root = document.documentElement;
+      var done = false;
+
+      function finish() {
+        if (done) return;
+        done = true;
+        window.__envLoaderDone = true;
+        el.classList.add("is-done");
+        root.classList.remove("is-loading");
+        window.dispatchEvent(new Event("env:loaded"));
+        setTimeout(function () {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        }, 700);
+      }
+
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        finish();
+        return;
+      }
+
+      root.classList.add("is-loading");
+      var MIN = 1500, HARD_CAP = 3000, t0 = Date.now();
+
+      function whenReady() {
+        setTimeout(finish, Math.max(0, MIN - (Date.now() - t0)));
+      }
+      if (document.readyState === "complete") whenReady();
+      else window.addEventListener("load", whenReady);
+
+      setTimeout(finish, HARD_CAP);
+    })();
+  </script>
 
   <a class="skip-link" href="#main">Skip to content</a>
 
@@ -48,8 +157,8 @@
       </a>
       <nav class="nav-links" aria-label="Main">
         <a href="#services">Services</a>
-        <a href="#clients">Clients</a>
         <a href="#process">Process</a>
+        <a href="#clients">Clients</a>
         <a href="#contact">Contact</a>
       </nav>
       <a class="btn btn-solid nav-cta" href="#contact">Start a project</a>
@@ -137,68 +246,6 @@
       </div>
     </section>
 
-    <!-- ============ CLIENTS ============ -->
-    <section class="section" id="clients">
-      <div class="wrap section-pad">
-        <p class="eyebrow reveal">Clients</p>
-        <h2 class="reveal">In good <span class="grad">company</span>.</h2>
-        <p class="section-note reveal">The businesses that trust Envision with their software.</p>
-
-        <!--
-          To add a client, copy one .client block and set the name and description.
-          For a real logo, swap the <span class="client-mono"> for:
-              <img src="assets/clients/name.png" width="82" height="82" alt="Company name">
-          Square-ish PNG or SVG on a transparent or white background works best.
-        -->
-        <div class="client-row">
-
-          <div class="client reveal">
-            <span class="client-chip"><span class="client-mono">A</span></span>
-            <div class="client-meta">
-              <h3>Client name</h3>
-              <p>Sector, what we built for them</p>
-            </div>
-          </div>
-
-          <div class="client reveal">
-            <span class="client-chip"><span class="client-mono">B</span></span>
-            <div class="client-meta">
-              <h3>Client name</h3>
-              <p>Sector, what we built for them</p>
-            </div>
-          </div>
-
-          <div class="client reveal">
-            <span class="client-chip"><span class="client-mono">C</span></span>
-            <div class="client-meta">
-              <h3>Client name</h3>
-              <p>Sector, what we built for them</p>
-            </div>
-          </div>
-
-          <div class="client reveal">
-            <span class="client-chip client-chip-nda" aria-hidden="true">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="4" y="10" width="16" height="11" rx="2.5"></rect>
-                <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
-                <circle cx="12" cy="15.5" r="1.4" fill="currentColor" stroke="none"></circle>
-              </svg>
-            </span>
-            <div class="client-meta">
-              <h3>Confidential</h3>
-              <p>Name withheld under contract</p>
-            </div>
-          </div>
-
-        </div>
-
-        <p class="client-badge reveal">
-          <span class="pulse"><span></span></span>
-          Available for new projects
-        </p>
-      </div>
-    </section>
-
     <!-- ============ PROCESS ============ -->
     <section class="section" id="process">
       <div class="wrap section-pad">
@@ -260,6 +307,68 @@
             <p>Every build ships quick to load, usable by everyone and structured for search. That's the default, not an upsell.</p>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ============ CLIENTS ============ -->
+    <section class="section" id="clients">
+      <div class="wrap section-pad">
+        <p class="eyebrow reveal">Clients</p>
+        <h2 class="reveal">In good <span class="grad">company</span>.</h2>
+        <p class="section-note reveal">The businesses that trust Envision with their software.</p>
+
+        <!--
+          To add a client, copy one .client block and set the name and description.
+          For a real logo, swap the <span class="client-mono"> for:
+              <img src="assets/clients/name.png" width="82" height="82" alt="Company name">
+          Square-ish PNG or SVG on a transparent or white background works best.
+        -->
+        <div class="client-row">
+
+          <div class="client reveal">
+            <span class="client-chip"><span class="client-mono">A</span></span>
+            <div class="client-meta">
+              <h3>Client name</h3>
+              <p>Sector, what we built for them</p>
+            </div>
+          </div>
+
+          <div class="client reveal">
+            <span class="client-chip"><span class="client-mono">B</span></span>
+            <div class="client-meta">
+              <h3>Client name</h3>
+              <p>Sector, what we built for them</p>
+            </div>
+          </div>
+
+          <div class="client reveal">
+            <span class="client-chip"><span class="client-mono">C</span></span>
+            <div class="client-meta">
+              <h3>Client name</h3>
+              <p>Sector, what we built for them</p>
+            </div>
+          </div>
+
+          <div class="client reveal">
+            <span class="client-chip client-chip-nda" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="10" width="16" height="11" rx="2.5"></rect>
+                <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+                <circle cx="12" cy="15.5" r="1.4" fill="currentColor" stroke="none"></circle>
+              </svg>
+            </span>
+            <div class="client-meta">
+              <h3>Confidential</h3>
+              <p>Name withheld under contract</p>
+            </div>
+          </div>
+
+        </div>
+
+        <p class="client-badge reveal">
+          <span class="pulse"><span></span></span>
+          Available for new projects
+        </p>
       </div>
     </section>
 

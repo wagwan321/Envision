@@ -128,12 +128,23 @@
     /* Hide reveals only once JS is ready, so a broken script never blanks the page */
     document.documentElement.classList.add("anim-ready");
 
-    /* Hero entrance: headline lines rise, then the rest */
+    /* Hero entrance: headline lines rise, then the rest.
+       Held until the loading screen lifts so it is not spent behind the overlay. */
     gsap.set(".hero-el", { y: 18 });
-    var heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    heroTl
-      .to(".hero-title .line-inner", { y: 0, duration: 1, stagger: 0.14 }, 0.15)
-      .to(".hero-el", { opacity: 1, y: 0, duration: 0.9, stagger: 0.1 }, 0.55);
+    var heroPlayed = false;
+    function playHero() {
+      if (heroPlayed) return;
+      heroPlayed = true;
+      gsap.timeline({ defaults: { ease: "power3.out" } })
+        .to(".hero-title .line-inner", { y: 0, duration: 1, stagger: 0.14 }, 0.15)
+        .to(".hero-el", { opacity: 1, y: 0, duration: 0.9, stagger: 0.1 }, 0.55);
+    }
+    if (window.__envLoaderDone) {
+      playHero();
+    } else {
+      window.addEventListener("env:loaded", playHero, { once: true });
+      setTimeout(playHero, 3500);   /* never leave the hero hidden */
+    }
 
     /* Hero copy drifts up and fades as you scroll away */
     gsap.to(".hero-inner", {
