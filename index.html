@@ -1,478 +1,357 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" class="is-loading">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Envision | Software studio. Websites, dashboards &amp; AI.</title>
-  <meta name="description" content="Envision is a software studio building websites, dashboards, full-stack platforms, AI integrations, AI video and drone tours. Designed and engineered in-house.">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Envision — Digital products people remember</title>
+  <meta name="description" content="Envision is an independent software studio designing memorable websites, platforms and AI-powered digital experiences.">
+  <meta name="theme-color" content="#03100b">
 
-  <!-- ?v=2 forces browsers past their cached copy of the previous mark -->
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=2">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=2">
-  <link rel="icon" type="image/x-icon" href="assets/favicon.ico?v=2">
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=3">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=3">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3">
 
-  <meta property="og:title" content="Envision | Software studio">
-  <meta property="og:description" content="Websites, dashboards, full-stack platforms, AI integrations, AI video and drone tours. Built in-house.">
+  <meta property="og:title" content="Envision — Digital products people remember">
+  <meta property="og:description" content="Websites, software and AI experiences designed to move ambitious businesses forward.">
   <meta property="og:type" content="website">
-  <!-- Replace with the full absolute URL once the domain is live, e.g. https://envision.example/assets/og.png -->
-  <meta property="og:image" content="assets/og.png?v=2">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
+  <meta property="og:image" content="assets/og.png?v=3">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 
-  <!-- Loader styles are inlined so the overlay paints before styles.css arrives,
-       and animate in pure CSS so a blocked GSAP CDN cannot stall them. -->
   <style>
-    html.is-loading, html.is-loading body { overflow: hidden; }
+    html.is-loading,
+    html.is-loading body { overflow: hidden; }
     .loader {
       position: fixed;
       inset: 0;
-      z-index: 200;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2.2rem;
-      background: #030706;
-      transition: opacity 600ms ease, visibility 600ms ease;
+      z-index: 999;
+      display: grid;
+      place-items: center;
+      background: #020806;
     }
-    .loader::before {
-      content: "";
-      position: absolute;
-      width: min(72vw, 640px);
-      aspect-ratio: 1;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(53, 240, 154, 0.13) 0%, transparent 68%);
-      filter: blur(40px);
-    }
-    .loader.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
-
-    .loader-mark { position: relative; width: min(52vw, 380px); aspect-ratio: 2068 / 1058; }
-    .loader-mark .ls { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-
-    /* Each stroke is written on behind a slanted edge matching the mark's italic angle */
-    @keyframes ev-write {
-      from { clip-path: polygon(-2% -2%, -2% -2%, -24% 102%, -24% 102%); }
-      to   { clip-path: polygon(-2% -2%, 124% -2%, 102% 102%, -24% 102%); }
-    }
-    .ls-1 { animation: ev-write 1.30s cubic-bezier(0.65, 0, 0.35, 1) 0.10s both; }
-    .ls-2 { animation: ev-write 0.78s cubic-bezier(0.65, 0, 0.35, 1) 0.52s both; }
-    /* the E's bottom bar is the quickest of the three, so the mark lands */
-    .ls-3 { animation: ev-write 1.00s cubic-bezier(0.65, 0, 0.35, 1) 0.75s both; }
-
-    .loader-bar {
-      position: relative;
-      width: 132px;
-      height: 1px;
-      background: rgba(53, 240, 154, 0.16);
-      overflow: hidden;
-    }
-    .loader-bar span {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, transparent, #35F09A);
-      transform: scaleX(0);
-      transform-origin: left;
-      animation: ev-bar 1.75s cubic-bezier(0.5, 0, 0.2, 1) 0.2s forwards;
-    }
-    @keyframes ev-bar { to { transform: scaleX(1); } }
-
-    @media (prefers-reduced-motion: reduce) { .loader { display: none; } }
   </style>
-  <noscript><style>.loader { display: none !important; }</style></noscript>
-
-  <!-- Runs in the head so it beats the browser's own scroll restoration. -->
-  <script>
-    /* A reload always lands on the hero. Browsers otherwise restore the old
-       scroll offset, which drops you mid-page behind the loading screen.
-       A shared link with a hash still jumps to its section on a fresh visit;
-       only reloads are forced back to the top. */
-    (function () {
-      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
-
-      var entry = (performance.getEntriesByType &&
-                   performance.getEntriesByType("navigation")[0]) || null;
-      var isReload = entry
-        ? entry.type === "reload"
-        : !!(performance.navigation && performance.navigation.type === 1);
-
-      if (!isReload) return;
-
-      /* Drop the hash first, or the browser jumps to that section anyway */
-      if (location.hash) {
-        history.replaceState(null, "", location.pathname + location.search);
-      }
-      window.__envForceTop = true;
-      window.addEventListener("load", function () { window.scrollTo(0, 0); });
-    })();
-  </script>
+  <noscript><style>.loader{display:none!important}html.is-loading,html.is-loading body{overflow:auto}</style></noscript>
 </head>
 <body>
-
-  <!-- Loading screen: the EV mark writes itself on, then hands off to the hero -->
-  <div class="loader" id="loader" role="status" aria-label="Loading">
-    <div class="loader-mark" aria-hidden="true">
-      <img class="ls ls-1" src="assets/logo-stroke-1.png" alt="">
-      <img class="ls ls-2" src="assets/logo-stroke-2.png" alt="">
-      <img class="ls ls-3" src="assets/logo-stroke-3.png" alt="">
+  <div class="loader" id="loader" role="status" aria-label="Loading Envision">
+    <div class="loader-inner">
+      <div class="loader-brand">
+        <span class="loader-mark"><img src="assets/logo-ev.png" alt="" width="92" height="48"></span>
+        <span class="loader-name">ENVISION</span>
+      </div>
+      <div class="loader-meta" aria-hidden="true">
+        <span>Independent software studio</span>
+        <span class="loader-percent" id="loader-percent">00</span>
+      </div>
+      <div class="loader-track" aria-hidden="true"><span id="loader-progress"></span></div>
     </div>
-    <div class="loader-bar" aria-hidden="true"><span></span></div>
   </div>
-  <script>
-    /* Dismissal is deliberately defensive: the overlay lifts on window load,
-       after a minimum beat so the write-on can finish, and unconditionally
-       after a hard cap so a slow asset can never trap the visitor. */
-    (function () {
-      var el = document.getElementById("loader");
-      if (!el) return;
-      var root = document.documentElement;
-      var done = false;
-
-      function finish() {
-        if (done) return;
-        done = true;
-        if (window.__envForceTop) window.scrollTo(0, 0);
-        window.__envLoaderDone = true;
-        el.classList.add("is-done");
-        root.classList.remove("is-loading");
-        window.dispatchEvent(new Event("env:loaded"));
-        setTimeout(function () {
-          if (el.parentNode) el.parentNode.removeChild(el);
-        }, 700);
-      }
-
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        finish();
-        return;
-      }
-
-      root.classList.add("is-loading");
-      /* MIN clears the strokes (~1.75s) and the bar (~1.95s); HARD_CAP is the safety net */
-      var MIN = 2150, HARD_CAP = 3000, t0 = Date.now();
-
-      function whenReady() {
-        setTimeout(finish, Math.max(0, MIN - (Date.now() - t0)));
-      }
-      if (document.readyState === "complete") whenReady();
-      else window.addEventListener("load", whenReady);
-
-      setTimeout(finish, HARD_CAP);
-    })();
-  </script>
 
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <!-- Ambient layers: grid + drifting glow orbs + cursor glow -->
-  <div class="bg-grid" aria-hidden="true"></div>
-  <div class="orb orb-a" aria-hidden="true"></div>
-  <div class="orb orb-b" aria-hidden="true"></div>
-  <div class="orb orb-c" aria-hidden="true"></div>
-  <div class="glow" aria-hidden="true"></div>
-
-  <header class="nav" id="nav">
-    <div class="wrap nav-inner">
-      <a class="brand" href="#top" aria-label="Envision home">
-        <img class="mark" src="assets/logo-ev.png" alt="" width="50" height="26">
-        <span class="brand-text">
-          <span class="brand-name">Envision</span>
-          <span class="brand-parent">Software studio</span>
+  <header class="topbar" id="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#home" aria-label="Envision home">
+        <img src="assets/logo-ev.png" alt="" width="46" height="24">
+        <span class="brand-copy">
+          <strong>Envision</strong>
+          <small>Software studio</small>
         </span>
       </a>
-      <nav class="nav-links" aria-label="Main">
-        <a href="#services">Services</a>
-        <a href="#process">Process</a>
-        <a href="#clients">Clients</a>
-        <a href="#contact">Contact</a>
+
+      <span class="nav-divider" aria-hidden="true"></span>
+
+      <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="site-navigation">
+        <span></span><span></span>
+        <span class="sr-only">Toggle navigation</span>
+      </button>
+
+      <nav class="site-navigation" id="site-navigation" aria-label="Primary">
+        <a class="nav-link is-active" href="#home" data-section="home">Home</a>
+        <a class="nav-link" href="#services" data-section="services">Services</a>
+        <a class="nav-link" href="#work" data-section="work">Work</a>
+        <a class="nav-link" href="#process" data-section="process">Process</a>
+        <a class="nav-link" href="#contact" data-section="contact">Contact</a>
+        <a class="nav-mobile-cta" href="#contact">Start a project <span>↗</span></a>
       </nav>
-      <a class="btn btn-solid nav-cta" href="#contact">Start a project</a>
+
+      <a class="nav-cta" href="#contact">Start a project <span>↗</span></a>
     </div>
   </header>
 
   <main id="main">
+    <section class="hero" id="home" aria-labelledby="hero-title">
+      <div class="ambient ambient-one" aria-hidden="true"></div>
+      <div class="ambient ambient-two" aria-hidden="true"></div>
 
-    <!-- ============ HERO ============ -->
-    <section class="hero" id="top">
-      <div class="wrap hero-inner">
-        <p class="eyebrow hero-el">Software studio</p>
-        <h1 class="hero-title">
-          <span class="line"><span class="line-inner">Software that looks</span></span>
-          <span class="line"><span class="line-inner">like the <span class="grad">future</span>.</span></span>
-        </h1>
-        <p class="hero-sub hero-el">Envision designs and engineers websites, dashboards, full-stack platforms and AI, plus AI video and drone tours that make it all look as good as it works.</p>
-        <div class="hero-actions hero-el">
-          <a class="btn btn-solid" href="#services">Explore services</a>
-          <a class="btn btn-ghost" href="#contact">Start a project</a>
+      <div class="hero-copy">
+        <p class="kicker hero-reveal"><span class="status-dot"></span> Independent software studio</p>
+        <h1 id="hero-title" class="hero-reveal">Digital products<br>people <em>remember.</em></h1>
+        <p class="hero-intro hero-reveal">We design and engineer high-conversion websites, custom platforms and practical AI experiences for businesses ready to move forward.</p>
+        <div class="hero-actions hero-reveal">
+          <a class="button button-primary magnetic" href="#work">Explore our work <span>↘</span></a>
+          <a class="button button-secondary" href="#contact">Start a conversation</a>
+        </div>
+        <div class="hero-disciplines hero-reveal" aria-label="Disciplines">
+          <span>Strategy</span><i></i><span>Design</span><i></i><span>Engineering</span><i></i><span>AI</span>
         </div>
       </div>
-      <div class="hero-scroll hero-el" aria-hidden="true"><span></span></div>
+
+      <div class="hero-visual hero-reveal" id="hero-visual">
+        <div class="scene-grid" aria-hidden="true"></div>
+        <canvas id="hero-canvas" aria-hidden="true"></canvas>
+        <div class="scene-topline" aria-hidden="true">
+          <span>ENV / OBJECT 01</span>
+          <span>INTERACTIVE</span>
+        </div>
+        <div class="scene-crosshair" aria-hidden="true"><span></span><span></span></div>
+        <div class="scene-caption">
+          <span class="scene-index">01</span>
+          <p>A living system shaped by motion, depth and precise interaction.</p>
+        </div>
+      </div>
+
+      <a class="scroll-cue" href="#services" aria-label="Scroll to services">
+        <span>Scroll to discover</span><i aria-hidden="true">↓</i>
+      </a>
     </section>
 
-    <!-- ============ CAPABILITY MARQUEE ============ -->
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee-track">
-        <span>Websites</span><i>◆</i><span>Dashboards</span><i>◆</i><span>Front-end</span><i>◆</i><span>Back-end</span><i>◆</i><span>AI integration</span><i>◆</i><span>AI video</span><i>◆</i><span>Drone tours</span><i>◆</i>
-        <span>Websites</span><i>◆</i><span>Dashboards</span><i>◆</i><span>Front-end</span><i>◆</i><span>Back-end</span><i>◆</i><span>AI integration</span><i>◆</i><span>AI video</span><i>◆</i><span>Drone tours</span><i>◆</i>
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span>Web experiences</span><i>✦</i><span>Custom platforms</span><i>✦</i><span>Applied AI</span><i>✦</i><span>Digital products</span><i>✦</i><span>Creative technology</span><i>✦</i>
+        <span>Web experiences</span><i>✦</i><span>Custom platforms</span><i>✦</i><span>Applied AI</span><i>✦</i><span>Digital products</span><i>✦</i><span>Creative technology</span><i>✦</i>
       </div>
     </div>
 
-    <!-- ============ SERVICES ============ -->
-    <section class="section" id="services">
-      <div class="wrap section-pad">
-        <p class="eyebrow reveal">What we build</p>
-        <h2 class="reveal">One studio, full <span class="grad">stack</span>.</h2>
-        <div class="bento">
+    <section class="section services" id="services" aria-labelledby="services-title">
+      <div class="section-shell">
+        <div class="section-heading reveal">
+          <p class="kicker"><span>01</span> What we do</p>
+          <h2 id="services-title">One studio.<br><em>Every layer.</em></h2>
+          <p>From the first strategic question to the final production detail, design and engineering stay in one room.</p>
+        </div>
 
-          <article class="card card-feature reveal tilt">
-            <div class="card-icon" aria-hidden="true">◇</div>
-            <h3>Websites</h3>
-            <p>Our core craft. Marketing sites, online stores, booking systems and client portals, all fast, findable and built to convert. Every site ships accessible, search-ready and quick on a phone.</p>
-            <span class="card-tag">Flagship service</span>
+        <div class="service-list">
+          <article class="service-card reveal">
+            <div class="service-number">01</div>
+            <div class="service-icon" aria-hidden="true"><span>⌁</span></div>
+            <div class="service-copy">
+              <h3>Web experiences</h3>
+              <p>Distinctive marketing sites, online stores and digital destinations built for attention, clarity and conversion.</p>
+              <ul><li>UX &amp; UI design</li><li>Creative development</li><li>SEO &amp; performance</li></ul>
+            </div>
+            <span class="service-arrow" aria-hidden="true">↗</span>
           </article>
 
-          <article class="card reveal tilt">
-            <div class="card-icon" aria-hidden="true">▦</div>
-            <h3>Dashboards</h3>
-            <p>Admin panels, analytics dashboards and internal tools that turn your data into decisions. Live, visual and yours.</p>
+          <article class="service-card reveal">
+            <div class="service-number">02</div>
+            <div class="service-icon" aria-hidden="true"><span>▦</span></div>
+            <div class="service-copy">
+              <h3>Platforms &amp; dashboards</h3>
+              <p>Purpose-built portals, internal tools and product interfaces that turn complex workflows into simple decisions.</p>
+              <ul><li>Product strategy</li><li>Full-stack engineering</li><li>Systems integration</li></ul>
+            </div>
+            <span class="service-arrow" aria-hidden="true">↗</span>
           </article>
 
-          <article class="card reveal tilt">
-            <div class="card-icon" aria-hidden="true">⌗</div>
-            <h3>Front-end engineering</h3>
-            <p>Interfaces and web apps built with modern frameworks. Smooth, responsive and pixel-precise on every device.</p>
+          <article class="service-card reveal">
+            <div class="service-number">03</div>
+            <div class="service-icon" aria-hidden="true"><span>✦</span></div>
+            <div class="service-copy">
+              <h3>Applied AI</h3>
+              <p>Useful AI features, assistants and automations designed around the work your team and customers actually do.</p>
+              <ul><li>AI product design</li><li>Workflow automation</li><li>Custom integrations</li></ul>
+            </div>
+            <span class="service-arrow" aria-hidden="true">↗</span>
           </article>
 
-          <article class="card reveal tilt">
-            <div class="card-icon" aria-hidden="true">⛁</div>
-            <h3>Back-end engineering</h3>
-            <p>APIs, databases, auth and integrations. The invisible machinery that keeps everything secure and scaling.</p>
+          <article class="service-card reveal">
+            <div class="service-number">04</div>
+            <div class="service-icon" aria-hidden="true"><span>◉</span></div>
+            <div class="service-copy">
+              <h3>Motion &amp; spatial media</h3>
+              <p>AI-assisted film, product motion and aerial tours that give digital launches an unmistakable visual edge.</p>
+              <ul><li>AI video</li><li>Motion direction</li><li>Drone tours</li></ul>
+            </div>
+            <span class="service-arrow" aria-hidden="true">↗</span>
           </article>
-
-          <article class="card reveal tilt">
-            <div class="card-icon" aria-hidden="true">✦</div>
-            <h3>AI integration</h3>
-            <p>Chat assistants, automation and custom AI features built into your product. Practical AI, not a gimmick.</p>
-          </article>
-
-          <article class="card reveal tilt">
-            <div class="card-icon" aria-hidden="true">▶</div>
-            <h3>AI video</h3>
-            <p>Product films, ads and social content produced with AI pipelines. Cinema-grade output at a fraction of the cost.</p>
-          </article>
-
-          <article class="card reveal tilt">
-            <div class="card-icon" aria-hidden="true">◉</div>
-            <h3>Drone tours</h3>
-            <p>Aerial video tours for real estate, venues and events. Your property seen the way it deserves to be.</p>
-          </article>
-
         </div>
       </div>
     </section>
 
-    <!-- ============ PROCESS ============ -->
-    <section class="section" id="process">
-      <div class="wrap section-pad">
-        <p class="eyebrow reveal">Process</p>
-        <h2 class="reveal">Four steps, no <span class="grad">mystery</span>.</h2>
-        <ol class="steps">
-          <li class="step reveal">
-            <span class="step-num" aria-hidden="true">01</span>
-            <div>
-              <h3>Understand</h3>
-              <p>We learn what you sell, who buys it and what the software has to do, then you get a written plan, not a surprise.</p>
-              <span class="step-time">About 1 week</span>
+    <section class="section work" id="work" aria-labelledby="work-title">
+      <div class="section-shell">
+        <div class="section-heading section-heading-wide reveal">
+          <p class="kicker"><span>02</span> Selected capabilities</p>
+          <h2 id="work-title">See the system,<br><em>not just the surface.</em></h2>
+          <p>Representative product directions showing how we bring brand, interface and engineering together.</p>
+        </div>
+
+        <div class="project-grid">
+          <article class="project project-large reveal">
+            <div class="project-visual project-commerce" aria-hidden="true">
+              <div class="mock-browser">
+                <div class="mock-browser-bar"><span></span><span></span><span></span><i>envision / commerce</i></div>
+                <div class="commerce-layout">
+                  <div class="commerce-copy"><small>NEW / 2026</small><strong>Objects<br>with intent.</strong><span>Explore collection ↗</span></div>
+                  <div class="commerce-object"><i></i><i></i><i></i></div>
+                </div>
+              </div>
             </div>
+            <div class="project-meta">
+              <div><span>01 / EXPERIENCE</span><h3>Commerce, made memorable</h3></div>
+              <p>Brand system · E-commerce · Motion</p>
+            </div>
+          </article>
+
+          <article class="project reveal">
+            <div class="project-visual project-dashboard" aria-hidden="true">
+              <div class="dash-shell">
+                <aside><b>EV</b><i></i><i></i><i></i><i></i></aside>
+                <div class="dash-main">
+                  <div class="dash-heading"><span>Good morning.</span><b>Operations</b></div>
+                  <div class="dash-stats"><i></i><i></i><i></i></div>
+                  <div class="dash-chart"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                </div>
+              </div>
+            </div>
+            <div class="project-meta">
+              <div><span>02 / PRODUCT</span><h3>Clarity for complex operations</h3></div>
+              <p>Strategy · UX/UI · Full-stack</p>
+            </div>
+          </article>
+
+          <article class="project reveal">
+            <div class="project-visual project-ai" aria-hidden="true">
+              <div class="ai-orbit"><i></i><i></i><i></i><span>AI</span></div>
+              <div class="ai-message ai-message-one">Summarize this quarter <b>↗</b></div>
+              <div class="ai-message ai-message-two">Insights ready <b>✓</b></div>
+            </div>
+            <div class="project-meta">
+              <div><span>03 / INTELLIGENCE</span><h3>AI that belongs in the product</h3></div>
+              <p>AI UX · Automation · Integration</p>
+            </div>
+          </article>
+        </div>
+
+        <p class="work-note reveal"><span>Note</span> These are representative capability studies. Client case studies can be added as projects are cleared for publication.</p>
+      </div>
+    </section>
+
+    <section class="manifesto" aria-label="Studio statement">
+      <div class="manifesto-orbit" aria-hidden="true"><span>ENVISION</span></div>
+      <p class="kicker reveal">Built differently</p>
+      <h2 class="reveal">Small enough to care.<br>Technical enough to <em>deliver.</em></h2>
+      <p class="manifesto-copy reveal">The people in the meeting are the people doing the work. No layers, no handoffs to strangers, no gap between the design and the build.</p>
+      <div class="manifesto-points reveal">
+        <span><i>01</i> Senior attention</span>
+        <span><i>02</i> In-house execution</span>
+        <span><i>03</i> Built to evolve</span>
+      </div>
+    </section>
+
+    <section class="section process" id="process" aria-labelledby="process-title">
+      <div class="section-shell">
+        <div class="section-heading reveal">
+          <p class="kicker"><span>03</span> How we work</p>
+          <h2 id="process-title">Momentum,<br><em>without mystery.</em></h2>
+          <p>A clear, collaborative process from the first conversation to the day your product goes live.</p>
+        </div>
+
+        <ol class="process-list">
+          <li class="process-step reveal">
+            <span class="process-num">01</span>
+            <div><h3>Discover</h3><p>We align on the audience, opportunity and what success needs to look like.</p></div>
+            <span class="process-time">≈ 1 week</span>
           </li>
-          <li class="step reveal">
-            <span class="step-num" aria-hidden="true">02</span>
-            <div>
-              <h3>Design</h3>
-              <p>You see the look and layout of the real screens before anything is built, and we revise until it's right.</p>
-              <span class="step-time">1 to 2 weeks</span>
-            </div>
+          <li class="process-step reveal">
+            <span class="process-num">02</span>
+            <div><h3>Design</h3><p>We turn the strategy into a tactile interface and refine it with you in the room.</p></div>
+            <span class="process-time">1–2 weeks</span>
           </li>
-          <li class="step reveal">
-            <span class="step-num" aria-hidden="true">03</span>
-            <div>
-              <h3>Build</h3>
-              <p>We engineer the product itself. Quick to load, accessible, and tested on the devices your customers actually use.</p>
-              <span class="step-time">2 to 4 weeks</span>
-            </div>
+          <li class="process-step reveal">
+            <span class="process-num">03</span>
+            <div><h3>Engineer</h3><p>We build, integrate and test the real product across the devices that matter.</p></div>
+            <span class="process-time">2–4 weeks</span>
           </li>
-          <li class="step reveal">
-            <span class="step-num" aria-hidden="true">04</span>
-            <div>
-              <h3>Launch and maintain</h3>
-              <p>We put it live, connect your domain and search tools, then keep it updated, backed up and online.</p>
-              <span class="step-time">Ongoing</span>
-            </div>
+          <li class="process-step reveal">
+            <span class="process-num">04</span>
+            <div><h3>Launch &amp; evolve</h3><p>We ship cleanly, measure what matters and stay close as the product grows.</p></div>
+            <span class="process-time">Ongoing</span>
           </li>
         </ol>
       </div>
     </section>
 
-    <!-- ============ WHY ENVISION ============ -->
-    <section class="section" id="why">
-      <div class="wrap section-pad">
-        <p class="eyebrow reveal">Why Envision</p>
-        <h2 class="reveal">Small studio, serious <span class="grad">engineering</span>.</h2>
-        <div class="why-grid">
-          <div class="why card reveal tilt">
-            <h3>Built in-house</h3>
-            <p>Design and code by the people you talk to. Nothing is handed to a third party you never meet.</p>
-          </div>
-          <div class="why card reveal tilt">
-            <h3>Room to grow</h3>
-            <p>When your site needs to become a store, a dashboard or a full platform, the engineering is already in the building. No switching agencies halfway through.</p>
-          </div>
-          <div class="why card reveal tilt">
-            <h3>Fast, accessible, search-ready</h3>
-            <p>Every build ships quick to load, usable by everyone and structured for search. That's the default, not an upsell.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ CLIENTS ============ -->
-    <section class="section" id="clients">
-      <div class="wrap section-pad">
-        <p class="eyebrow reveal">Clients</p>
-        <h2 class="reveal">In good <span class="grad">company</span>.</h2>
-        <p class="section-note reveal">The businesses that trust Envision with their software.</p>
-
-        <!--
-          To add a client, copy one .client block and set the name and description.
-          For a real logo, swap the <span class="client-mono"> for:
-              <img src="assets/clients/name.png" width="82" height="82" alt="Company name">
-          Square-ish PNG or SVG on a transparent or white background works best.
-        -->
-        <div class="client-row">
-
-          <div class="client reveal">
-            <span class="client-chip"><span class="client-mono">A</span></span>
-            <div class="client-meta">
-              <h3>Client name</h3>
-              <p>Sector, what we built for them</p>
-            </div>
-          </div>
-
-          <div class="client reveal">
-            <span class="client-chip"><span class="client-mono">B</span></span>
-            <div class="client-meta">
-              <h3>Client name</h3>
-              <p>Sector, what we built for them</p>
-            </div>
-          </div>
-
-          <div class="client reveal">
-            <span class="client-chip"><span class="client-mono">C</span></span>
-            <div class="client-meta">
-              <h3>Client name</h3>
-              <p>Sector, what we built for them</p>
-            </div>
-          </div>
-
-          <div class="client reveal">
-            <span class="client-chip client-chip-nda" aria-hidden="true">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="4" y="10" width="16" height="11" rx="2.5"></rect>
-                <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
-                <circle cx="12" cy="15.5" r="1.4" fill="currentColor" stroke="none"></circle>
-              </svg>
-            </span>
-            <div class="client-meta">
-              <h3>Confidential</h3>
-              <p>Name withheld under contract</p>
-            </div>
-          </div>
-
+    <section class="contact" id="contact" aria-labelledby="contact-title">
+      <div class="contact-glow" aria-hidden="true"></div>
+      <div class="contact-shell">
+        <div class="contact-copy reveal">
+          <p class="kicker"><span>04</span> Start something</p>
+          <h2 id="contact-title">Have an idea worth<br><em>being seen?</em></h2>
+          <p>Tell us where you want to go. We’ll reply within one working day with a clear next step.</p>
+          <a class="contact-email" href="mailto:envision.startup@gmail.com">envision.startup@gmail.com <span>↗</span></a>
+          <div class="availability"><span class="status-dot"></span> Available for selected projects</div>
         </div>
 
-        <p class="client-badge reveal">
-          <span class="pulse"><span></span></span>
-          Available for new projects
-        </p>
-      </div>
-    </section>
-
-    <!-- ============ CONTACT ============ -->
-    <section class="section contact" id="contact">
-      <div class="wrap section-pad contact-grid">
-        <div class="contact-lead">
-          <p class="eyebrow reveal">Contact</p>
-          <h2 class="contact-q reveal">What does the <span class="grad">future</span> of your business look like?</h2>
-          <p class="reveal">Tell us what you need and we'll reply within one working day. Or write to us directly:</p>
-          <button class="email-copy reveal" type="button" data-email="envision.startup@gmail.com" aria-label="Copy email address envision.startup@gmail.com">
-            <span class="email-text">envision.startup@gmail.com</span>
-            <span class="email-copied" aria-hidden="true">Copied</span>
-          </button>
-        </div>
-        <form class="contact-form card reveal" id="contact-form" novalidate>
-          <div class="form-row">
-            <label for="f-name">Your name</label>
-            <input id="f-name" name="name" type="text" autocomplete="name" required>
+        <form class="contact-form reveal" id="contact-form">
+          <div class="form-grid">
+            <label>
+              <span>Your name</span>
+              <input name="name" type="text" autocomplete="name" placeholder="How should we call you?" required>
+            </label>
+            <label>
+              <span>Email address</span>
+              <input name="email" type="email" autocomplete="email" placeholder="you@company.com" required>
+            </label>
           </div>
-          <div class="form-row">
-            <label for="f-business">Your business</label>
-            <input id="f-business" name="business" type="text" autocomplete="organization" required>
-          </div>
-          <div class="form-row">
-            <label for="f-type">Project type</label>
-            <select id="f-type" name="type" required>
-              <option value="" selected disabled>Choose one</option>
-              <option>Website</option>
-              <option>Dashboard / platform</option>
+          <label>
+            <span>What are we making?</span>
+            <select name="type" required>
+              <option value="" selected disabled>Select a project type</option>
+              <option>Website or e-commerce</option>
+              <option>Dashboard or platform</option>
               <option>AI integration</option>
-              <option>AI video</option>
-              <option>Drone tour</option>
-              <option>Not sure yet</option>
+              <option>AI video or drone tour</option>
+              <option>Something else</option>
             </select>
+          </label>
+          <label>
+            <span>Tell us about it</span>
+            <textarea name="message" rows="4" placeholder="A short brief, a challenge, or simply where you want to go." required></textarea>
+          </label>
+          <div class="form-bottom">
+            <label>
+              <span>Budget <i>optional</i></span>
+              <select name="budget">
+                <option value="" selected>Not sure yet</option>
+                <option>Under $5,000</option>
+                <option>$5,000–$10,000</option>
+                <option>$10,000–$25,000</option>
+                <option>$25,000+</option>
+              </select>
+            </label>
+            <button class="button button-primary magnetic" type="submit">Send enquiry <span>↗</span></button>
           </div>
-          <div class="form-row">
-            <label for="f-need">What you need</label>
-            <textarea id="f-need" name="need" rows="4" required placeholder="A new site, a dashboard, AI in your product. In your own words."></textarea>
-          </div>
-          <div class="form-row">
-            <label for="f-budget">Budget range</label>
-            <select id="f-budget" name="budget" required>
-              <option value="" selected disabled>Choose one</option>
-              <option>Under $2,000</option>
-              <option>$2,000 to $5,000</option>
-              <option>$5,000 to $10,000</option>
-              <option>$10,000+</option>
-              <option>Not sure yet</option>
-            </select>
-          </div>
-          <button class="btn btn-solid btn-wide" type="submit">Start a project</button>
-          <p class="form-status" role="status" aria-live="polite"></p>
+          <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
         </form>
       </div>
     </section>
-
   </main>
 
-  <!-- ============ FOOTER ============ -->
   <footer class="footer">
-    <div class="wrap footer-inner">
-      <div class="footer-brand">
-        <img class="mark" src="assets/logo-ev.png" alt="" width="42" height="22">
-        <span class="footer-name">Envision</span>
-        <span class="footer-tag">Built to be seen.</span>
-      </div>
-      <a class="footer-parent" href="#contact">Start a project ↗</a>
-      <p class="footer-copy">© 2026 Envision. All rights reserved.</p>
-    </div>
+    <a class="footer-brand" href="#home" aria-label="Back to top">
+      <img src="assets/logo-ev.png" alt="" width="48" height="25">
+      <strong>Envision</strong>
+    </a>
+    <p>Strategy · Design · Engineering</p>
+    <a href="#home">Back to top ↑</a>
+    <small>© <span id="year">2026</span> Envision. All rights reserved.</small>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js" defer></script>
   <script src="script.js" defer></script>
 </body>
 </html>

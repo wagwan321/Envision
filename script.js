@@ -1,189 +1,433 @@
-/* Envision motion: GSAP hero entrance, scroll reveals, card tilt. */
 (function () {
   "use strict";
 
+  var root = document.documentElement;
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var touch = window.matchMedia("(hover: none), (pointer: coarse)").matches;
+  var coarsePointer = window.matchMedia("(hover: none), (pointer: coarse)").matches;
 
-  /* ---------- Nav: transparent at top, glass on scroll ---------- */
-  var nav = document.getElementById("nav");
-  function onScroll() {
-    nav.classList.toggle("scrolled", window.scrollY > 10);
+  /* ---------- Short, deterministic loading transition ---------- */
+  var loader = document.getElementById("loader");
+  var loaderPercent = document.getElementById("loader-percent");
+  var loaderProgress = document.getElementById("loader-progress");
+  var loaderFinished = false;
+
+  function finishLoader() {
+    if (loaderFinished) return;
+    loaderFinished = true;
+    if (loaderPercent) loaderPercent.textContent = "100";
+    if (loaderProgress) loaderProgress.style.transform = "scaleX(1)";
+    root.classList.add("is-ready");
+    root.classList.remove("is-loading");
+    if (loader) {
+      loader.setAttribute("aria-hidden", "true");
+      window.setTimeout(function () {
+        if (loader.parentNode) loader.parentNode.removeChild(loader);
+      }, 760);
+    }
   }
-  window.addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
 
-  /* ---------- Email copy ---------- */
-  var emailBtn = document.querySelector(".email-copy");
-  if (emailBtn) {
-    emailBtn.addEventListener("click", function () {
-      var email = emailBtn.getAttribute("data-email");
-      function done() {
-        emailBtn.classList.add("copied");
-        setTimeout(function () { emailBtn.classList.remove("copied"); }, 1800);
-      }
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(email).then(done, done);
-      } else {
-        done();
-      }
+  if (reduceMotion) {
+    finishLoader();
+  } else {
+    var loaderStart = performance.now();
+    var loaderDuration = 1050;
+    function updateLoader(now) {
+      if (loaderFinished) return;
+      var raw = Math.min(1, (now - loaderStart) / loaderDuration);
+      var eased = 1 - Math.pow(1 - raw, 3);
+      var value = Math.min(100, Math.floor(eased * 100));
+      if (loaderPercent) loaderPercent.textContent = String(value).padStart(2, "0");
+      if (loaderProgress) loaderProgress.style.transform = "scaleX(" + eased.toFixed(3) + ")";
+      if (raw < 1) requestAnimationFrame(updateLoader);
+      else finishLoader();
+    }
+    requestAnimationFrame(updateLoader);
+    window.setTimeout(finishLoader, 1450);
+  }
+
+  /* ---------- Navigation and scroll state ---------- */
+  var topbar = document.getElementById("topbar");
+  var menuToggle = document.getElementById("menu-toggle");
+  var navigation = document.getElementById("site-navigation");
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll(".nav-link"));
+  var sections = navLinks.map(function (link) {
+    return document.getElementById(link.getAttribute("data-section"));
+  }).filter(Boolean);
+
+  function closeMenu() {
+    if (!menuToggle || !navigation) return;
+    menuToggle.setAttribute("aria-expanded", "false");
+    navigation.classList.remove("is-open");
+    document.body.classList.remove("menu-open");
+  }
+
+  if (menuToggle && navigation) {
+    menuToggle.addEventListener("click", function () {
+      var next = menuToggle.getAttribute("aria-expanded") !== "true";
+      menuToggle.setAttribute("aria-expanded", String(next));
+      navigation.classList.toggle("is-open", next);
+      document.body.classList.toggle("menu-open", next);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") closeMenu();
+    });
+
+    document.addEventListener("click", function (event) {
+      if (!navigation.classList.contains("is-open")) return;
+      if (!topbar.contains(event.target)) closeMenu();
     });
   }
 
-  /* ---------- Contact form → prefilled email ---------- */
-  var form = document.getElementById("contact-form");
-  if (form) {
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var status = form.querySelector(".form-status");
-      if (!form.checkValidity()) {
-        form.reportValidity();
+  document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+    link.addEventListener("click", function () {
+      closeMenu();
+    });
+  });
+
+  var scrollTicking = false;
+  function updateScrollState() {
+    scrollTicking = false;
+    var marker = window.scrollY + Math.min(260, window.innerHeight * 0.34);
+    var activeId = "home";
+    sections.forEach(function (section) {
+      if (section.offsetTop <= marker) activeId = section.id;
+    });
+
+    navLinks.forEach(function (link) {
+      var current = link.getAttribute("data-section") === activeId;
+      link.classList.toggle("is-active", current);
+      if (current) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+
+    if (topbar) topbar.classList.toggle("is-scrolled", window.scrollY > 24);
+  }
+
+  window.addEventListener("scroll", function () {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(updateScrollState);
+  }, { passive: true });
+  updateScrollState();
+
+  /* ---------- Section reveals ---------- */
+  var revealItems = Array.prototype.slice.call(document.querySelectorAll(".reveal"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealItems.forEach(function (item) { item.classList.add("is-visible"); });
+  } else {
+    var revealObserver = new IntersectionObserver(function (entries, observer) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
+      });
+    }, { rootMargin: "0px 0px -9% 0px", threshold: 0.08 });
+
+    revealItems.forEach(function (item, index) {
+      item.style.transitionDelay = Math.min((index % 4) * 45, 135) + "ms";
+      revealObserver.observe(item);
+    });
+  }
+
+  /* ---------- Interactive 3D Möbius object ---------- */
+  var canvas = document.getElementById("hero-canvas");
+  var visual = document.getElementById("hero-visual");
+
+  if (canvas && visual) {
+    var context = canvas.getContext("2d");
+    var width = 0;
+    var height = 0;
+    var pixelRatio = 1;
+    var sceneVisible = true;
+    var scenePausedForScroll = false;
+    var scrollResumeTimer = 0;
+    var animationFrame = 0;
+    var pointerX = 0;
+    var pointerY = 0;
+    var targetX = 0;
+    var targetY = 0;
+    var startTime = performance.now();
+    var lastDrawTime = 0;
+    var frameInterval = 1000 / (coarsePointer ? 16 : 20);
+
+    var particles = [];
+    var particleCount = coarsePointer ? 16 : 24;
+    for (var particleIndex = 0; particleIndex < particleCount; particleIndex += 1) {
+      var phi = Math.acos(1 - 2 * (particleIndex + 0.5) / particleCount);
+      var theta = Math.PI * (1 + Math.sqrt(5)) * particleIndex;
+      particles.push({
+        x: Math.sin(phi) * Math.cos(theta) * 2.22,
+        y: Math.cos(phi) * 2.22,
+        z: Math.sin(phi) * Math.sin(theta) * 2.22,
+        size: 0.7 + (particleIndex % 5) * 0.16
+      });
+    }
+
+    function resizeCanvas() {
+      var bounds = visual.getBoundingClientRect();
+      width = Math.max(1, Math.round(bounds.width));
+      height = Math.max(1, Math.round(bounds.height));
+      pixelRatio = Math.min(window.devicePixelRatio || 1, coarsePointer ? 1 : 1.3);
+      canvas.width = Math.round(width * pixelRatio);
+      canvas.height = Math.round(height * pixelRatio);
+      canvas.style.width = width + "px";
+      canvas.style.height = height + "px";
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      if (reduceMotion) drawScene(performance.now());
+      else requestSceneFrame();
+    }
+
+    function rotatePoint(point, rotationX, rotationY, rotationZ) {
+      var cosY = Math.cos(rotationY);
+      var sinY = Math.sin(rotationY);
+      var x1 = point.x * cosY - point.z * sinY;
+      var z1 = point.x * sinY + point.z * cosY;
+
+      var cosX = Math.cos(rotationX);
+      var sinX = Math.sin(rotationX);
+      var y2 = point.y * cosX - z1 * sinX;
+      var z2 = point.y * sinX + z1 * cosX;
+
+      var cosZ = Math.cos(rotationZ);
+      var sinZ = Math.sin(rotationZ);
+      return {
+        x: x1 * cosZ - y2 * sinZ,
+        y: x1 * sinZ + y2 * cosZ,
+        z: z2
+      };
+    }
+
+    function project(point, scale) {
+      var camera = 5.7;
+      var depth = camera / Math.max(2.6, camera - point.z);
+      return {
+        x: width * 0.5 + point.x * scale * depth,
+        y: height * 0.48 + point.y * scale * depth,
+        depth: depth,
+        z: point.z
+      };
+    }
+
+    function mobiusPoint(u, v) {
+      var radius = 1.36;
+      var edge = radius + v * Math.cos(u * 0.5);
+      return {
+        x: edge * Math.cos(u),
+        y: edge * Math.sin(u),
+        z: v * Math.sin(u * 0.5)
+      };
+    }
+
+    function drawPolyline(points, color, lineWidth) {
+      if (points.length < 2) return;
+      var depth = 0;
+      var perspective = 0;
+      points.forEach(function (point) {
+        depth += point.z;
+        perspective += point.depth;
+      });
+      depth /= points.length;
+      perspective /= points.length;
+      var alpha = Math.max(0.1, Math.min(0.62, 0.3 + depth * 0.14));
+      context.beginPath();
+      context.moveTo(points[0].x, points[0].y);
+      for (var lineIndex = 1; lineIndex < points.length; lineIndex += 1) {
+        context.lineTo(points[lineIndex].x, points[lineIndex].y);
+      }
+      context.strokeStyle = color.replace("ALPHA", alpha.toFixed(3));
+      context.lineWidth = lineWidth * perspective;
+      context.stroke();
+    }
+
+    function requestSceneFrame() {
+      if (reduceMotion || !sceneVisible || scenePausedForScroll || document.hidden || animationFrame) return;
+      animationFrame = requestAnimationFrame(drawScene);
+    }
+
+    function drawScene(now) {
+      animationFrame = 0;
+      if (!context || !width || !height) return;
+      if (!reduceMotion && now - lastDrawTime < frameInterval) {
+        requestSceneFrame();
         return;
       }
-      var name = form.name.value.trim();
-      var business = form.business.value.trim();
-      var type = form.type.value;
-      var need = form.need.value.trim();
-      var budget = form.budget.value;
-      var subject = "New project enquiry: " + business;
-      var body =
-        "Name: " + name + "\n" +
-        "Business: " + business + "\n" +
-        "Project type: " + type + "\n" +
-        "Budget range: " + budget + "\n\n" +
-        "What we need:\n" + need;
-      status.textContent = "Opening your email app with the details filled in…";
-      window.location.href =
-        "mailto:envision.startup@gmail.com" +
-        "?subject=" + encodeURIComponent(subject) +
-        "&body=" + encodeURIComponent(body);
-    });
-  }
+      lastDrawTime = now;
+      context.clearRect(0, 0, width, height);
 
-  /* ---------- Cursor glow, ~120ms lag ---------- */
-  if (!reduceMotion && !touch) {
-    var glow = document.querySelector(".glow");
-    if (glow) {
-      var mx = -600, my = -600, gx = -600, gy = -600, glowShown = false;
-      document.addEventListener("mousemove", function (e) {
-        mx = e.clientX;
-        my = e.clientY;
-        if (!glowShown) {
-          glowShown = true;
-          glow.classList.add("on");
+      var elapsed = reduceMotion ? 1200 : now - startTime;
+      pointerX += (targetX - pointerX) * 0.055;
+      pointerY += (targetY - pointerY) * 0.055;
+      var rotationY = elapsed * 0.00024 + pointerX * 0.5;
+      var rotationX = -0.66 + Math.sin(elapsed * 0.00019) * 0.12 + pointerY * 0.34;
+      var rotationZ = 0.18 + Math.sin(elapsed * 0.00013) * 0.1;
+      var scale = Math.min(width, height) * 0.205;
+
+      context.save();
+      context.globalCompositeOperation = "lighter";
+      context.shadowColor = "rgba(49,239,160,0.22)";
+      context.shadowBlur = coarsePointer ? 0 : 2;
+
+      var vSteps = coarsePointer ? 6 : 8;
+      var uSteps = coarsePointer ? 40 : 52;
+      for (var vIndex = 0; vIndex < vSteps; vIndex += 1) {
+        var v = -0.52 + (vIndex / (vSteps - 1)) * 1.04;
+        var ribbon = [];
+        for (var uIndex = 0; uIndex <= uSteps; uIndex += 1) {
+          var u = (uIndex / uSteps) * Math.PI * 2;
+          var rotated = rotatePoint(mobiusPoint(u, v), rotationX, rotationY, rotationZ);
+          ribbon.push(project(rotated, scale));
         }
+        var mix = vIndex / Math.max(1, vSteps - 1);
+        var ribbonColor = mix > 0.55 ? "rgba(83,203,208,ALPHA)" : "rgba(49,239,160,ALPHA)";
+        drawPolyline(ribbon, ribbonColor, vIndex === 0 || vIndex === vSteps - 1 ? 1.5 : 0.7);
+      }
+
+      var crossEvery = coarsePointer ? 10 : 8;
+      for (var crossIndex = 0; crossIndex < uSteps; crossIndex += crossEvery) {
+        var crossLine = [];
+        var crossU = (crossIndex / uSteps) * Math.PI * 2;
+        for (var edgeIndex = 0; edgeIndex <= 9; edgeIndex += 1) {
+          var crossV = -0.52 + (edgeIndex / 9) * 1.04;
+          var crossRotated = rotatePoint(mobiusPoint(crossU, crossV), rotationX, rotationY, rotationZ);
+          crossLine.push(project(crossRotated, scale));
+        }
+        drawPolyline(crossLine, "rgba(159,248,210,ALPHA)", 0.55);
+      }
+
+      context.shadowBlur = coarsePointer ? 0 : 2;
+      particles.forEach(function (particle, index) {
+        var drifting = {
+          x: particle.x,
+          y: particle.y + Math.sin(elapsed * 0.0005 + index) * 0.035,
+          z: particle.z
+        };
+        var particleRotated = rotatePoint(drifting, rotationX * 0.45, -rotationY * 0.28, rotationZ);
+        var screen = project(particleRotated, scale);
+        var alpha = Math.max(0.08, Math.min(0.65, 0.18 + screen.z * 0.11));
+        context.beginPath();
+        context.arc(screen.x, screen.y, particle.size * screen.depth, 0, Math.PI * 2);
+        context.fillStyle = index % 4 === 0 ? "rgba(83,203,208," + alpha + ")" : "rgba(49,239,160," + alpha + ")";
+        context.fill();
+      });
+      context.restore();
+
+      var glow = context.createRadialGradient(width * 0.5, height * 0.48, 0, width * 0.5, height * 0.48, Math.min(width,height) * 0.32);
+      glow.addColorStop(0, "rgba(49,239,160,0.075)");
+      glow.addColorStop(1, "rgba(49,239,160,0)");
+      context.fillStyle = glow;
+      context.fillRect(0, 0, width, height);
+
+      requestSceneFrame();
+    }
+
+    visual.addEventListener("pointermove", function (event) {
+      var bounds = visual.getBoundingClientRect();
+      targetX = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2;
+      targetY = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2;
+    }, { passive: true });
+
+    visual.addEventListener("pointerleave", function () {
+      targetX = 0;
+      targetY = 0;
+    });
+
+    if ("ResizeObserver" in window) new ResizeObserver(resizeCanvas).observe(visual);
+    else window.addEventListener("resize", resizeCanvas);
+
+    if ("IntersectionObserver" in window && !reduceMotion) {
+      new IntersectionObserver(function (entries) {
+        sceneVisible = entries[0].isIntersecting;
+        if (!sceneVisible && animationFrame) {
+          cancelAnimationFrame(animationFrame);
+          animationFrame = 0;
+        }
+        if (sceneVisible) requestSceneFrame();
+      }, { threshold: 0.02 }).observe(visual);
+    }
+
+    if (!reduceMotion) {
+      window.addEventListener("scroll", function () {
+        scenePausedForScroll = true;
+        if (animationFrame) {
+          cancelAnimationFrame(animationFrame);
+          animationFrame = 0;
+        }
+        window.clearTimeout(scrollResumeTimer);
+        scrollResumeTimer = window.setTimeout(function () {
+          scenePausedForScroll = false;
+          requestSceneFrame();
+        }, 140);
       }, { passive: true });
-      (function tick() {
-        gx += (mx - gx) * 0.14;
-        gy += (my - gy) * 0.14;
-        glow.style.left = gx + "px";
-        glow.style.top = gy + "px";
-        requestAnimationFrame(tick);
-      })();
-    }
-  }
 
-  /* ---------- Card tilt (desktop only) ---------- */
-  if (!reduceMotion && !touch) {
-    document.querySelectorAll(".tilt").forEach(function (card) {
-      card.addEventListener("mousemove", function (e) {
-        var r = card.getBoundingClientRect();
-        var px = (e.clientX - r.left) / r.width - 0.5;
-        var py = (e.clientY - r.top) / r.height - 0.5;
-        card.style.transform =
-          "perspective(900px) rotateX(" + (-py * 4).toFixed(2) + "deg)" +
-          " rotateY(" + (px * 4).toFixed(2) + "deg) translateY(-2px)";
-      });
-      card.addEventListener("mouseleave", function () {
-        card.style.transform = "";
-      });
-    });
-  }
-
-  /* ---------- Hero entrance + scroll reveals (GSAP / Lenis) ---------- */
-  function initMotion() {
-    if (reduceMotion) return;                 /* CSS keeps everything visible */
-    if (!window.gsap || !window.ScrollTrigger) return; /* CDN blocked: page stays static, fully visible */
-
-    gsap.registerPlugin(ScrollTrigger);
-
-    var lenis = null;
-    if (window.Lenis) {
-      lenis = new Lenis({ lerp: 0.09 });      /* a touch more glide */
-      lenis.on("scroll", ScrollTrigger.update);
-      gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
-      gsap.ticker.lagSmoothing(0);
-      document.documentElement.style.scrollBehavior = "auto";
-
-      /* On a reload, Lenis inherits whatever offset the page opened at, so
-         snap it to the hero once it is driving the scroll. */
-      if (window.__envForceTop) lenis.scrollTo(0, { immediate: true });
-      document.querySelectorAll('a[href^="#"]').forEach(function (a) {
-        a.addEventListener("click", function (e) {
-          var target = document.querySelector(a.getAttribute("href"));
-          if (target) {
-            e.preventDefault();
-            lenis.scrollTo(target, { offset: 0 });
-          }
-        });
-      });
-    }
-
-    /* Hide reveals only once JS is ready, so a broken script never blanks the page */
-    document.documentElement.classList.add("anim-ready");
-
-    /* Hero entrance: headline lines rise, then the rest.
-       Held until the loading screen lifts so it is not spent behind the overlay. */
-    gsap.set(".hero-el", { y: 18 });
-    var heroPlayed = false;
-    function playHero() {
-      if (heroPlayed) return;
-      heroPlayed = true;
-      gsap.timeline({ defaults: { ease: "power3.out" } })
-        .to(".hero-title .line-inner", { y: 0, duration: 1, stagger: 0.14 }, 0.15)
-        .to(".hero-el", { opacity: 1, y: 0, duration: 0.9, stagger: 0.1 }, 0.55);
-    }
-    if (window.__envLoaderDone) {
-      playHero();
-    } else {
-      window.addEventListener("env:loaded", playHero, { once: true });
-      setTimeout(playHero, 3500);   /* past the loader's hard cap; never leave the hero hidden */
-    }
-
-    /* Hero copy drifts up and fades as you scroll away */
-    gsap.to(".hero-inner", {
-      yPercent: 12,
-      opacity: 0.35,
-      ease: "none",
-      scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true }
-    });
-
-    /* Section reveals */
-    document.querySelectorAll("section:not(.hero)").forEach(function (section) {
-      var items = section.querySelectorAll(".reveal");
-      if (!items.length) return;
-      gsap.set(items, { y: 26 });
-      ScrollTrigger.create({
-        trigger: section,
-        start: "top 75%",                     /* fires at 25% viewport entry */
-        once: true,
-        onEnter: function () {
-          gsap.to(items, {
-            opacity: 1,
-            y: 0,
-            duration: 0.9,
-            ease: "power3.out",
-            stagger: 0.08,
-            overwrite: true
-          });
+      document.addEventListener("visibilitychange", function () {
+        if (document.hidden && animationFrame) {
+          cancelAnimationFrame(animationFrame);
+          animationFrame = 0;
+        } else {
+          requestSceneFrame();
         }
       });
+    }
+
+    resizeCanvas();
+    requestSceneFrame();
+  }
+
+  /* ---------- Pause decorative CSS motion outside the viewport ---------- */
+  var animatedDecorations = Array.prototype.slice.call(document.querySelectorAll(".ticker-track, .project-commerce, .project-ai"));
+  if ("IntersectionObserver" in window && !reduceMotion) {
+    var motionObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        entry.target.classList.toggle("is-paused", !entry.isIntersecting);
+      });
+    }, { rootMargin: "120px 0px", threshold: 0.01 });
+    animatedDecorations.forEach(function (item) { motionObserver.observe(item); });
+  }
+
+  /* ---------- Small magnetic affordance on precise pointers ---------- */
+  if (!coarsePointer && !reduceMotion) {
+    document.querySelectorAll(".magnetic").forEach(function (button) {
+      button.addEventListener("pointermove", function (event) {
+        var bounds = button.getBoundingClientRect();
+        var x = event.clientX - bounds.left - bounds.width * 0.5;
+        var y = event.clientY - bounds.top - bounds.height * 0.5;
+        button.style.transform = "translate(" + (x * 0.08).toFixed(1) + "px," + (y * 0.12).toFixed(1) + "px)";
+      });
+      button.addEventListener("pointerleave", function () {
+        button.style.transform = "";
+      });
     });
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initMotion);
-  } else {
-    initMotion();
+  /* ---------- Contact handoff ---------- */
+  var contactForm = document.getElementById("contact-form");
+  var formStatus = document.getElementById("form-status");
+  if (contactForm) {
+    contactForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+      if (!contactForm.checkValidity()) {
+        contactForm.reportValidity();
+        return;
+      }
+
+      var fields = contactForm.elements;
+      var subject = "Project enquiry from " + fields.name.value.trim();
+      var body = [
+        "Name: " + fields.name.value.trim(),
+        "Email: " + fields.email.value.trim(),
+        "Project type: " + fields.type.value,
+        "Budget: " + (fields.budget.value || "Not specified"),
+        "",
+        "Project details:",
+        fields.message.value.trim()
+      ].join("\n");
+
+      if (formStatus) formStatus.textContent = "Opening your email app with the details ready…";
+      window.location.href = "mailto:envision.startup@gmail.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+    });
   }
+
+  var year = document.getElementById("year");
+  if (year) year.textContent = new Date().getFullYear();
 })();
