@@ -1,9 +1,9 @@
-/* Hero object: a GPU-rendered generative structure.
-   All geometry is evaluated procedurally in the vertex shader from a static
-   buffer of (curve parameter, layer, seed, type) tuples, so the CPU only
-   updates a handful of uniforms per frame. Rendering runs through a
-   ping-pong accumulation buffer for temporal trails and a display pass
-   that adds bloom and haze. */
+/* Hero object: a single flowing ribbon sculpture, rendered in WebGL.
+   Seven strands share one parametric centreline and twist around it as a
+   Mobius band, so they always read as one coherent object. Geometry is
+   evaluated in the vertex shader; the CPU only updates uniforms. A light
+   accumulation pass softens the 1px lines and a display pass adds a
+   restrained glow. */
 (function () {
   "use strict";
 
@@ -76,23 +76,20 @@
     "}"
   ].join("\n");
 
-  /* Type codes carried in a_data.w:
-     0 structural line, 2 structural particle, 3 energy particle,
-     4 micro particle, 5 ambient dust, 6 measurement ring. */
+  /* a_data = (u, strand, seed, type). type 0 strand line, 1 seed point, 2 particle. */
   var SCENE_VS = [
     "precision highp float;",
     "attribute vec4 a_data;",
     "uniform mat4 u_view;",
     "uniform mat4 u_proj;",
-    "uniform mat3 u_camRot;",
+    "uniform mat3 u_objRot;",
     "uniform float u_time;",
-    "uniform float u_ghost;",
-    "uniform float u_assemble;",
-    "uniform float u_turb;",
+    "uniform float u_reveal;",
+    "uniform float u_scale;",
+    "uniform float u_twist;",
     "uniform float u_pixelRatio;",
     "uniform float u_mouseStrength;",
     "uniform vec3 u_mousePos;",
-    "uniform vec4 u_wave[3];",
     "varying float v_depth;",
     "varying float v_bright;",
     "varying float v_alpha;",
@@ -100,131 +97,71 @@
     NOISE,
     "float hash(float n){return fract(sin(n)*43758.5453);}",
     "vec3 hash3(float n){return vec3(hash(n),hash(n+1.7),hash(n+2.9));}",
-    "mat3 rotX(float a){float c=cos(a),s=sin(a);return mat3(1.0,0.0,0.0,0.0,c,s,0.0,-s,c);}",
-    "mat3 rotY(float a){float c=cos(a),s=sin(a);return mat3(c,0.0,-s,0.0,1.0,0.0,s,0.0,c);}",
-    "mat3 rotZ(float a){float c=cos(a),s=sin(a);return mat3(c,s,0.0,-s,c,0.0,0.0,0.0,1.0);}",
     "",
-    "vec3 curvePoint(float u, float layer, float t){",
-    "  float s=layer*7.31+3.1;",
-    "  float a=1.25+0.55*hash(s+1.0);",
-    "  float b=0.5+0.45*hash(s+2.0);",
-    "  float lobes=1.0+floor(hash(s+3.0)*3.0);",
-    "  float tilt=hash(s+4.0)*3.14159;",
-    "  float spin=0.05+hash(s+5.0)*0.12;",
-    "  float dir=hash(s+9.0)>0.5?1.0:-1.0;",
-    "  float phase=t*spin*dir+hash(s+6.0)*6.2832;",
-    "  float r=1.0+0.14*sin(u*lobes+phase*0.9)+0.07*sin(u*(lobes+2.0)-phase*1.4+hash(s+10.0)*6.28);",
-    "  vec3 p=vec3(a*r*cos(u),b*r*sin(u),0.36*sin(u*lobes*0.5+phase)*(0.5+0.5*hash(s+7.0))+0.12*cos(u*2.0-phase*0.6));",
-    "  p=rotZ(hash(s+8.0)*6.2832+t*0.01*dir)*(rotY(phase*0.35)*(rotX(tilt)*p));",
-    "  p.x*=1.3;",
-    "  return p;",
+    "vec3 centreline(float u, float t){",
+    "  vec3 c=vec3(0.7*cos(u),0.44*sin(u),0.3*sin(2.0*u+0.4))*u_scale;",
+    "  vec3 n=vec3(snoise(vec3(c.xy*0.9,t*0.06)),snoise(vec3(c.yx*0.9+5.0,t*0.05)),snoise(vec3(c.xz*0.9+9.0,t*0.055)));",
+    "  return c+n*0.045;",
     "}",
     "",
-    "vec3 displace(vec3 p, float t, float amp){",
-    "  vec3 q=p*1.1;",
-    "  vec3 n1=vec3(snoise(q+vec3(0.0,0.0,t*0.09)),snoise(q+vec3(31.4,0.0,t*0.08)),snoise(q+vec3(0.0,71.3,-t*0.1)));",
-    "  vec3 n2=vec3(snoise(q*2.3+vec3(t*0.15,0.0,0.0)),snoise(q*2.3+vec3(0.0,t*0.14,9.1)),snoise(q*2.3+vec3(5.2,0.0,-t*0.13)));",
-    "  return p+(n1*0.22+n2*0.07)*amp;",
+    "vec3 ribbonNormal(float u){",
+    "  vec3 radial=vec3(cos(u),sin(u),0.0);",
+    "  float ang=0.5*u+u_twist;",
+    "  return normalize(radial*cos(ang)+vec3(0.0,0.0,1.0)*sin(ang));",
     "}",
     "",
     "void main(){",
     "  float u=a_data.x;",
-    "  float layer=a_data.y;",
+    "  float strand=a_data.y;",
     "  float seed=a_data.z;",
     "  float type=a_data.w;",
-    "  float t=u_time-u_ghost*0.5;",
+    "  float t=u_time;",
     "  v_type=type;",
     "  vec3 p;",
+    "  float alpha=0.0;",
     "  float bright=0.0;",
-    "  float alpha=1.0;",
     "  float size=1.0;",
-    "  bool interactive=true;",
-    "  float turbAmp=1.0+u_turb*0.8;",
     "",
     "  if(type<1.5){",
-    "    p=curvePoint(u,layer,t);",
-    "    p=displace(p,t,(0.6+0.8*hash(layer*3.7+0.5))*turbAmp);",
-    "    float prim=step(layer,5.5);",
-    "    alpha=mix(0.26,0.55,prim)*mix(1.0,0.18,u_ghost);",
-    "  } else if(type<2.5){",
-    "    p=curvePoint(u,layer,t);",
-    "    p=displace(p,t,0.9*turbAmp);",
-    "    float detach=smoothstep(0.55,1.0,sin(t*0.11+seed*6.2832));",
-    "    vec3 drift=p+(hash3(seed*13.0)-0.5)*1.2+vec3(snoise(p+t*0.2),snoise(p.yzx+t*0.17),snoise(p.zxy-t*0.19))*0.4;",
-    "    p=mix(p,drift,detach);",
-    "    alpha=0.5-detach*0.3;",
-    "    size=1.7+hash(seed*5.0)*1.2;",
-    "    bright=0.15;",
-    "  } else if(type<3.5){",
-    "    float speed=0.35+hash(seed*2.0)*0.4;",
-    "    float burst=1.0+2.5*smoothstep(0.86,1.0,sin(t*0.27+seed*6.2832));",
-    "    float uu=seed*6.2832+t*speed*burst*(1.0+u_turb*0.5);",
-    "    p=curvePoint(uu,layer,t);",
-    "    p=displace(p,t,0.9*turbAmp);",
-    "    alpha=1.0;",
-    "    size=2.8;",
-    "    bright=0.9+0.6*(burst-1.0);",
-    "  } else if(type<4.5){",
-    "    vec3 base=(hash3(seed*97.0)-0.5)*5.6;",
-    "    p=base+vec3(snoise(base*0.5+t*0.03),snoise(base*0.5+20.0+t*0.025),snoise(base*0.5-40.0+t*0.028))*0.5;",
-    "    float flash=step(0.9965,hash(floor(t*3.0)+seed*7.0));",
-    "    alpha=0.1+flash*0.8;",
-    "    size=1.0+flash*1.5;",
-    "    bright=flash;",
-    "  } else if(type<5.5){",
-    "    vec3 base=(hash3(seed*61.0)-0.5)*8.0;",
-    "    base.z-=2.5;",
-    "    p=base+vec3(sin(t*0.05+seed*6.28),cos(t*0.04+seed*3.1),0.0)*0.3;",
-    "    alpha=0.06;",
-    "    size=4.0+hash(seed*3.0)*4.0;",
-    "    interactive=false;",
-    "  } else {",
-    "    float rr=1.9+layer*0.55;",
-    "    float uu=u+t*0.02*(layer+1.0);",
-    "    p=u_camRot*vec3(cos(uu)*rr,sin(uu)*rr,0.0);",
-    "    alpha=0.05;",
-    "    interactive=false;",
-    "  }",
-    "",
-    "  if(interactive){",
-    "    vec3 d=u_mousePos-p;",
-    "    float f=u_mouseStrength/(1.0+dot(d,d)*2.2);",
-    "    p+=d*f*0.38;",
-    "    bright+=f*1.4*u_mouseStrength;",
-    "    for(int i=0;i<3;i++){",
-    "      float age=u_time-u_wave[i].w;",
-    "      if(age>0.0&&age<3.0){",
-    "        vec3 away=p-u_wave[i].xyz;",
-    "        float dd=length(away)+0.0001;",
-    "        float e=(dd-age*1.6)*2.2;",
-    "        float w=exp(-e*e)*(1.0-age/3.0);",
-    "        p+=(away/dd)*w*0.14;",
-    "        bright+=w*1.1;",
-    "      }",
+    "    float off=(strand-3.0)/3.0;",
+    "    float u0=hash(strand*3.7+1.3)*6.2832;",
+    "    if(type>0.5){u=u0;}",
+    "    vec3 c=centreline(u,t);",
+    "    p=c+ribbonNormal(u)*off*0.22*u_scale;",
+    "    vec3 d=u_mousePos-c;",
+    "    float f=u_mouseStrength*0.16/(1.0+dot(d,d)*4.0);",
+    "    p+=d*f;",
+    "    bright+=f*1.5;",
+    "    p=u_objRot*p;",
+    "    float stagger=strand*0.06;",
+    "    float grow=clamp((u_reveal-stagger)/(1.0-stagger),0.0,1.0);",
+    "    grow=grow*grow*(3.0-2.0*grow);",
+    "    if(type<0.5){",
+    "      float arc=abs(mod(u-u0+9.42477,6.2832)-3.14159);",
+    "      float reach=grow*3.3;",
+    "      float visible=1.0-smoothstep(reach-0.3,reach,arc);",
+    "      float primary=step(0.99,abs(off));",
+    "      alpha=mix(0.34,0.78,primary)*visible;",
+    "      if(abs(off)<0.01){alpha*=0.8;}",
+    "    } else {",
+    "      alpha=smoothstep(0.0,0.12,u_reveal)*(1.0-smoothstep(0.25,0.6,grow));",
+    "      size=2.6;",
+    "      bright=0.6;",
     "    }",
-    "  }",
-    "",
-    "  float stagger;",
-    "  vec3 scatter;",
-    "  if(type<1.5){",
-    "    stagger=0.45*hash(layer*11.0)+0.1*sin(u*2.0+layer);",
-    "    scatter=p*(2.2+1.5*hash(layer*3.0))+(hash3(layer*41.0)-0.5)*4.0+vec3(sin(u*5.0+layer),cos(u*3.0),sin(u*7.0))*0.5;",
     "  } else {",
-    "    stagger=hash(seed*19.0)*0.5;",
-    "    scatter=(hash3(seed*41.0+layer)-0.5)*7.0;",
+    "    vec3 base=normalize(hash3(seed*31.0)-0.5)*(1.9+hash(seed*7.0)*1.3);",
+    "    p=base+vec3(sin(t*0.07+seed*6.28),cos(t*0.05+seed*2.0),sin(t*0.06+seed*4.0))*0.08;",
+    "    alpha=(0.1+0.15*hash(seed*3.0))*smoothstep(0.5,1.0,u_reveal);",
+    "    size=1.3;",
     "  }",
-    "  float ease=smoothstep(stagger,stagger+0.5,u_assemble);",
-    "  ease=ease*ease*(3.0-2.0*ease);",
-    "  p=mix(scatter,p,ease);",
-    "  alpha*=(type<1.5||type>5.5)?smoothstep(0.2,0.9,ease):mix(0.35,1.0,ease);",
     "",
     "  vec4 vp=u_view*vec4(p,1.0);",
     "  gl_Position=u_proj*vp;",
     "  float dist=-vp.z;",
-    "  v_depth=clamp((dist-2.4)/4.0,0.0,1.0);",
-    "  v_alpha=alpha*mix(1.0,0.18,v_depth);",
-    "  v_bright=bright+(1.0-v_depth)*0.25;",
-    "  gl_PointSize=size*(4.3/max(dist,0.5))*u_pixelRatio;",
+    "  v_depth=clamp((dist-3.6)/2.4,0.0,1.0);",
+    "  v_alpha=alpha*mix(1.0,0.28,v_depth);",
+    "  v_bright=bright+(1.0-v_depth)*0.2;",
+    "  gl_PointSize=size*(4.8/max(dist,0.5))*u_pixelRatio;",
     "}"
   ].join("\n");
 
@@ -239,11 +176,9 @@
     "uniform vec3 u_colHi;",
     "void main(){",
     "  float a=v_alpha;",
-    "  if(v_type>1.5&&v_type<5.5){",
+    "  if(v_type>0.5){",
     "    vec2 c=gl_PointCoord-0.5;",
-    "    float r=length(c)*2.0;",
-    "    float soft=v_type>4.5?1.0:0.5;",
-    "    a*=1.0-smoothstep(1.0-soft,1.0,r);",
+    "    a*=1.0-smoothstep(0.5,1.0,length(c)*2.0);",
     "  }",
     "  vec3 col=mix(u_colDeep,u_colMid,1.0-v_depth);",
     "  col=mix(col,u_colHi,clamp(v_bright,0.0,1.0));",
@@ -270,30 +205,25 @@
     "varying vec2 v_uv;",
     "uniform sampler2D u_tex;",
     "uniform vec2 u_texel;",
-    "uniform float u_time;",
+    "uniform float u_reveal;",
     "void main(){",
     "  vec4 c=texture2D(u_tex,v_uv);",
     "  vec2 t=u_texel;",
     "  vec3 b=vec3(0.0);",
-    "  b+=texture2D(u_tex,v_uv+vec2(2.0,0.0)*t).rgb;",
-    "  b+=texture2D(u_tex,v_uv+vec2(-2.0,0.0)*t).rgb;",
-    "  b+=texture2D(u_tex,v_uv+vec2(0.0,2.0)*t).rgb;",
-    "  b+=texture2D(u_tex,v_uv+vec2(0.0,-2.0)*t).rgb;",
-    "  b+=texture2D(u_tex,v_uv+vec2(1.5,1.5)*t).rgb;",
-    "  b+=texture2D(u_tex,v_uv+vec2(-1.5,1.5)*t).rgb;",
-    "  b+=texture2D(u_tex,v_uv+vec2(1.5,-1.5)*t).rgb;",
-    "  b+=texture2D(u_tex,v_uv+vec2(-1.5,-1.5)*t).rgb;",
+    "  b+=texture2D(u_tex,v_uv+vec2(1.5,0.0)*t).rgb;",
+    "  b+=texture2D(u_tex,v_uv+vec2(-1.5,0.0)*t).rgb;",
+    "  b+=texture2D(u_tex,v_uv+vec2(0.0,1.5)*t).rgb;",
+    "  b+=texture2D(u_tex,v_uv+vec2(0.0,-1.5)*t).rgb;",
     "  vec3 h=vec3(0.0);",
-    "  h+=texture2D(u_tex,v_uv+vec2(7.0,0.0)*t).rgb;",
-    "  h+=texture2D(u_tex,v_uv+vec2(-7.0,0.0)*t).rgb;",
-    "  h+=texture2D(u_tex,v_uv+vec2(0.0,7.0)*t).rgb;",
-    "  h+=texture2D(u_tex,v_uv+vec2(0.0,-7.0)*t).rgb;",
-    "  vec3 col=c.rgb+(b/8.0)*0.5+(h/4.0)*0.35*vec3(0.6,1.0,0.8);",
-    "  float sweep=fract(u_time*0.045);",
-    "  float se=(v_uv.y-sweep)*60.0;",
-    "  float sl=exp(-se*se);",
-    "  col+=sl*vec3(0.03,0.08,0.055)*clamp(c.g*6.0+0.15,0.0,1.0);",
-    "  col=vec3(1.0)-exp(-col*1.7);",
+    "  h+=texture2D(u_tex,v_uv+vec2(5.0,0.0)*t).rgb;",
+    "  h+=texture2D(u_tex,v_uv+vec2(-5.0,0.0)*t).rgb;",
+    "  h+=texture2D(u_tex,v_uv+vec2(0.0,5.0)*t).rgb;",
+    "  h+=texture2D(u_tex,v_uv+vec2(0.0,-5.0)*t).rgb;",
+    "  vec3 col=c.rgb+(b/4.0)*0.3+(h/4.0)*0.18*vec3(0.6,1.0,0.8);",
+    "  vec2 q=v_uv-vec2(0.5,0.48);",
+    "  float glow=exp(-dot(q,q)*7.0)*0.03*u_reveal;",
+    "  col+=glow*vec3(0.25,1.0,0.65);",
+    "  col=vec3(1.0)-exp(-col*1.5);",
     "  float a=clamp(max(col.r,max(col.g,col.b))*1.12,0.0,1.0);",
     "  gl_FragColor=vec4(col,a);",
     "}"
@@ -322,8 +252,7 @@
     var count = gl.getProgramParameter(prog, gl.ACTIVE_UNIFORMS);
     for (var i = 0; i < count; i += 1) {
       var info = gl.getActiveUniform(prog, i);
-      var name = info.name.replace(/\[0\]$/, "");
-      uniforms[name] = gl.getUniformLocation(prog, info.name);
+      uniforms[info.name.replace(/\[0\]$/, "")] = gl.getUniformLocation(prog, info.name);
     }
     return { prog: prog, u: uniforms, aPos: gl.getAttribLocation(prog, "a_pos") };
   }
@@ -340,36 +269,23 @@
   }
 
   /* ---------- Geometry ---------- */
-  var LAYERS = coarsePointer ? 11 : 16;
-  var SEGS = coarsePointer ? 150 : 210;
-  var RINGS = 3;
-  var RING_SEGS = 140;
-  var counts = coarsePointer
-    ? { structural: 420, energy: 24, micro: 700, dust: 120 }
-    : { structural: 820, energy: 36, micro: 1400, dust: 220 };
+  var STRANDS = 7;
+  var SEGS = coarsePointer ? 180 : 260;
+  var PARTICLES = 24;
 
   var lineData = [];
   var lineIndex = [];
-  function pushLoop(layer, segments, type) {
+  for (var strand = 0; strand < STRANDS; strand += 1) {
     var base = lineData.length / 4;
-    for (var i = 0; i < segments; i += 1) {
-      lineData.push((i / segments) * Math.PI * 2, layer, Math.random(), type);
-      lineIndex.push(base + i, base + ((i + 1) % segments));
+    for (var i = 0; i < SEGS; i += 1) {
+      lineData.push((i / SEGS) * Math.PI * 2, strand, 0, 0);
+      lineIndex.push(base + i, base + ((i + 1) % SEGS));
     }
   }
-  for (var layer = 0; layer < LAYERS; layer += 1) pushLoop(layer, SEGS, 0);
-  for (var ring = 0; ring < RINGS; ring += 1) pushLoop(ring, RING_SEGS, 6);
 
   var pointData = [];
-  function pushPoints(total, type) {
-    for (var i = 0; i < total; i += 1) {
-      pointData.push(Math.random() * Math.PI * 2, Math.floor(Math.random() * LAYERS), Math.random(), type);
-    }
-  }
-  pushPoints(counts.structural, 2);
-  pushPoints(counts.energy, 3);
-  pushPoints(counts.micro, 4);
-  pushPoints(counts.dust, 5);
+  for (var seedIndex = 0; seedIndex < STRANDS; seedIndex += 1) pointData.push(0, seedIndex, 0, 1);
+  for (var particle = 0; particle < PARTICLES; particle += 1) pointData.push(0, 0, Math.random(), 2);
   var pointCount = pointData.length / 4;
 
   function buffer(target, data) {
@@ -428,14 +344,14 @@
     else requestFrame();
   }
 
-  /* ---------- Camera math ---------- */
-  var FOV = 0.61;
+  /* ---------- Camera and object transforms ---------- */
+  var FOV = 0.55;
   var proj = new Float32Array(16);
   var view = new Float32Array(16);
-  var camRot = new Float32Array(9);
+  var objRot = new Float32Array(9);
   var camRight = [1, 0, 0];
   var camUp = [0, 1, 0];
-  var camDist = 4.4;
+  var camDist = 4.8;
 
   function perspective(out, fov, aspect, near, far) {
     var f = 1 / Math.tan(fov / 2);
@@ -469,9 +385,21 @@
     out[13] = -(up[0] * eye[0] + up[1] * eye[1] + up[2] * eye[2]);
     out[14] = forward[0] * eye[0] + forward[1] * eye[1] + forward[2] * eye[2];
     out[15] = 1;
-    camRot[0] = right[0]; camRot[1] = right[1]; camRot[2] = right[2];
-    camRot[3] = up[0]; camRot[4] = up[1]; camRot[5] = up[2];
-    camRot[6] = forward[0]; camRot[7] = forward[1]; camRot[8] = forward[2];
+  }
+
+  /* Column-major mat3 = rotZ(roll) * rotX(pitch) * rotY(yaw). */
+  function objectRotation(out, yaw, pitch, roll) {
+    var cy = Math.cos(yaw), sy = Math.sin(yaw);
+    var cx = Math.cos(pitch), sx = Math.sin(pitch);
+    var cz = Math.cos(roll), sz = Math.sin(roll);
+    // rotX * rotY
+    var m00 = cy, m01 = 0, m02 = sy;
+    var m10 = sx * sy, m11 = cx, m12 = -sx * cy;
+    var m20 = -cx * sy, m21 = sx, m22 = cx * cy;
+    // rotZ * (rotX * rotY), stored column-major
+    out[0] = cz * m00 - sz * m10; out[1] = sz * m00 + cz * m10; out[2] = m20;
+    out[3] = cz * m01 - sz * m11; out[4] = sz * m01 + cz * m11; out[5] = m21;
+    out[6] = cz * m02 - sz * m12; out[7] = sz * m02 + cz * m12; out[8] = m22;
   }
 
   /* ---------- Interaction state ---------- */
@@ -479,36 +407,15 @@
   var mouseX = 0, mouseY = 0, mouseVX = 0, mouseVY = 0;
   var camX = 0, camY = 0;
   var strength = 0;
-  var turbulence = 0;
-  var speedPool = 0;
   var pointerActive = false;
   var lastMove = -100;
-  var lastMouseWave = -100;
-  var waves = [[0, 0, 0, -100], [0, 0, 0, -100], [0, 0, 0, -100]];
-  var waveSlot = 0;
-  var nextAmbientWave = 6 + Math.random() * 6;
   var mouseWorld = [0, 0, 0];
-
-  function spawnWave(x, y, z, at) {
-    waves[waveSlot] = [x, y, z, at];
-    waveSlot = (waveSlot + 1) % waves.length;
-  }
 
   if (!coarsePointer) {
     window.addEventListener("pointermove", function (event) {
       var bounds = visual.getBoundingClientRect();
-      var nextX = (event.clientX - (bounds.left + bounds.width * 0.5)) / (bounds.width * 0.5);
-      var nextY = -(event.clientY - (bounds.top + bounds.height * 0.5)) / (bounds.height * 0.5);
-      nextX = Math.max(-2.2, Math.min(2.2, nextX));
-      nextY = Math.max(-2.2, Math.min(2.2, nextY));
-      var moved = Math.hypot(nextX - rawX, nextY - rawY);
-      speedPool += moved * 3;
-      if (moved > 0.22 && time - lastMouseWave > 1.8 && Math.abs(nextX) < 1.3 && Math.abs(nextY) < 1.3) {
-        lastMouseWave = time;
-        spawnWave(mouseWorld[0], mouseWorld[1], mouseWorld[2], time);
-      }
-      rawX = nextX;
-      rawY = nextY;
+      rawX = Math.max(-2, Math.min(2, (event.clientX - (bounds.left + bounds.width * 0.5)) / (bounds.width * 0.5)));
+      rawY = Math.max(-2, Math.min(2, -(event.clientY - (bounds.top + bounds.height * 0.5)) / (bounds.height * 0.5)));
       pointerActive = true;
       lastMove = time;
       requestFrame();
@@ -522,26 +429,55 @@
   /* ---------- Frame loop ---------- */
   var time = 0;
   var lastNow = 0;
-  var assembleStart = -1;
+  var revealStart = -1;
   var animationFrame = 0;
   var sceneVisible = true;
+  var objScale = 1;
+  var objTwist = 0;
 
   function requestFrame() {
     if (reduceMotion || animationFrame || !sceneVisible || document.hidden || !width) return;
     animationFrame = requestAnimationFrame(frame);
   }
 
-  function updateCamera() {
-    var yaw = time * 0.03 + camX * 0.32 + Math.sin(time * 0.17) * 0.04;
-    var pitch = 0.22 + Math.sin(time * 0.11) * 0.07 - camY * 0.2;
-    camDist = 4.4 + Math.sin(time * 0.09) * 0.14 + Math.sin(time * 0.023) * 0.1;
+  function step(dt) {
+    time += dt;
+    if (revealStart < 0 && (root.classList.contains("is-ready") || !document.getElementById("loader"))) {
+      revealStart = time;
+    }
+
+    // Soft magnetic field: quick to engage, slow to let go, slight overshoot.
+    var target = pointerActive && time - lastMove < 2.5 ? 1 : 0;
+    strength += (target - strength) * (target > strength ? 0.05 : 0.01);
+    mouseVX += (rawX - mouseX) * 0.06;
+    mouseVY += (rawY - mouseY) * 0.06;
+    mouseVX *= 0.86;
+    mouseVY *= 0.86;
+    mouseX += mouseVX;
+    mouseY += mouseVY;
+    camX += (rawX - camX) * 0.04;
+    camY += (rawY - camY) * 0.04;
+
+    // Object: bounded orientation drift, breathing and Mobius twist.
+    var yaw = 0.35 * Math.sin(time * 0.13) + 0.15 * Math.sin(time * 0.071) + mouseX * 0.18;
+    var pitch = 0.55 + 0.18 * Math.sin(time * 0.09) - mouseY * 0.12;
+    var roll = 0.5 + 0.06 * Math.sin(time * 0.05);
+    objectRotation(objRot, yaw, pitch, roll);
+    objScale = 1 + 0.035 * Math.sin(time * 0.27) + 0.02 * Math.sin(time * 0.11);
+    objTwist = time * 0.09 + 0.25 * Math.sin(time * 0.21);
+
+    // Camera: a few degrees of orbit, gentle parallax, no zoom.
+    var camYaw = 0.05 * Math.sin(time * 0.1) + camX * 0.06;
+    var camPitch = 0.2 + 0.02 * Math.sin(time * 0.13) - camY * 0.04;
+    camDist = 4.8 + 0.03 * Math.sin(time * 0.09);
     var eye = [
-      camDist * Math.sin(yaw) * Math.cos(pitch),
-      camDist * Math.sin(pitch),
-      camDist * Math.cos(yaw) * Math.cos(pitch)
+      camDist * Math.sin(camYaw) * Math.cos(camPitch),
+      camDist * Math.sin(camPitch),
+      camDist * Math.cos(camYaw) * Math.cos(camPitch)
     ];
     lookAt(view, eye);
     perspective(proj, FOV, width / height, 0.5, 30);
+
     var halfH = camDist * Math.tan(FOV / 2);
     var halfW = halfH * (width / height);
     mouseWorld = [
@@ -549,33 +485,6 @@
       camRight[1] * mouseX * halfW + camUp[1] * mouseY * halfH,
       camRight[2] * mouseX * halfW + camUp[2] * mouseY * halfH
     ];
-  }
-
-  function step(dt) {
-    time += dt;
-    if (assembleStart < 0 && (root.classList.contains("is-ready") || !document.getElementById("loader"))) {
-      assembleStart = time;
-    }
-
-    var target = pointerActive && time - lastMove < 3 ? 1 : 0;
-    strength += (target - strength) * (target > strength ? 0.07 : 0.012);
-    mouseVX += (rawX - mouseX) * 0.085;
-    mouseVY += (rawY - mouseY) * 0.085;
-    mouseVX *= 0.8;
-    mouseVY *= 0.8;
-    mouseX += mouseVX;
-    mouseY += mouseVY;
-    camX += (rawX - camX) * 0.045;
-    camY += (rawY - camY) * 0.045;
-    turbulence += (Math.min(1.4, speedPool * 0.9) - turbulence) * 0.08;
-    speedPool *= 0.9;
-
-    if (time > nextAmbientWave) {
-      nextAmbientWave = time + 7 + Math.random() * 9;
-      spawnWave((Math.random() - 0.5) * 2.6, (Math.random() - 0.5) * 1.6, (Math.random() - 0.5) * 1.2, time);
-    }
-
-    updateCamera();
   }
 
   function drawQuad(prog) {
@@ -586,15 +495,13 @@
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
 
-  var waveUniform = new Float32Array(12);
-
-  function render(decay, assemble) {
+  function render(decay, reveal) {
     var current = targets[0];
     var previous = targets[1];
     gl.disable(gl.DEPTH_TEST);
     gl.viewport(0, 0, width, height);
 
-    // 1. Decay the previous accumulation into the current target.
+    // 1. Softly decay the previous frame into the current target.
     gl.bindFramebuffer(gl.FRAMEBUFFER, current.fbo);
     gl.disable(gl.BLEND);
     gl.activeTexture(gl.TEXTURE0);
@@ -604,44 +511,35 @@
     gl.uniform1f(fade.u.u_decay, decay);
     drawQuad(fade);
 
-    // 2. Add the geometry on top.
+    // 2. Add the sculpture.
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE);
     gl.useProgram(scene.prog);
     gl.uniformMatrix4fv(scene.u.u_view, false, view);
     gl.uniformMatrix4fv(scene.u.u_proj, false, proj);
-    gl.uniformMatrix3fv(scene.u.u_camRot, false, camRot);
+    gl.uniformMatrix3fv(scene.u.u_objRot, false, objRot);
     gl.uniform1f(scene.u.u_time, time);
-    gl.uniform1f(scene.u.u_assemble, assemble);
-    gl.uniform1f(scene.u.u_turb, turbulence);
+    gl.uniform1f(scene.u.u_reveal, reveal);
+    gl.uniform1f(scene.u.u_scale, objScale);
+    gl.uniform1f(scene.u.u_twist, objTwist);
     gl.uniform1f(scene.u.u_pixelRatio, pixelRatio);
     gl.uniform1f(scene.u.u_mouseStrength, strength);
     gl.uniform3f(scene.u.u_mousePos, mouseWorld[0], mouseWorld[1], mouseWorld[2]);
-    for (var i = 0; i < 3; i += 1) {
-      waveUniform[i * 4] = waves[i][0];
-      waveUniform[i * 4 + 1] = waves[i][1];
-      waveUniform[i * 4 + 2] = waves[i][2];
-      waveUniform[i * 4 + 3] = waves[i][3];
-    }
-    gl.uniform4fv(scene.u.u_wave, waveUniform);
-    gl.uniform3f(scene.u.u_colDeep, 0.03, 0.32, 0.21);
-    gl.uniform3f(scene.u.u_colMid, 0.05, 0.72, 0.44);
-    gl.uniform3f(scene.u.u_colHi, 0.45, 0.98, 0.76);
+    gl.uniform3f(scene.u.u_colDeep, 0.02, 0.3, 0.2);
+    gl.uniform3f(scene.u.u_colMid, 0.06, 0.68, 0.42);
+    gl.uniform3f(scene.u.u_colHi, 0.55, 0.98, 0.8);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, lineBuffer);
     gl.enableVertexAttribArray(aData);
     gl.vertexAttribPointer(aData, 4, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, lineIndexBuffer);
-    gl.uniform1f(scene.u.u_ghost, 1);
-    gl.drawElements(gl.LINES, lineIndex.length, gl.UNSIGNED_SHORT, 0);
-    gl.uniform1f(scene.u.u_ghost, 0);
     gl.drawElements(gl.LINES, lineIndex.length, gl.UNSIGNED_SHORT, 0);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, pointBuffer);
     gl.vertexAttribPointer(aData, 4, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.POINTS, 0, pointCount);
 
-    // 3. Composite to the canvas with bloom and haze.
+    // 3. Composite with a restrained glow.
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.disable(gl.BLEND);
     gl.clearColor(0, 0, 0, 0);
@@ -650,7 +548,7 @@
     gl.useProgram(display.prog);
     gl.uniform1i(display.u.u_tex, 0);
     gl.uniform2f(display.u.u_texel, 1 / width, 1 / height);
-    gl.uniform1f(display.u.u_time, time);
+    gl.uniform1f(display.u.u_reveal, reveal);
     drawQuad(display);
 
     targets[0] = previous;
@@ -662,8 +560,8 @@
     var dt = lastNow ? Math.min(0.05, (now - lastNow) / 1000) : 0.016;
     lastNow = now;
     step(dt);
-    var assemble = assembleStart < 0 ? 0 : Math.min(1, (time - assembleStart) / 3.4);
-    render(Math.pow(0.86, dt * 60), assemble);
+    var reveal = revealStart < 0 ? 0 : Math.min(1, (time - revealStart) / 2.6);
+    render(Math.pow(0.72, dt * 60), reveal);
     requestFrame();
   }
 
