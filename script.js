@@ -149,7 +149,7 @@
     var targetY = 0;
     var startTime = performance.now();
     var lastDrawTime = 0;
-    var frameInterval = 1000 / (coarsePointer ? 16 : 20);
+    var frameInterval = coarsePointer ? 1000 / 24 : 0;
 
     var particles = [];
     var particleCount = coarsePointer ? 16 : 24;
@@ -256,10 +256,10 @@
       context.clearRect(0, 0, width, height);
 
       var elapsed = reduceMotion ? 1200 : now - startTime;
-      pointerX += (targetX - pointerX) * 0.055;
-      pointerY += (targetY - pointerY) * 0.055;
-      var rotationY = elapsed * 0.00024 + pointerX * 0.5;
-      var rotationX = -0.66 + Math.sin(elapsed * 0.00019) * 0.12 + pointerY * 0.34;
+      pointerX += (targetX - pointerX) * 0.18;
+      pointerY += (targetY - pointerY) * 0.18;
+      var rotationY = elapsed * 0.00007 + pointerX * 1.15;
+      var rotationX = -0.52 + Math.sin(elapsed * 0.00011) * 0.05 + pointerY * 0.72;
       var rotationZ = 0.18 + Math.sin(elapsed * 0.00013) * 0.1;
       var scale = Math.min(width, height) * 0.205;
 
@@ -321,15 +321,27 @@
       requestSceneFrame();
     }
 
-    visual.addEventListener("pointermove", function (event) {
-      var bounds = visual.getBoundingClientRect();
-      targetX = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2;
-      targetY = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2;
-    }, { passive: true });
+    function clampRange(value) {
+      return value < -1.4 ? -1.4 : value > 1.4 ? 1.4 : value;
+    }
 
-    visual.addEventListener("pointerleave", function () {
+    function trackPointer(event) {
+      if (coarsePointer) return;
+      var bounds = visual.getBoundingClientRect();
+      var centreX = bounds.left + bounds.width * 0.5;
+      var centreY = bounds.top + bounds.height * 0.48;
+      targetX = clampRange((event.clientX - centreX) / (window.innerWidth * 0.5));
+      targetY = clampRange((event.clientY - centreY) / (window.innerHeight * 0.5));
+      scenePausedForScroll = false;
+      requestSceneFrame();
+    }
+
+    window.addEventListener("pointermove", trackPointer, { passive: true });
+
+    document.addEventListener("pointerleave", function () {
       targetX = 0;
       targetY = 0;
+      requestSceneFrame();
     });
 
     if ("ResizeObserver" in window) new ResizeObserver(resizeCanvas).observe(visual);
@@ -375,7 +387,7 @@
   }
 
   /* ---------- Pause decorative CSS motion outside the viewport ---------- */
-  var animatedDecorations = Array.prototype.slice.call(document.querySelectorAll(".ticker-track, .project-commerce, .project-ai"));
+  var animatedDecorations = Array.prototype.slice.call(document.querySelectorAll(".ticker-track, .project-film, .project-tour"));
   if ("IntersectionObserver" in window && !reduceMotion) {
     var motionObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
