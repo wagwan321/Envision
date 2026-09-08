@@ -72,6 +72,56 @@
     reveals.forEach(element => observer.observe(element));
   } else reveals.forEach(element => element.classList.add('is-visible'));
 
+  // Each decorative demo plays once per viewport entry, then rests in its final state.
+  // Leaving the viewport removes its animations; the fallback artwork stays visible.
+  const demos = new Map([...document.querySelectorAll('.service-demo')].map(element => [element, false]));
+  function syncDemoMotion() {
+    demos.forEach((visible, element) => {
+      element.classList.toggle('demo-playing', visible && !motionQuery.matches && !document.hidden);
+    });
+  }
+  if ('IntersectionObserver' in window) {
+    const demoObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => demos.set(entry.target, entry.isIntersecting && entry.intersectionRatio >= .18));
+      syncDemoMotion();
+    }, { threshold:[0, .18] });
+    demos.forEach((visible, element) => demoObserver.observe(element));
+  }
+  motionQuery.addEventListener('change', syncDemoMotion);
+  document.addEventListener('visibilitychange', syncDemoMotion);
+
+  document.querySelectorAll('.service-card').forEach(card => {
+    let pointerFrame = 0;
+    let x = 0;
+    let y = 0;
+    function resetPointer() {
+      if (pointerFrame) cancelAnimationFrame(pointerFrame);
+      pointerFrame = 0;
+      card.classList.remove('has-pointer');
+      card.style.setProperty('--pointer-x', '0px');
+      card.style.setProperty('--pointer-y', '0px');
+    }
+    card.addEventListener('pointermove', event => {
+      if (motionQuery.matches || event.pointerType !== 'mouse') {
+        resetPointer();
+        return;
+      }
+      card.classList.add('has-pointer');
+      const rect = card.getBoundingClientRect();
+      x = ((event.clientX - rect.left) / rect.width - .5) * 8;
+      y = ((event.clientY - rect.top) / rect.height - .5) * 6;
+      if (!pointerFrame) pointerFrame = requestAnimationFrame(() => {
+        pointerFrame = 0;
+        card.style.setProperty('--pointer-x', `${x.toFixed(2)}px`);
+        card.style.setProperty('--pointer-y', `${y.toFixed(2)}px`);
+      });
+    }, { passive:true });
+    card.addEventListener('pointerleave', resetPointer);
+    card.addEventListener('pointercancel', resetPointer);
+    window.addEventListener('blur', resetPointer);
+    motionQuery.addEventListener('change', resetPointer);
+  });
+
   function closeMenu(restoreFocus = false) {
     menu.setAttribute('aria-expanded', 'false');
     nav.classList.remove('is-open');

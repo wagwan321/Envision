@@ -18,6 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="scroll.css">
   <link rel="stylesheet" href="journey.css">
+  <link rel="stylesheet" href="services.css">
   <noscript><style>.contact-form>label,.contact-form>.form-row,.contact-form>.submit-button,.contact-form>.form-hint{display:none}</style></noscript>
   <script src="script.js" defer></script>
 </head>
@@ -57,25 +58,72 @@
     </section>
     <section class="expertise section-pad" id="services" aria-labelledby="services-title">
       <div class="section-heading reveal">
-        <h2 id="services-title">What we do.</h2>
-        <p>From your first website to software that runs your business. We design it, build it, and help you launch.</p>
+        <h2 id="services-title">What we do.<br><span>See it in action.</span></h2>
+        <p>Websites that bring in business. Tools that save time. Experiences that make people look closer.</p>
       </div>
       <div class="service-grid">
-        <article class="service-card reveal">
-          <h3>Websites &amp; online stores</h3>
-          <p>Fast, easy-to-use websites that explain your business and make it simple for customers to enquire or buy.</p>
+        <article class="service-card reveal" aria-labelledby="service-web-title">
+          <div class="service-demo demo-web" aria-hidden="true">
+            <div class="demo-surface">
+              <div class="mini-browser demo-piece" style="--delay:0s">
+                <div class="mini-toolbar"><i></i><i></i><i></i><span>yourbrand.com</span></div>
+                <div class="mini-site">
+                  <div class="mini-nav demo-piece" style="--delay:.25s"><b>your brand.</b><span></span><span></span></div>
+                  <div class="mini-web-layout">
+                    <div class="mini-copy demo-piece" style="--delay:.5s"><strong>A better<br>first impression.</strong><span class="mini-action">Let’s talk <i>↗</i></span></div>
+                    <div class="mini-art demo-piece" style="--delay:.75s"><i></i><i></i><i></i></div>
+                  </div>
+                  <div class="mini-web-tiles"><i class="demo-piece" style="--delay:.95s"></i><i class="demo-piece" style="--delay:1.1s"></i><i class="demo-piece" style="--delay:1.25s"></i></div>
+                </div>
+              </div>
+              <div class="demo-toast demo-piece" style="--delay:1.65s"><span>✓</span> Ready for customers</div>
+            </div>
+          </div>
+          <div class="service-copy"><p class="service-category">Websites &amp; online stores</p><h3 id="service-web-title">Turn visitors into<br><em>customers.</em></h3><p>A clear story, thoughtful design, and an easy path to enquire or buy.</p></div>
         </article>
-        <article class="service-card reveal">
-          <h3>Custom software</h3>
-          <p>Dashboards, customer portals, and internal tools built around the way your team works.</p>
+        <article class="service-card reveal" aria-labelledby="service-software-title">
+          <div class="service-demo demo-software" aria-hidden="true">
+            <div class="demo-surface">
+              <div class="mini-dashboard demo-piece" style="--delay:0s">
+                <div class="dash-sidebar"><b>◈</b><i></i><i></i><i></i></div>
+                <div class="dash-main">
+                  <div class="dash-heading"><strong>Team overview</strong><span>● Live</span></div>
+                  <div class="dash-chart"><span>Weekly activity</span><div class="dash-bars"><i style="--height:32%;--delay:.2s"></i><i style="--height:48%;--delay:.32s"></i><i style="--height:41%;--delay:.44s"></i><i style="--height:68%;--delay:.56s"></i><i style="--height:59%;--delay:.68s"></i><i style="--height:82%;--delay:.8s"></i><i style="--height:96%;--delay:.92s"></i></div></div>
+                  <div class="dash-row demo-piece" style="--delay:1.3s"><i>✓</i><span>Website launch</span><b>Ready</b></div>
+                  <div class="dash-row demo-piece" style="--delay:1.6s"><i>✓</i><span>Team tasks</span><b>In sync</b></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="service-copy"><p class="service-category">Custom software</p><h3 id="service-software-title">Software that fits<br><em>your business.</em></h3><p>Dashboards, portals, and tools built around how your team actually works.</p></div>
         </article>
-        <article class="service-card reveal">
-          <h3>AI &amp; automation</h3>
-          <p>AI assistants and automated workflows that handle repetitive tasks and free up your team’s time.</p>
+        <article class="service-card reveal" aria-labelledby="service-ai-title">
+          <div class="service-demo demo-ai" aria-hidden="true">
+            <div class="demo-surface">
+              <div class="flow-request demo-piece" style="--delay:0s"><i></i> A new customer enquiry</div>
+              <div class="flow-path"><span class="flow-packet"></span></div>
+              <div class="flow-nodes">
+                <div class="flow-node flow-inbox"><span><svg viewBox="0 0 32 32" fill="none"><rect x="5" y="8" width="22" height="16" rx="3"/><path d="m6 10 10 8 10-8"/></svg></span><small>Receive</small></div>
+                <div class="flow-node flow-assistant"><span>✳</span><small>Understand</small></div>
+                <div class="flow-node flow-done"><span>✓</span><small>Prepare</small></div>
+              </div>
+              <div class="flow-result demo-piece" style="--delay:2.2s"><span>✓</span> Reply prepared for your team</div>
+            </div>
+          </div>
+          <div class="service-copy"><p class="service-category">AI &amp; automation</p><h3 id="service-ai-title">Less busywork.<br><em>More progress.</em></h3><p>Useful AI assistants and workflows that take repetitive tasks off your hands.</p></div>
         </article>
-        <article class="service-card reveal">
-          <h3>Video &amp; virtual tours</h3>
-          <p>Product videos, motion graphics, and drone tours that help people see what you offer.</p>
+        <article class="service-card reveal" aria-labelledby="service-video-title">
+          <div class="service-demo demo-video" aria-hidden="true">
+            <div class="demo-surface">
+              <div class="mini-film">
+                <div class="video-shot"><div class="video-sun"></div><div class="video-hill hill-back"></div><div class="video-hill hill-front"></div><div class="video-house"><i></i><i></i><i></i></div><div class="video-ground"></div></div>
+                <div class="video-vignette"></div>
+                <div class="video-caption demo-piece" style="--delay:.6s"><small>A DIFFERENT PERSPECTIVE</small><strong>Spaces worth seeing.</strong></div>
+                <div class="video-timeline"><span></span></div>
+              </div>
+            </div>
+          </div>
+          <div class="service-copy"><p class="service-category">Video &amp; virtual tours</p><h3 id="service-video-title">Give customers<br><em>a closer look.</em></h3><p>Product films, motion graphics, and immersive tours that bring your business to life.</p></div>
         </article>
       </div>
       <a class="text-link services-link" href="#contact">Tell us about your project <span aria-hidden="true">↗</span></a>
