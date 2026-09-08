@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Work section — client preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+/* ---- preview chrome (not part of the site) ---- */
+.pv-banner { padding:14px 24px; color:#0a1a12; background:#31efa0; font:600 .74rem/1.5 "Space Grotesk",sans-serif; text-align:center; }
+.pv-banner b { text-transform:uppercase; letter-spacing:.14em; font-size:.62rem; }
+.pv-controls { display:flex; align-items:center; justify-content:flex-end; gap:12px; margin:0 0 22px; color:#5b675f; font:600 .68rem/1 "Space Grotesk",sans-serif; }
+.pv-controls b { color:#09110e; }
+.pv-switch { width:44px; height:24px; padding:3px; border:0; border-radius:999px; background:#b9c2b5; cursor:pointer; transition:background 240ms ease; }
+.pv-switch i { display:block; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform 240ms cubic-bezier(.2,.8,.2,1); }
+.pv-switch[aria-pressed="true"] { background:#09945d; }
+.pv-switch[aria-pressed="true"] i { transform:translateX(20px); }
+.project-grid.is-tinted .project-visual { filter:saturate(.16) contrast(1.06) brightness(.97); transition:filter 520ms ease; }
+.project-grid.is-tinted .project:hover .project-visual { filter:none; }
+
+/* ---- shared additions to the real card ---- */
+.project-results { display:flex; flex-wrap:wrap; gap:8px 26px; padding:0 26px 24px; }
+.project-results span { color:#647169; font-size:.72rem; }
+.project-results b { color:#09945d; font:600 .88rem/1 "Space Grotesk",sans-serif; }
+
+/* ================= 01 — MARCHETTI (website, deliberately red/white) ================= */
+.project-site { display:grid; place-items:center; padding:6%; background:#14221d; }
+.mc { background:#fff; color:#1a1a1a; font-family:"DM Sans",sans-serif; }
+.mc-nav { display:flex; align-items:center; gap:26px; padding:16px 30px; border-bottom:1px solid #ececec; }
+.mc-nav b { font:700 .78rem/1 "Space Grotesk",sans-serif; letter-spacing:.2em; }
+.mc-nav nav { display:flex; gap:18px; margin-left:22px; }
+.mc-nav nav span { color:#6d6d6d; font-size:.6rem; }
+.mc-nav em { margin-left:auto; padding:6px 12px; border-radius:999px; color:#fff; background:#c8102e; font-style:normal; font-size:.55rem; font-weight:600; }
+.mc-hero { display:grid; grid-template-columns:1fr 1fr; gap:34px; padding:44px 30px 26px; }
+.mc-copy { display:flex; flex-direction:column; align-items:flex-start; }
+.mc-copy small { color:#c8102e; font:700 .5rem/1 "Space Grotesk",sans-serif; letter-spacing:.14em; text-transform:uppercase; }
+.mc-copy strong { margin:14px 0 12px; color:#111; font:600 clamp(1.9rem,4.2vw,3.4rem)/.92 "Space Grotesk",sans-serif; letter-spacing:-.045em; }
+.mc-copy p { max-width:30ch; margin:0; color:#6d6d6d; font-size:.66rem; line-height:1.6; }
+.mc-cta { margin-top:auto; padding:10px 20px; border-radius:999px; color:#fff; background:#c8102e; font:600 .6rem/1 "Space Grotesk",sans-serif; }
+.mc-product { position:relative; display:grid; place-items:center; min-height:170px; border-radius:10px; background:linear-gradient(160deg,#f4f1ec,#e3ddd2); }
+.mc-product i { width:52%; height:58%; border-radius:6px 6px 34% 34%; background:linear-gradient(150deg,#8a6242,#4f3a26); box-shadow:0 18px 34px rgba(60,40,22,.28); }
+.mc-product u { position:absolute; right:16%; top:18%; width:26px; height:26px; border-radius:50%; background:#c8102e; }
+.mc-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:0 30px 26px; }
+.mc-strip i { height:52px; border-radius:6px; background:#f0ede7; }
+.mc-strip i:first-child { border:1.5px solid #c8102e; }
+
+/* ================= 02 — KESTREL (AI brand film) ================= */
+.project-film { display:grid; place-items:center; padding:8%; background:#0b1612; }
+.film { width:100%; overflow:hidden; border:1px solid rgba(255,255,255,.12); border-radius:14px; background:#06100c; box-shadow:0 26px 64px rgba(0,0,0,.44); }
+.film-frame { position:relative; aspect-ratio:16/9; overflow:hidden; }
+.film-scene { position:absolute; inset:0; background:radial-gradient(circle at 68% 30%,#ff8a4c,transparent 46%),radial-gradient(circle at 26% 72%,#2b6cff,transparent 52%),linear-gradient(150deg,#241a2e,#07110d); animation:film-drift 9s ease-in-out infinite alternate; }
+@keyframes film-drift { to { transform:scale(1.08) translateX(-2%); } }
+.film-frame::before,.film-frame::after { content:""; position:absolute; left:0; right:0; height:8%; background:#000; z-index:2; }
+.film-frame::before { top:0; } .film-frame::after { bottom:0; }
+.film-grain { position:absolute; inset:0; opacity:.3; background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px); }
+.film-play { position:absolute; top:50%; left:50%; z-index:3; display:grid; place-items:center; width:52px; height:52px; padding:0; border:1px solid rgba(255,255,255,.5); border-radius:50%; background:rgba(8,18,13,.5); backdrop-filter:blur(6px); transform:translate(-50%,-50%); }
+.film-play i { width:0; height:0; margin-left:4px; border-top:8px solid transparent; border-bottom:8px solid transparent; border-left:13px solid #fff; }
+.film-badge { position:absolute; top:12%; left:16px; z-index:3; padding:5px 9px; border:1px solid rgba(49,239,160,.4); border-radius:5px; color:#31efa0; background:rgba(4,20,13,.7); font:700 .46rem/1 "Space Grotesk",sans-serif; letter-spacing:.14em; }
+.film-lower { position:absolute; bottom:13%; left:16px; z-index:3; }
+.film-lower b { display:block; color:#fff; font:700 1.15rem/1 "Space Grotesk",sans-serif; letter-spacing:.12em; }
+.film-lower span { display:block; margin-top:4px; color:rgba(255,255,255,.72); font-size:.56rem; }
+.film-bar { display:flex; align-items:center; gap:12px; padding:11px 14px; background:#091510; }
+.film-play-sm { width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-left:8px solid #31efa0; }
+.film-track { position:relative; flex:1; height:3px; border-radius:3px; background:rgba(255,255,255,.16); }
+.film-track u { position:absolute; inset:0 52% 0 0; border-radius:3px; background:#31efa0; }
+.film-track s { position:absolute; top:-2px; width:1px; height:7px; background:rgba(255,255,255,.4); }
+.film-track s:nth-of-type(1){left:22%}.film-track s:nth-of-type(2){left:48%}.film-track s:nth-of-type(3){left:76%}
+.film-bar em { color:rgba(255,255,255,.6); font:500 .52rem/1 "Space Grotesk",sans-serif; font-style:normal; }
+
+/* ================= 03 — VANTARA (AI drone tour) ================= */
+.project-tour { position:relative; overflow:hidden; background:#07110d; }
+.tour { position:absolute; inset:0; }
+.tour-sky { position:absolute; inset:0; background:linear-gradient(#12384a 0%,#2a6f6b 42%,#7fae86 70%,#c9b98d 100%); }
+.tour-sky::after { content:""; position:absolute; top:14%; right:18%; width:54px; height:54px; border-radius:50%; background:radial-gradient(circle,#ffe9b5,rgba(255,233,181,0) 70%); }
+.tour-blocks { position:absolute; inset:auto 0 0 0; display:flex; align-items:flex-end; justify-content:center; gap:14px; height:56%; padding:0 12%; }
+.tour-blocks i { flex:1; border-radius:4px 4px 0 0; background:linear-gradient(160deg,rgba(233,242,236,.94),rgba(120,150,136,.86)); box-shadow:0 -6px 30px rgba(0,0,0,.3); }
+.tour-blocks i:nth-child(1){height:58%}.tour-blocks i:nth-child(2){height:92%}.tour-blocks i:nth-child(3){height:72%}
+.tour-pin { position:absolute; z-index:3; width:12px; height:12px; border:2px solid #fff; border-radius:50%; background:#31efa0; box-shadow:0 0 0 0 rgba(49,239,160,.55); animation:tour-pulse 2.4s ease-out infinite; }
+.tour-pin-2 { animation-delay:1.1s; background:#53cbd0; }
+@keyframes tour-pulse { 70%,100% { box-shadow:0 0 0 16px rgba(49,239,160,0); } }
+.tour-pin-1 { top:36%; left:38%; } .tour-pin-2 { top:52%; right:31%; }
+.tour-badge { position:absolute; top:18px; left:18px; z-index:4; display:flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; color:#fff; background:rgba(6,18,13,.66); backdrop-filter:blur(8px); font:700 .48rem/1 "Space Grotesk",sans-serif; letter-spacing:.13em; }
+.tour-badge i { width:6px; height:6px; border-radius:50%; background:#ff4d4d; animation:tour-blink 1.6s ease-in-out infinite; }
+@keyframes tour-blink { 50% { opacity:.25; } }
+.tour-map { position:absolute; top:18px; right:18px; z-index:4; width:74px; height:54px; border:1px solid rgba(255,255,255,.28); border-radius:7px; background:rgba(6,18,13,.55); backdrop-filter:blur(8px); }
+.tour-map i { position:absolute; top:56%; left:40%; width:8px; height:8px; border-radius:50%; background:#31efa0; box-shadow:0 0 10px #31efa0; }
+.tour-caption { position:absolute; right:18px; bottom:64px; left:18px; z-index:4; display:flex; align-items:center; gap:12px; padding:11px 14px; border:1px solid rgba(255,255,255,.14); border-radius:10px; background:rgba(5,16,11,.78); backdrop-filter:blur(10px); }
+.tour-caption p { margin:0; color:#dcebe3; font-size:.62rem; line-height:1.45; }
+.tour-wave { display:flex; align-items:center; gap:2px; height:20px; }
+.tour-wave i { width:2px; border-radius:2px; background:#31efa0; animation:tour-wave 1s ease-in-out infinite; }
+.tour-wave i:nth-child(1){height:40%;animation-delay:0s}.tour-wave i:nth-child(2){height:85%;animation-delay:.12s}.tour-wave i:nth-child(3){height:55%;animation-delay:.24s}.tour-wave i:nth-child(4){height:100%;animation-delay:.36s}.tour-wave i:nth-child(5){height:45%;animation-delay:.48s}
+@keyframes tour-wave { 50% { transform:scaleY(.4); } }
+.tour-chips { position:absolute; bottom:18px; left:18px; z-index:4; display:flex; gap:6px; }
+.tour-chips span { padding:7px 12px; border:1px solid rgba(255,255,255,.2); border-radius:999px; color:rgba(255,255,255,.76); background:rgba(6,18,13,.6); backdrop-filter:blur(8px); font:600 .54rem/1 "Space Grotesk",sans-serif; }
+.tour-chips span.is-on { color:#04150e; border-color:transparent; background:#31efa0; }
+
+@media (max-width:880px) {
+  .project-grid { grid-template-columns:1fr; }
+  .mc-hero { grid-template-columns:1fr; }
+  .mc-product { min-height:130px; }
+}
+</style>
+</head>
+<body>
+
+<div class="pv-banner">
+  <b>Preview only</b> — Marchetti &amp; Co., Kestrel Athletics and Vantara Residences are invented placeholder companies. Every name, quote and figure below is fabricated to demonstrate layout. Not for publication.
+</div>
+
+<section class="section work" id="work">
+  <div class="section-shell">
+    <div class="section-heading section-heading-wide reveal is-visible">
+      <p class="kicker"><span>02</span> Clients</p>
+      <h2>Work we&rsquo;re proud<br><em>to put our name to.</em></h2>
+      <p>Three engagements, three different deliverables &mdash; a storefront, a brand film and a spatial tour.</p>
+    </div>
+
+    <div class="pv-controls">
+      <span>Client colours at rest</span>
+      <button class="pv-switch" id="tint" type="button" aria-pressed="false" aria-label="Toggle tinted treatment"><i></i></button>
+      <b>Tinted to palette</b>
+    </div>
+
+    <div class="project-grid" id="grid">
+
+      <article class="project project-large reveal is-visible">
+        <div class="project-visual project-site" aria-hidden="true">
+          <div class="mock-browser">
+            <div class="mock-browser-bar"><span></span><span></span><span></span><i>marchetti.co</i></div>
+            <div class="mc">
+              <header class="mc-nav">
+                <b>MARCHETTI</b>
+                <nav><span>Collections</span><span>Atelier</span><span>Journal</span></nav>
+                <em>Cart (2)</em>
+              </header>
+              <div class="mc-hero">
+                <div class="mc-copy">
+                  <small>Est. 1948 &mdash; Brianza, Italy</small>
+                  <strong>Made to<br>outlast us.</strong>
+                  <p>Hand-joined oak, finished in the same workshop for three generations.</p>
+                  <span class="mc-cta">Shop the collection</span>
+                </div>
+                <div class="mc-product"><i></i><u></u></div>
+              </div>
+              <div class="mc-strip"><i></i><i></i><i></i><i></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="project-meta">
+          <div><span>01 / WEBSITE</span><h3>Marchetti &amp; Co.</h3></div>
+          <p>E-commerce &middot; Brand system &middot; Art direction</p>
+        </div>
+        <div class="project-results">
+          <span><b>+34%</b> add-to-cart rate</span>
+          <span><b>1.2s</b> largest contentful paint</span>
+          <span><b>6 wks</b> concept to launch</span>
+        </div>
+      </article>
+
+      <article class="project reveal is-visible">
+        <div class="project-visual project-film" aria-hidden="true">
+          <div class="film">
+            <div class="film-frame">
+              <div class="film-scene"></div>
+              <div class="film-grain"></div>
+              <div class="film-badge">AI-GENERATED SEQUENCE</div>
+              <button class="film-play" type="button" tabindex="-1"><i></i></button>
+              <div class="film-lower"><b>KESTREL</b><span>AW26 &mdash; &ldquo;Built for the long run&rdquo;</span></div>
+            </div>
+            <div class="film-bar">
+              <i class="film-play-sm"></i>
+              <div class="film-track"><u></u><s></s><s></s><s></s></div>
+              <em>00:42 / 01:30</em>
+            </div>
+          </div>
+        </div>
+        <div class="project-meta">
+          <div><span>02 / FILM</span><h3>Kestrel Athletics</h3></div>
+          <p>AI video &middot; Motion direction</p>
+        </div>
+        <div class="project-results">
+          <span><b>2.4M</b> organic views</span>
+          <span><b>9 days</b> brief to delivery</span>
+        </div>
+      </article>
+
+      <article class="project reveal is-visible">
+        <div class="project-visual project-tour" aria-hidden="true">
+          <div class="tour">
+            <div class="tour-sky"></div>
+            <div class="tour-blocks"><i></i><i></i><i></i></div>
+            <span class="tour-pin tour-pin-1"></span>
+            <span class="tour-pin tour-pin-2"></span>
+            <div class="tour-badge"><i></i> LIVE TOUR</div>
+            <div class="tour-map"><i></i></div>
+            <div class="tour-caption">
+              <div class="tour-wave"><i></i><i></i><i></i><i></i><i></i></div>
+              <p>&ldquo;The south terrace holds direct sun until nearly eight in the evening.&rdquo;</p>
+            </div>
+            <div class="tour-chips"><span class="is-on">Exterior</span><span>Lobby</span><span>Penthouse</span></div>
+          </div>
+        </div>
+        <div class="project-meta">
+          <div><span>03 / SPATIAL</span><h3>Vantara Residences</h3></div>
+          <p>Drone capture &middot; AI narration &middot; Web tour</p>
+        </div>
+        <div class="project-results">
+          <span><b>3.1&times;</b> tour completion rate</span>
+          <span><b>18</b> units reserved off-plan</span>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<script>
+  var tint = document.getElementById('tint');
+  var grid = document.getElementById('grid');
+  tint.addEventListener('click', function () {
+    var on = tint.getAttribute('aria-pressed') !== 'true';
+    tint.setAttribute('aria-pressed', String(on));
+    grid.classList.toggle('is-tinted', on);
+  });
+</script>
+</body>
+</html>

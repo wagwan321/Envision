@@ -1,11 +1,13 @@
-/* Hero object: a single flowing ribbon sculpture, rendered in WebGL.
-   Seven strands share one parametric centreline and twist around it as a
-   Mobius band, so they always read as one coherent object. Layered on top:
-   a translucent glass surface between the strands, energy pulses that ride
-   the edges, ripples along the loop, a scanning plane, cross-ribs, a slow
-   heartbeat, orbital dust, a delayed echo, wave events and a cursor light.
-   Geometry is evaluated in the vertex shader; the CPU only updates
-   uniforms. */
+/* Hero object: the Envision "EV" mark as a living glass sculpture, WebGL.
+   The three bars of the E and the V are traced from the logo and extruded
+   into depth. Each outline is drawn as five strands stacked through the
+   thickness, so the mark reads as one coherent wireframe solid. Layered
+   on top: translucent glass walls and faces between the strands, energy
+   pulses that ride the front and back edges, ripples along each outline,
+   a scanning window that reveals cross-ribs, a slow heartbeat, orbital
+   dust, a delayed echo, wave events, a depth twist and a cursor light.
+   Outline geometry is static; the vertex shader animates it from
+   uniforms, and only a small point buffer is updated per frame. */
 (function () {
   "use strict";
 
@@ -78,11 +80,21 @@
     "}"
   ].join("\n");
 
-  /* a_data = (u, strand, seed, type).
-     0 strand line, 1 seed point, 2 ambient particle, 3 energy pulse,
-     4 glass fill vertex, 5 cross-rib line, 6 orbital dust. */
+  /* Vertex layout (10 floats):
+       a_pos  = (x, y, z, extra)   object-space position; extra is a per-type
+                                   field (rib: 1 = structural corner rib,
+                                   dust / ambient: seed)
+       a_norm = (nx, ny)           outward in-plane normal of the outline
+       a_data = (u, strand, u0, type)
+                u      arc position around the outline, 0..2pi
+                strand shape * LAYERS + layer
+                u0     where this strand starts drawing during the reveal
+     Types: 0 strand line, 1 seed point, 2 ambient particle, 3 energy
+     pulse, 4 glass wall, 5 cross-rib, 6 orbital dust, 7 glass face. */
   var SCENE_VS = [
     "precision highp float;",
+    "attribute vec4 a_pos;",
+    "attribute vec2 a_norm;",
     "attribute vec4 a_data;",
     "uniform mat4 u_view;",
     "uniform mat4 u_proj;",
@@ -99,8 +111,10 @@
     "uniform float u_scanU;",
     "uniform float u_pixelRatio;",
     "uniform float u_mouseStrength;",
+    "uniform float u_layers;",
     "uniform vec3 u_mousePos;",
-    "uniform vec2 u_pulse[6];",
+    "uniform vec3 u_shapeK;",
+    "uniform vec4 u_pulse[6];",
     "uniform vec4 u_wave[3];",
     "varying float v_depth;",
     "varying float v_bright;",
@@ -112,22 +126,11 @@
     "float sq(float x){return x*x;}",
     "float wrapDist(float a){return abs(mod(a+3.14159,6.2832)-3.14159);}",
     "",
-    "vec3 centreline(float u, float t){",
-    "  vec3 c=vec3(0.7*cos(u),0.44*sin(u),0.3*sin(2.0*u+0.4))*u_scale;",
-    "  vec3 n=vec3(snoise(vec3(c.xy*0.9,t*0.06)),snoise(vec3(c.yx*0.9+5.0,t*0.05)),snoise(vec3(c.xz*0.9+9.0,t*0.055)));",
-    "  return c+n*0.045;",
-    "}",
-    "",
-    "vec3 ribbonNormal(float u){",
-    "  vec3 radial=vec3(cos(u),sin(u),0.0);",
-    "  float ang=0.5*u+u_twist;",
-    "  return normalize(radial*cos(ang)+vec3(0.0,0.0,1.0)*sin(ang));",
-    "}",
-    "",
-    "float pulseGlow(float u, float off){",
+    "float pulseGlow(float u, float shape, float off){",
     "  float g=0.0;",
     "  for(int i=0;i<6;i++){",
-    "    g+=exp(-sq(wrapDist(u-u_pulse[i].x)*3.0))*(1.0-0.45*abs(off-u_pulse[i].y));",
+    "    float match=step(abs(u_pulse[i].y-shape),0.5);",
+    "    g+=match*exp(-sq(wrapDist(u-u_pulse[i].x)*3.0))*(1.0-0.45*abs(off-u_pulse[i].z));",
     "  }",
     "  return g;",
     "}",
@@ -135,7 +138,7 @@
     "void main(){",
     "  float u=a_data.x;",
     "  float strand=a_data.y;",
-    "  float seed=a_data.z;",
+    "  float u0=a_data.z;",
     "  float type=a_data.w;",
     "  float t=u_time-u_echo*0.6;",
     "  v_type=type;",
@@ -143,80 +146,76 @@
     "  float alpha=0.0;",
     "  float bright=0.0;",
     "  float size=1.0;",
-    "  bool onRibbon=type<1.5||(type>3.5&&type<5.5);",
-    "  float grow=0.0;",
+    "  bool ambient=type>1.5&&type<2.5;",
     "  float visible=1.0;",
     "  float mouseF=0.0;",
     "",
-    "  if(onRibbon){",
-    "    float off=(strand-3.0)/3.0;",
-    "    float u0=hash(strand*3.7+1.3)*6.2832;",
-    "    if(type>0.5&&type<1.5){u=u0;}",
-    "    vec3 c=centreline(u,t);",
-    "    vec3 nrm=ribbonNormal(u);",
-    "    float ripple=exp(-sq(wrapDist(u-t*0.5)*2.2))*0.8+exp(-sq(wrapDist(u+t*0.37+2.0)*2.6))*0.6;",
-    "    p=c+nrm*off*0.22*u_scale+nrm*ripple*0.025;",
-    "    bright+=ripple*0.35+pulseGlow(u,off)*0.6;",
-    "    vec3 d=u_mousePos-c;",
+    "  if(!ambient){",
+    "    float shape=floor((strand+0.5)/u_layers);",
+    "    float layer=strand-shape*u_layers;",
+    "    float off=(layer-(u_layers-1.0)*0.5)/((u_layers-1.0)*0.5);",
+    "    float k=shape<0.5?u_shapeK.x:(shape<1.5?u_shapeK.y:u_shapeK.z);",
+    "    float ang=a_pos.z*u_twist;",
+    "    float ca=cos(ang);",
+    "    float sa=sin(ang);",
+    "    vec2 xy=vec2(ca*a_pos.x-sa*a_pos.y,sa*a_pos.x+ca*a_pos.y);",
+    "    p=vec3(xy,a_pos.z)*u_scale;",
+    "    vec3 n=vec3(snoise(vec3(a_pos.xy*0.9,t*0.06)),snoise(vec3(a_pos.yx*0.9+5.0,t*0.05)),snoise(vec3(a_pos.xy*0.7+9.0,t*0.055)));",
+    "    p+=n*0.028;",
+    "    float ripple=exp(-sq(wrapDist(u-t*0.5*k)*2.2))*0.8+exp(-sq(wrapDist(u+t*0.37*k+2.0)*2.6))*0.6;",
+    "    p+=vec3(a_norm,0.0)*ripple*0.022;",
+    "    bright+=ripple*0.35+pulseGlow(u,shape,off)*0.6;",
+    "    p=u_objRot*p;",
+    "    vec3 d=u_mousePos-p;",
     "    mouseF=u_mouseStrength*0.16/(1.0+dot(d,d)*4.0);",
     "    p+=d*mouseF;",
     "    bright+=mouseF*1.5;",
-    "    p=u_objRot*p;",
-    "    float stagger=strand*0.06;",
-    "    grow=clamp((u_reveal-stagger)/(1.0-stagger),0.0,1.0);",
+    "    float stagger=strand*0.035;",
+    "    float grow=clamp((u_reveal-stagger)/(1.0-stagger),0.0,1.0);",
     "    grow=grow*grow*(3.0-2.0*grow);",
     "    float arc=wrapDist(u-u0);",
-    "    float reach=grow*3.3;",
+    "    float reach=grow*3.4;",
     "    visible=1.0-smoothstep(reach-0.3,reach,arc);",
     "    if(type<0.5){",
     "      float primary=step(0.99,abs(off));",
-    "      alpha=mix(0.34,0.78,primary)*visible*mix(1.0,0.15,u_echo);",
-    "      if(abs(off)<0.01){alpha*=0.8;}",
+    "      alpha=mix(0.3,0.8,primary)*visible*mix(1.0,0.15,u_echo);",
     "    } else if(type<1.5){",
     "      alpha=smoothstep(0.0,0.12,u_reveal)*(1.0-smoothstep(0.25,0.6,grow));",
     "      size=2.6;",
     "      bright=0.6;",
+    "    } else if(type<3.5){",
+    "      alpha=smoothstep(0.9,1.0,u_reveal)*(1.0-u_echo);",
+    "      size=3.0;",
+    "      bright=1.2;",
     "    } else if(type<4.5){",
-    "      vec3 c2=centreline(u+0.02,t);",
-    "      vec3 tangent=normalize(u_objRot*(c2-c));",
-    "      vec3 surf=normalize(cross(tangent,u_objRot*nrm));",
+    "      vec3 wn=normalize(u_objRot*vec3(a_norm,0.0));",
     "      vec3 toCam=normalize(u_camPos-p);",
-    "      float facing=abs(dot(surf,toCam));",
-    "      alpha=(0.018+0.075*(1.0-facing))*visible*(1.0-u_echo);",
+    "      float facing=abs(dot(wn,toCam));",
+    "      alpha=(0.02+0.07*(1.0-facing))*visible*(1.0-u_echo);",
     "      bright*=0.6;",
+    "    } else if(type<5.5){",
+    "      float win=exp(-sq(wrapDist(u-u_scanU*k)*1.6));",
+    "      alpha=(0.22*win+mouseF*3.0+a_pos.w*0.3)*visible*(1.0-u_echo);",
+    "    } else if(type<6.5){",
+    "      p+=vec3(snoise(p*2.0+t*0.1),snoise(p.yzx*2.0-t*0.09),snoise(p.zxy*2.0+t*0.11))*0.03;",
+    "      alpha=0.14*smoothstep(0.6,1.0,u_reveal);",
+    "      size=1.2+hash(a_pos.w*2.0)*0.6;",
     "    } else {",
-    "      float win=exp(-sq(wrapDist(u-u_scanU)*1.6));",
-    "      alpha=(0.22*win+mouseF*3.0)*visible*(1.0-u_echo);",
+    "      vec3 fn=normalize(u_objRot*vec3(0.0,0.0,1.0));",
+    "      vec3 toCam=normalize(u_camPos-p);",
+    "      float facing=abs(dot(fn,toCam));",
+    "      alpha=(0.008+0.018*facing)*visible*(1.0-u_echo);",
+    "      bright*=0.5;",
     "    }",
-    "  } else if(type<2.5){",
+    "  } else {",
+    "    float seed=a_pos.w;",
     "    vec3 base=normalize(hash3(seed*31.0)-0.5)*(1.9+hash(seed*7.0)*1.3);",
     "    p=base+vec3(sin(t*0.07+seed*6.28),cos(t*0.05+seed*2.0),sin(t*0.06+seed*4.0))*0.08;",
     "    alpha=(0.1+0.15*hash(seed*3.0))*smoothstep(0.5,1.0,u_reveal);",
     "    size=1.3;",
-    "  } else if(type<3.5){",
-    "    vec2 pu=vec2(0.0);",
-    "    for(int i=0;i<6;i++){if(float(i)==strand){pu=u_pulse[i];}}",
-    "    vec3 c=centreline(pu.x,t);",
-    "    p=u_objRot*(c+ribbonNormal(pu.x)*pu.y*0.22*u_scale);",
-    "    alpha=smoothstep(0.9,1.0,u_reveal);",
-    "    size=3.0;",
-    "    bright=1.2;",
-    "  } else {",
-    "    float dir=hash(seed*4.0)>0.5?1.0:-1.0;",
-    "    float uu=seed*6.2832+t*0.03*dir;",
-    "    vec3 c=centreline(uu,t);",
-    "    vec3 nrm=ribbonNormal(uu);",
-    "    vec3 side=normalize(cross(nrm,vec3(0.13,0.07,1.0)));",
-    "    float sideSign=hash(seed*9.0)>0.5?1.0:-1.0;",
-    "    p=c+nrm*(0.3+0.25*hash(seed*5.0))*sideSign*u_scale+side*(hash(seed*11.0)-0.5)*0.3;",
-    "    p+=vec3(snoise(p*2.0+t*0.1),snoise(p.yzx*2.0-t*0.09),snoise(p.zxy*2.0+t*0.11))*0.03;",
-    "    bright+=pulseGlow(uu,0.0)*0.5;",
-    "    p=u_objRot*p;",
-    "    alpha=0.14*smoothstep(0.6,1.0,u_reveal);",
-    "    size=1.2+hash(seed*2.0)*0.6;",
     "  }",
     "",
-    "  if(onRibbon||type>5.5){",
+    "  if(!ambient){",
     "    for(int i=0;i<3;i++){",
     "      float age=u_time-u_wave[i].w;",
     "      if(age>0.0&&age<2.8){",
@@ -252,7 +251,7 @@
     "uniform vec3 u_colHi;",
     "void main(){",
     "  float a=v_alpha;",
-    "  bool isPoint=(v_type>0.5&&v_type<3.5)||v_type>5.5;",
+    "  bool isPoint=(v_type>0.5&&v_type<3.5)||(v_type>5.5&&v_type<6.5);",
     "  if(isPoint){",
     "    vec2 c=gl_PointCoord-0.5;",
     "    a*=1.0-smoothstep(0.5,1.0,length(c)*2.0);",
@@ -356,63 +355,238 @@
     return;
   }
 
-  /* ---------- Geometry ---------- */
-  var STRANDS = 7;
-  var SEGS = coarsePointer ? 180 : 260;
-  var RIB_EVERY = 10;
+  /* ---------- The mark ----------
+     Corner points traced from assets/logo-ev.png (320 x 164 px, y down),
+     then centred and scaled so the mark is about 1.7 units wide. Shape 0
+     is the top bar of the E flowing into the V; shapes 1 and 2 are the
+     middle and bottom bars. Each polygon is listed clockwise on screen. */
+  var LOGO_PX = [
+    [[8, 8], [143, 8], [203, 96], [269, 8], [311, 8], [198, 154], [127, 37.5], [38, 37.5]],
+    [[8.5, 71.5], [120, 71.5], [139.5, 99], [36.5, 99]],
+    [[39, 127.5], [157, 127.5], [173.5, 155.5], [8, 155.5]]
+  ];
+  /* Glass faces, as corner-index triangles per shape. */
+  var LOGO_TRIS = [
+    [[0, 1, 6], [0, 6, 7], [1, 2, 5], [1, 5, 6], [2, 3, 4], [2, 4, 5]],
+    [[0, 1, 2], [0, 2, 3]],
+    [[0, 1, 2], [0, 2, 3]]
+  ];
+  var UNIT = 1 / 180;
+  var CENTRE_X = 160;
+  var CENTRE_Y = 82;
+
+  var LAYERS = 5;
+  var DEPTH = 0.26;
+  var DENSITY = coarsePointer ? 44 : 64;   // samples per unit of outline
+  var RIB_EVERY = 8;
   var PARTICLES = 24;
   var PULSES = 6;
   var DUST = coarsePointer ? 24 : 40;
+  var TWO_PI = Math.PI * 2;
 
+  function hashJs(n) {
+    var s = Math.sin(n) * 43758.5453;
+    return s - Math.floor(s);
+  }
+
+  /* Build one outline: corners in object space, edges with outward
+     normals and cumulative length, evenly spaced samples that always
+     include the corners. */
+  function buildShape(pixels) {
+    var corners = pixels.map(function (pt) {
+      return [(pt[0] - CENTRE_X) * UNIT, (CENTRE_Y - pt[1]) * UNIT];
+    });
+    var count = corners.length;
+    var area = 0;
+    for (var i = 0; i < count; i += 1) {
+      var a = corners[i];
+      var b = corners[(i + 1) % count];
+      area += a[0] * b[1] - b[0] * a[1];
+    }
+    var outward = area > 0 ? 1 : -1;
+    var edges = [];
+    var length = 0;
+    for (var e = 0; e < count; e += 1) {
+      var from = corners[e];
+      var to = corners[(e + 1) % count];
+      var dx = to[0] - from[0];
+      var dy = to[1] - from[1];
+      var len = Math.hypot(dx, dy);
+      edges.push({
+        from: from,
+        to: to,
+        len: len,
+        start: length,
+        normal: [dy / len * outward, -dx / len * outward]
+      });
+      length += len;
+    }
+    var cornerNormals = corners.map(function (_, c) {
+      var prev = edges[(c - 1 + count) % count].normal;
+      var next = edges[c].normal;
+      var nx = prev[0] + next[0];
+      var ny = prev[1] + next[1];
+      var nl = Math.hypot(nx, ny) || 1;
+      return [nx / nl, ny / nl];
+    });
+
+    var samples = [];
+    var cornerIndex = [];
+    var spacing = 1 / DENSITY;
+    edges.forEach(function (edge, index) {
+      var steps = Math.max(1, Math.round(edge.len / spacing));
+      for (var s = 0; s < steps; s += 1) {
+        var f = s / steps;
+        var along = edge.start + edge.len * f;
+        var normal = s === 0 ? cornerNormals[index] : edge.normal;
+        if (s === 0) cornerIndex.push(samples.length);
+        samples.push({
+          x: edge.from[0] + (edge.to[0] - edge.from[0]) * f,
+          y: edge.from[1] + (edge.to[1] - edge.from[1]) * f,
+          nx: normal[0],
+          ny: normal[1],
+          u: (along / length) * TWO_PI,
+          corner: s === 0
+        });
+      }
+    });
+
+    function evalAt(u) {
+      var along = ((u % TWO_PI) + TWO_PI) % TWO_PI / TWO_PI * length;
+      var edge = edges[edges.length - 1];
+      for (var j = 0; j < edges.length; j += 1) {
+        if (along < edges[j].start + edges[j].len) { edge = edges[j]; break; }
+      }
+      var f = (along - edge.start) / edge.len;
+      return {
+        x: edge.from[0] + (edge.to[0] - edge.from[0]) * f,
+        y: edge.from[1] + (edge.to[1] - edge.from[1]) * f,
+        nx: edge.normal[0],
+        ny: edge.normal[1]
+      };
+    }
+
+    return { corners: corners, cornerNormals: cornerNormals, samples: samples,
+             cornerIndex: cornerIndex, length: length, evalAt: evalAt };
+  }
+
+  var shapes = LOGO_PX.map(buildShape);
+  var shapeK = shapes.map(function (shape) { return TWO_PI / shape.length; });
+  var strandStart = [];
+  for (var si = 0; si < shapes.length * LAYERS; si += 1) {
+    strandStart.push(hashJs(si * 3.7 + 1.3) * TWO_PI);
+  }
+  function layerZ(layer) { return (layer / (LAYERS - 1) - 0.5) * DEPTH; }
+
+  /* ---------- Geometry buffers ---------- */
+  var FLOATS = 10;
   var lineData = [];
   var lineIndex = [];
-  var fillIndex = [];
-  for (var strand = 0; strand < STRANDS; strand += 1) {
-    var base = lineData.length / 4;
-    for (var i = 0; i < SEGS; i += 1) {
-      lineData.push((i / SEGS) * Math.PI * 2, strand, 0, 0);
-      lineIndex.push(base + i, base + ((i + 1) % SEGS));
-      if (strand < STRANDS - 1) {
-        var a = base + i;
-        var b = base + ((i + 1) % SEGS);
-        var c = a + SEGS;
-        var d = b + SEGS;
-        fillIndex.push(a, c, b, b, c, d);
+  var wallIndex = [];
+
+  function pushVertex(target, x, y, z, extra, nx, ny, u, strand, type) {
+    target.push(x, y, z, extra, nx, ny, u, strand, strandStart[strand], type);
+    return target.length / FLOATS - 1;
+  }
+
+  shapes.forEach(function (shape, shapeIndex) {
+    var n = shape.samples.length;
+    var layerBase = [];
+    for (var layer = 0; layer < LAYERS; layer += 1) {
+      var strand = shapeIndex * LAYERS + layer;
+      var z = layerZ(layer);
+      var base = lineData.length / FLOATS;
+      layerBase.push(base);
+      shape.samples.forEach(function (s) {
+        pushVertex(lineData, s.x, s.y, z, 0, s.nx, s.ny, s.u, strand, 0);
+      });
+      for (var i = 0; i < n; i += 1) lineIndex.push(base + i, base + ((i + 1) % n));
+    }
+    // Glass walls between consecutive layers reuse the strand vertices.
+    for (var w = 0; w < LAYERS - 1; w += 1) {
+      for (var q = 0; q < n; q += 1) {
+        var a = layerBase[w] + q;
+        var b = layerBase[w] + ((q + 1) % n);
+        var c = layerBase[w + 1] + q;
+        var d = layerBase[w + 1] + ((q + 1) % n);
+        wallIndex.push(a, c, b, b, c, d);
       }
     }
-  }
-  // Glass fill reuses the strand vertices through a second index buffer.
-  var fillVertexCount = lineData.length / 4;
-  var fillData = lineData.slice();
-  for (var f = 0; f < fillVertexCount; f += 1) fillData[f * 4 + 3] = 4;
-  // Cross-ribs: one line between the two edge strands every RIB_EVERY segments.
-  for (var r = 0; r < SEGS; r += RIB_EVERY) {
-    var ru = (r / SEGS) * Math.PI * 2;
-    var ribBase = lineData.length / 4;
-    lineData.push(ru, 0, 0, 5, ru, STRANDS - 1, 0, 5);
-    lineIndex.push(ribBase, ribBase + 1);
-  }
+  });
+  var wallData = lineData.slice();
+  for (var wv = 0; wv < wallData.length / FLOATS; wv += 1) wallData[wv * FLOATS + 9] = 4;
 
+  // Cross-ribs: structural ribs at every corner, scanned ribs along the edges.
+  shapes.forEach(function (shape, shapeIndex) {
+    var strand = shapeIndex * LAYERS;
+    shape.samples.forEach(function (s, index) {
+      if (!s.corner && index % RIB_EVERY !== 0) return;
+      var flag = s.corner ? 1 : 0;
+      var first = pushVertex(lineData, s.x, s.y, layerZ(0), flag, s.nx, s.ny, s.u, strand, 5);
+      var second = pushVertex(lineData, s.x, s.y, layerZ(LAYERS - 1), flag, s.nx, s.ny, s.u, strand, 5);
+      lineIndex.push(first, second);
+    });
+  });
+
+  // Glass faces on the front and back of the mark.
+  var faceData = [];
+  shapes.forEach(function (shape, shapeIndex) {
+    [0, LAYERS - 1].forEach(function (layer) {
+      var strand = shapeIndex * LAYERS + layer;
+      var z = layerZ(layer);
+      LOGO_TRIS[shapeIndex].forEach(function (tri) {
+        tri.forEach(function (cornerIdx) {
+          var corner = shape.corners[cornerIdx];
+          var normal = shape.cornerNormals[cornerIdx];
+          var sample = shape.samples[shape.cornerIndex[cornerIdx]];
+          pushVertex(faceData, corner[0], corner[1], z, 0, normal[0], normal[1], sample.u, strand, 7);
+        });
+      });
+    });
+  });
+  var faceCount = faceData.length / FLOATS;
+
+  // Static points: one seed per strand, plus ambient particles.
   var pointData = [];
-  for (var seedIndex = 0; seedIndex < STRANDS; seedIndex += 1) pointData.push(0, seedIndex, 0, 1);
-  for (var particle = 0; particle < PARTICLES; particle += 1) pointData.push(0, 0, Math.random(), 2);
-  for (var pulse = 0; pulse < PULSES; pulse += 1) pointData.push(0, pulse, 0, 3);
-  for (var dust = 0; dust < DUST; dust += 1) pointData.push(0, 0, Math.random(), 6);
-  var pointCount = pointData.length / 4;
+  shapes.forEach(function (shape, shapeIndex) {
+    for (var layer = 0; layer < LAYERS; layer += 1) {
+      var strand = shapeIndex * LAYERS + layer;
+      var at = shape.evalAt(strandStart[strand]);
+      pushVertex(pointData, at.x, at.y, layerZ(layer), 0, at.nx, at.ny, strandStart[strand], strand, 1);
+    }
+  });
+  for (var particle = 0; particle < PARTICLES; particle += 1) {
+    pointData.push(0, 0, 0, Math.random(), 0, 0, 0, 0, 0, 2);
+  }
+  var pointCount = pointData.length / FLOATS;
 
-  function buffer(target, data) {
+  function buffer(target, data, usage) {
     var buf = gl.createBuffer();
     gl.bindBuffer(target, buf);
-    gl.bufferData(target, data, gl.STATIC_DRAW);
+    gl.bufferData(target, data, usage || gl.STATIC_DRAW);
     return buf;
   }
   var lineBuffer = buffer(gl.ARRAY_BUFFER, new Float32Array(lineData));
   var lineIndexBuffer = buffer(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(lineIndex));
-  var fillBuffer = buffer(gl.ARRAY_BUFFER, new Float32Array(fillData));
-  var fillIndexBuffer = buffer(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(fillIndex));
+  var wallBuffer = buffer(gl.ARRAY_BUFFER, new Float32Array(wallData));
+  var wallIndexBuffer = buffer(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(wallIndex));
+  var faceBuffer = buffer(gl.ARRAY_BUFFER, new Float32Array(faceData));
   var pointBuffer = buffer(gl.ARRAY_BUFFER, new Float32Array(pointData));
+  var dynamicCount = PULSES + DUST;
+  var dynamicData = new Float32Array(dynamicCount * FLOATS);
+  var dynamicBuffer = buffer(gl.ARRAY_BUFFER, dynamicData, gl.DYNAMIC_DRAW);
   var quadBuffer = buffer(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]));
+  var aPos = gl.getAttribLocation(scene.prog, "a_pos");
+  var aNorm = gl.getAttribLocation(scene.prog, "a_norm");
   var aData = gl.getAttribLocation(scene.prog, "a_data");
+  var STRIDE = FLOATS * 4;
+
+  function bindGeometry(buf) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.vertexAttribPointer(aPos, 4, gl.FLOAT, false, STRIDE, 0);
+    gl.vertexAttribPointer(aNorm, 2, gl.FLOAT, false, STRIDE, 16);
+    gl.vertexAttribPointer(aData, 4, gl.FLOAT, false, STRIDE, 24);
+  }
 
   /* ---------- Accumulation targets ---------- */
   var targets = [];
@@ -535,15 +709,28 @@
   var waves = [[0, 0, 0, -100], [0, 0, 0, -100], [0, 0, 0, -100]];
   var waveSlot = 0;
   var nextAmbientWave = 5 + Math.random() * 5;
+
   var pulses = [];
   for (var pi = 0; pi < PULSES; pi += 1) {
     pulses.push({
-      u: Math.random() * Math.PI * 2,
-      off: pi % 2 === 0 ? 1 : -1,
-      speed: (0.22 + Math.random() * 0.2) * (Math.random() > 0.5 ? 1 : -1)
+      shape: pi % shapes.length,
+      u: Math.random() * TWO_PI,
+      side: pi % 2 === 0 ? 1 : -1,
+      speed: (0.3 + Math.random() * 0.25) * (Math.random() > 0.5 ? 1 : -1)
     });
   }
-  var pulseUniform = new Float32Array(PULSES * 2);
+  var dusts = [];
+  for (var di = 0; di < DUST; di += 1) {
+    dusts.push({
+      shape: Math.floor(Math.random() * shapes.length),
+      u: Math.random() * TWO_PI,
+      speed: 0.04 * (Math.random() > 0.5 ? 1 : -1),
+      out: 0.05 + Math.random() * 0.18,
+      z: (Math.random() - 0.5) * DEPTH * 2.6,
+      seed: Math.random()
+    });
+  }
+  var pulseUniform = new Float32Array(PULSES * 4);
   var waveUniform = new Float32Array(12);
 
   function spawnWave(x, y, z, at) {
@@ -590,6 +777,13 @@
     animationFrame = requestAnimationFrame(frame);
   }
 
+  function writeDynamic(index, x, y, z, extra, nx, ny, u, strand, type) {
+    var o = index * FLOATS;
+    dynamicData[o] = x; dynamicData[o + 1] = y; dynamicData[o + 2] = z; dynamicData[o + 3] = extra;
+    dynamicData[o + 4] = nx; dynamicData[o + 5] = ny;
+    dynamicData[o + 6] = u; dynamicData[o + 7] = strand; dynamicData[o + 8] = strandStart[strand]; dynamicData[o + 9] = type;
+  }
+
   function step(dt) {
     time += dt;
     if (revealStart < 0 && (root.classList.contains("is-ready") || !document.getElementById("loader"))) {
@@ -608,34 +802,47 @@
     camX += (rawX - camX) * 0.04;
     camY += (rawY - camY) * 0.04;
 
-    // Object: bounded orientation drift, breathing, Mobius twist with occasional bursts.
-    var yaw = 0.35 * Math.sin(time * 0.13) + 0.15 * Math.sin(time * 0.071) + mouseX * 0.18;
-    var pitch = 0.55 + 0.18 * Math.sin(time * 0.09) - mouseY * 0.12;
-    var roll = 0.5 + 0.06 * Math.sin(time * 0.05);
+    // Object: the mark stays legible; bounded drift, breathing, depth twist bursts.
+    var yaw = 0.3 * Math.sin(time * 0.13) + 0.12 * Math.sin(time * 0.071) + mouseX * 0.24;
+    var pitch = 0.1 * Math.sin(time * 0.09) + 0.04 * Math.sin(time * 0.19) - mouseY * 0.16;
+    var roll = 0.04 * Math.sin(time * 0.05);
     objectRotation(objRot, yaw, pitch, roll);
     objScale = 1 + 0.035 * Math.sin(time * 0.27) + 0.02 * Math.sin(time * 0.11);
     var burstPhase = (time % 13) / 13;
     var burst = Math.sin(Math.PI * Math.max(0, Math.min(1, (burstPhase - 0.7) / 0.3)));
-    objTwist = time * 0.09 + 0.25 * Math.sin(time * 0.21) + burst * 0.45;
+    objTwist = 0.35 * Math.sin(time * 0.21) + burst * 1.2;
 
-    // Heartbeat, scanner plane and its gate, cross-rib scan.
+    // Heartbeat, scanner plane and its gate.
     var beatPhase = (time % 8.5) / 8.5;
     beat = Math.exp(-beatPhase * 6) * 0.3;
-    sweep = 1.1 * Math.sin(time * 0.23);
+    sweep = 0.7 * Math.sin(time * 0.23);
     sweepGate = Math.max(0, Math.min(1, (Math.sin(time * 0.09) - 0.3) / 0.3));
 
-    // Energy pulses travel the edge strands.
+    // Energy pulses travel the front and back edges of each shape.
     for (var i = 0; i < PULSES; i += 1) {
-      pulses[i].u += pulses[i].speed * dt;
-      pulseUniform[i * 2] = pulses[i].u;
-      pulseUniform[i * 2 + 1] = pulses[i].off;
+      var pulse = pulses[i];
+      pulse.u += pulse.speed * shapeK[pulse.shape] * dt;
+      pulseUniform[i * 4] = pulse.u;
+      pulseUniform[i * 4 + 1] = pulse.shape;
+      pulseUniform[i * 4 + 2] = pulse.side;
+      pulseUniform[i * 4 + 3] = 0;
+      var at = shapes[pulse.shape].evalAt(pulse.u);
+      writeDynamic(i, at.x, at.y, pulse.side * DEPTH * 0.5, 0, at.nx, at.ny, pulse.u, pulse.shape * LAYERS, 3);
+    }
+    // Orbital dust drifts along the outline just outside the mark.
+    for (var d = 0; d < DUST; d += 1) {
+      var mote = dusts[d];
+      mote.u += mote.speed * shapeK[mote.shape] * dt;
+      var m = shapes[mote.shape].evalAt(mote.u);
+      writeDynamic(PULSES + d, m.x + m.nx * mote.out, m.y + m.ny * mote.out, mote.z, mote.seed, m.nx, m.ny, mote.u, mote.shape * LAYERS, 6);
     }
 
-    // Ambient wave events originate on the ribbon itself.
+    // Ambient wave events originate on the mark itself.
     if (time > nextAmbientWave) {
       nextAmbientWave = time + 6 + Math.random() * 7;
-      var wu = Math.random() * Math.PI * 2;
-      var origin = rotateByObject([0.7 * Math.cos(wu) * objScale, 0.44 * Math.sin(wu) * objScale, 0.3 * Math.sin(2 * wu + 0.4) * objScale]);
+      var ws = Math.floor(Math.random() * shapes.length);
+      var wp = shapes[ws].evalAt(Math.random() * TWO_PI);
+      var origin = rotateByObject([wp.x * objScale, wp.y * objScale, 0]);
       spawnWave(origin[0], origin[1], origin[2], time);
     }
     for (var w = 0; w < 3; w += 1) {
@@ -647,7 +854,7 @@
 
     // Camera: a few degrees of orbit, gentle parallax, no zoom.
     var camYaw = 0.05 * Math.sin(time * 0.1) + camX * 0.06;
-    var camPitch = 0.2 + 0.02 * Math.sin(time * 0.13) - camY * 0.04;
+    var camPitch = 0.1 + 0.02 * Math.sin(time * 0.13) - camY * 0.04;
     camDist = 4.8 + 0.03 * Math.sin(time * 0.09);
     eye = [
       camDist * Math.sin(camYaw) * Math.cos(camPitch),
@@ -676,8 +883,7 @@
 
   function drawLines(echo) {
     gl.uniform1f(scene.u.u_echo, echo);
-    gl.bindBuffer(gl.ARRAY_BUFFER, lineBuffer);
-    gl.vertexAttribPointer(aData, 4, gl.FLOAT, false, 0, 0);
+    bindGeometry(lineBuffer);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, lineIndexBuffer);
     gl.drawElements(gl.LINES, lineIndex.length, gl.UNSIGNED_SHORT, 0);
   }
@@ -698,7 +904,7 @@
     gl.uniform1f(fade.u.u_decay, decay);
     drawQuad(fade);
 
-    // 2. Add the sculpture: glass fill, echo, strands and ribs, then points.
+    // 2. Add the mark: glass faces and walls, echo, strands and ribs, then points.
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE);
     gl.useProgram(scene.prog);
@@ -716,26 +922,34 @@
     gl.uniform1f(scene.u.u_scanU, time * 0.35);
     gl.uniform1f(scene.u.u_pixelRatio, pixelRatio);
     gl.uniform1f(scene.u.u_mouseStrength, strength);
+    gl.uniform1f(scene.u.u_layers, LAYERS);
     gl.uniform3f(scene.u.u_mousePos, mouseWorld[0], mouseWorld[1], mouseWorld[2]);
-    gl.uniform2fv(scene.u.u_pulse, pulseUniform);
+    gl.uniform3f(scene.u.u_shapeK, shapeK[0], shapeK[1], shapeK[2]);
+    gl.uniform4fv(scene.u.u_pulse, pulseUniform);
     gl.uniform4fv(scene.u.u_wave, waveUniform);
     gl.uniform3f(scene.u.u_colDeep, 0.02, 0.3, 0.2);
     gl.uniform3f(scene.u.u_colMid, 0.06, 0.68, 0.42);
     gl.uniform3f(scene.u.u_colHi, 0.55, 0.98, 0.8);
+    gl.enableVertexAttribArray(aPos);
+    gl.enableVertexAttribArray(aNorm);
     gl.enableVertexAttribArray(aData);
 
     gl.uniform1f(scene.u.u_echo, 0);
-    gl.bindBuffer(gl.ARRAY_BUFFER, fillBuffer);
-    gl.vertexAttribPointer(aData, 4, gl.FLOAT, false, 0, 0);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, fillIndexBuffer);
-    gl.drawElements(gl.TRIANGLES, fillIndex.length, gl.UNSIGNED_SHORT, 0);
+    bindGeometry(faceBuffer);
+    gl.drawArrays(gl.TRIANGLES, 0, faceCount);
+    bindGeometry(wallBuffer);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, wallIndexBuffer);
+    gl.drawElements(gl.TRIANGLES, wallIndex.length, gl.UNSIGNED_SHORT, 0);
 
     drawLines(1);
     drawLines(0);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, pointBuffer);
-    gl.vertexAttribPointer(aData, 4, gl.FLOAT, false, 0, 0);
+    bindGeometry(pointBuffer);
     gl.drawArrays(gl.POINTS, 0, pointCount);
+    gl.bindBuffer(gl.ARRAY_BUFFER, dynamicBuffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, dynamicData);
+    bindGeometry(dynamicBuffer);
+    gl.drawArrays(gl.POINTS, 0, dynamicCount);
 
     // 3. Composite with glow, cursor light, vignette and grain.
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
