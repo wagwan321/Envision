@@ -25,13 +25,15 @@
   let returnFocus = null;
   let countFrame = 0;
   let activeTransition;
+  let sceneAnimations = [];
   let suppressAutoUntil = 0;
   let scrollIntentUntil = 0;
   let scrollFrame = 0;
   let previousScroll = scrollY;
   let autoSeen = false;
   try { autoSeen = sessionStorage.getItem('envision-lab-seen') === 'yes'; } catch (_) {}
-  const format = number => number.toLocaleString('en', { maximumFractionDigits:1 });
+  const numberFormat = new Intl.NumberFormat('en', { maximumFractionDigits:1 });
+  const format = number => numberFormat.format(number);
   function values() {
     const annual = Number(minutes.value) * Number(frequency.value) * 52 / 60;
     return { annual, saved:annual * Number(reduction.value) / 100 };
@@ -115,9 +117,16 @@
     cancelAnimationFrame(countFrame);
     if(motion.matches) { counter.textContent = format(saved); return; }
     const started = performance.now();
+    let lastPaint = 0;
+    let lastText = '';
     function count(time) {
       const progress = Math.min(1, (time-started)/1400);
-      counter.textContent = format(saved * (1-Math.pow(1-progress,3)));
+      // A numeric readout needs fewer paints than the surrounding motion.
+      if(time-lastPaint >= 32 || progress === 1) {
+        const text = format(saved * (1-Math.pow(1-progress,3)));
+        if(text !== lastText) { counter.textContent = text; lastText = text; }
+        lastPaint = time;
+      }
       if(progress < 1 && dialog.open) countFrame = requestAnimationFrame(count);
     }
     counter.textContent = '0';
@@ -127,6 +136,8 @@
     step = index;
     cancelAnimationFrame(countFrame);
     if(activeTransition) activeTransition.cancel();
+    sceneAnimations.forEach(animation => animation.cancel());
+    sceneAnimations = [];
     panels.forEach((panel,i) => { panel.hidden = i !== step; });
     const panel = panels[step];
     dialog.dataset.step = String(step);
@@ -139,19 +150,19 @@
     document.getElementById('lab-stage').scrollTo({top:0, behavior:'instant'});
     if(!motion.matches && typeof panel.animate === 'function') {
       activeTransition = panel.animate([
-        {opacity:0, transform:`translateY(${step === 3 ? 36 : 22}px) scale(.975)`, filter:'blur(6px)'},
-        {opacity:1, transform:'translateY(0) scale(1)', filter:'blur(0)'}
-      ], {duration:700, easing:'cubic-bezier(.2,.75,.2,1)'});
-      if(step === 0) panel.querySelectorAll('.artifact').forEach((object,i) => object.animate([
-        {opacity:0, transform:'translateY(30px) rotateY(35deg) scale(.7)'},
-        {opacity:1, transform:'translateY(0) rotateY(0) scale(1)'}
-      ], {duration:1000, delay:i*70, easing:'cubic-bezier(.2,.75,.2,1)', fill:'backwards'}));
-      if(step === 1) panel.querySelectorAll('.friction-choice').forEach((choice,i) => choice.animate([
+        {opacity:0, transform:'translateY(18px)'},
+        {opacity:1, transform:'translateY(0)'}
+      ], {duration:500, easing:'cubic-bezier(.2,.75,.2,1)'});
+      if(step === 0) panel.querySelectorAll('.artifact').forEach((object,i) => sceneAnimations.push(object.animate([
+        {opacity:0, transform:'translateY(24px)'},
+        {opacity:1, transform:'translateY(0)'}
+      ], {duration:700, delay:i*60, easing:'cubic-bezier(.2,.75,.2,1)', fill:'backwards'})));
+      if(step === 1) panel.querySelectorAll('.friction-choice').forEach((choice,i) => sceneAnimations.push(choice.animate([
         {opacity:0, transform:'translateX(30px)'}, {opacity:1, transform:'translateX(0)'}
-      ], {duration:650, delay:100+i*90, easing:'cubic-bezier(.2,.75,.2,1)', fill:'backwards'}));
-      if(step === 3) panel.querySelectorAll('.result-orbit>i').forEach((ring,i) => ring.animate([
-        {opacity:0, scale:.5, rotate:`${-40-i*20}deg`}, {opacity:1, scale:1, rotate:'0deg'}
-      ], {duration:1400+i*200, easing:'cubic-bezier(.2,.75,.2,1)'}));
+      ], {duration:500, delay:60+i*70, easing:'cubic-bezier(.2,.75,.2,1)', fill:'backwards'})));
+      if(step === 3) panel.querySelectorAll('.result-orbit>i').forEach((ring,i) => sceneAnimations.push(ring.animate([
+        {opacity:0, rotate:`${-25-i*15}deg`}, {opacity:1, rotate:'0deg'}
+      ], {duration:1000+i*120, easing:'cubic-bezier(.2,.75,.2,1)'})));
     }
     if(focus) panel.querySelector('h2').focus({preventScroll:true});
   }
@@ -166,6 +177,7 @@
     returnFocus = document.activeElement;
     dialog.showModal();
     root.classList.add('lab-open');
+    document.dispatchEvent(new CustomEvent('envision:lab-visibility',{detail:{open:true}}));
     showStep(step);
   }
   function closeLab(explore = false) {
@@ -179,8 +191,11 @@
   }
   dialog.addEventListener('close', () => {
     root.classList.remove('lab-open');
+    document.dispatchEvent(new CustomEvent('envision:lab-visibility',{detail:{open:false}}));
     cancelAnimationFrame(countFrame);
     if(activeTransition) activeTransition.cancel();
+    sceneAnimations.forEach(animation => animation.cancel());
+    sceneAnimations = [];
     if(returnFocus && returnFocus !== document.body && returnFocus.isConnected) returnFocus.focus({preventScroll:true});
     returnFocus = null;
   });
@@ -241,7 +256,7 @@
     const editing = event.target instanceof Element && (event.target.matches('input,textarea,select,button') || event.target.isContentEditable);
     if(!editing && !event.ctrlKey && !event.metaKey && ['ArrowDown','PageDown',' '].includes(event.key)) armArrival();
   });
-  window.addEventListener('scroll', () => { if(!scrollFrame) scrollFrame = requestAnimationFrame(onScroll); }, {passive:true});
+  window.addEventListener('scroll', () => { if(!autoSeen && !scrollFrame) scrollFrame = requestAnimationFrame(onScroll); }, {passive:true});
   window.addEventListener('pagehide', () => { returnFocus = null; closeLab(); });
   motion.addEventListener('change', () => {
     if(motion.matches) {

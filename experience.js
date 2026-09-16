@@ -143,16 +143,30 @@
 
   const dock = document.querySelector('.studio-dock');
   let dockFrame;
+  let dockGeometry;
+  let dockHiddenByLab = false;
   function updateDock() {
     dockFrame = null;
-    const contactTop = document.getElementById('contact').getBoundingClientRect().top;
-    const labBounds = document.getElementById('studio-lab').getBoundingClientRect();
-    const exploringLab = labBounds.top < innerHeight * .7 && labBounds.bottom > innerHeight * .2;
-    dock.classList.toggle('is-visible', scrollY > innerHeight * .45 && contactTop > innerHeight * .65 && !exploringLab);
+    if(dockHiddenByLab) return;
+    if(!dockGeometry) {
+      const labBounds = document.getElementById('studio-lab').getBoundingClientRect();
+      dockGeometry = {contactTop:document.getElementById('contact').getBoundingClientRect().top+scrollY, labTop:labBounds.top+scrollY, labBottom:labBounds.bottom+scrollY, height:innerHeight};
+    }
+    const {contactTop,labTop,labBottom,height} = dockGeometry;
+    const exploringLab = labTop-scrollY < height*.7 && labBottom-scrollY > height*.2;
+    dock.classList.toggle('is-visible', scrollY > height*.45 && contactTop-scrollY > height*.65 && !exploringLab);
   }
-  function scheduleDock() { if (!dockFrame) dockFrame = requestAnimationFrame(updateDock); }
+  function scheduleDock() { if (!dockHiddenByLab && !dockFrame) dockFrame = requestAnimationFrame(updateDock); }
+  function invalidateDock() { dockGeometry = null; scheduleDock(); }
   window.addEventListener('scroll', scheduleDock, { passive:true });
-  window.addEventListener('resize', scheduleDock, { passive:true });
-  window.addEventListener('pageshow', scheduleDock);
+  window.addEventListener('resize', invalidateDock, { passive:true });
+  window.addEventListener('pageshow', invalidateDock);
+  if('ResizeObserver' in window) new ResizeObserver(invalidateDock).observe(document.body);
+  if(document.fonts) document.fonts.ready.then(invalidateDock);
+  document.addEventListener('envision:lab-visibility', event => {
+    dockHiddenByLab = event.detail.open;
+    if(dockHiddenByLab) { cancelAnimationFrame(dockFrame); dockFrame = null; }
+    else invalidateDock();
+  });
   updateDock();
 })();

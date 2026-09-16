@@ -15,49 +15,74 @@
   const sections = navLinks.map(link => document.getElementById(link.dataset.section));
   const clamp = value => Math.max(0, Math.min(1, value));
   let frame = 0;
+  let layoutDirty = true;
+  let geometry;
+  let lastHeroProgress = -1;
+  let lastActive = null;
+  let labActive = false;
+
+  function invalidateLayout() { layoutDirty = true; schedule(); }
+  function measureLayout() {
+    const y = window.scrollY;
+    geometry = {
+      viewport:window.innerHeight,
+      heroTop:hero.getBoundingClientRect().top+y,
+      heroHeight:hero.offsetHeight,
+      stageHeight:stage.offsetHeight,
+      sectionTops:sections.map(section => section.getBoundingClientRect().top+y),
+      total:root.scrollHeight-window.innerHeight
+    };
+    layoutDirty = false;
+  }
 
   // Native scrolling drives the scene in both directions, without wheel interception.
   function render() {
     frame = 0;
-    const viewport = window.innerHeight;
+    if(labActive) return;
+    if(layoutDirty) measureLayout();
+    const y = window.scrollY;
+    const { viewport, heroTop, heroHeight, stageHeight, sectionTops, total } = geometry;
     const reduced = motionQuery.matches;
-    const bounds = hero.getBoundingClientRect();
-    const progress = reduced || !heroSizeQuery.matches ? 0 : clamp(-bounds.top / Math.max(1, bounds.height - stage.offsetHeight));
-    const sectionTops = sections.map(section => section.getBoundingClientRect().top);
-    const total = root.scrollHeight - viewport;
-    stage.style.setProperty('--opening-opacity', 1 - clamp(progress / .43));
-    stage.style.setProperty('--opening-y', `${-progress * 100}px`);
-    stage.style.setProperty('--resolution-opacity', clamp((progress - .46) / .23));
-    stage.style.setProperty('--resolution-y', `${(1 - clamp((progress - .48) / .4)) * 45}px`);
-    stage.style.setProperty('--art-y', `${progress * 28}%`);
-    stage.style.setProperty('--art-scale', 1 - progress * .28);
-    orbit.style.setProperty('--orbit-turn', `${progress * 150}deg`);
-    stage.style.setProperty('--art-opacity', 1 - clamp((progress - .36) / .4) * .82);
-    // Invisible links should not intercept clicks or keyboard focus.
-    heroLink.tabIndex = progress > .43 ? -1 : 0;
-    heroLink.style.pointerEvents = progress > .43 ? 'none' : 'auto';
-    progressBar.style.transform = `scaleX(${total > 0 ? clamp(window.scrollY / total) : 0})`;
-    header.classList.toggle('is-scrolled', window.scrollY > 20);
+    const progress = reduced || !heroSizeQuery.matches ? 0 : clamp((y-heroTop) / Math.max(1, heroHeight-stageHeight));
+    if(progress !== lastHeroProgress) {
+      lastHeroProgress = progress;
+      stage.style.setProperty('--opening-opacity', 1 - clamp(progress / .43));
+      stage.style.setProperty('--opening-y', `${-progress * 100}px`);
+      stage.style.setProperty('--resolution-opacity', clamp((progress - .46) / .23));
+      stage.style.setProperty('--resolution-y', `${(1 - clamp((progress - .48) / .4)) * 45}px`);
+      stage.style.setProperty('--art-y', `${progress * 28}%`);
+      stage.style.setProperty('--art-scale', 1 - progress * .28);
+      orbit.style.setProperty('--orbit-turn', `${progress * 150}deg`);
+      stage.style.setProperty('--art-opacity', 1 - clamp((progress - .36) / .4) * .82);
+      // Invisible links should not intercept clicks or keyboard focus.
+      heroLink.tabIndex = progress > .43 ? -1 : 0;
+      heroLink.style.pointerEvents = progress > .43 ? 'none' : 'auto';
+    }
+    progressBar.style.transform = `scaleX(${total > 0 ? clamp(y / total) : 0})`;
+    header.classList.toggle('is-scrolled', y > 20);
     let active = '';
     sectionTops.forEach((top, index) => {
-      if (top < viewport * .45) active = sections[index].id;
+      if (top-y < viewport * .45) active = sections[index].id;
     });
-    navLinks.forEach(link => {
-      if (link.dataset.section === active) link.setAttribute('aria-current', 'location');
-      else link.removeAttribute('aria-current');
-    });
+    if(active !== lastActive) {
+      lastActive = active;
+      navLinks.forEach(link => {
+        if (link.dataset.section === active) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
+    }
   }
   function schedule() {
-    if (!frame) frame = requestAnimationFrame(render);
+    if (!labActive && !frame) frame = requestAnimationFrame(render);
   }
   root.classList.add('motion-ready');
   window.addEventListener('scroll', schedule, { passive: true });
-  window.addEventListener('resize', schedule, { passive: true });
-  window.addEventListener('pageshow', schedule);
-  motionQuery.addEventListener('change', schedule);
-  heroSizeQuery.addEventListener('change', schedule);
-  if ('ResizeObserver' in window) new ResizeObserver(schedule).observe(document.body);
-  if (document.fonts) document.fonts.ready.then(schedule);
+  window.addEventListener('resize', invalidateLayout, { passive: true });
+  window.addEventListener('pageshow', invalidateLayout);
+  motionQuery.addEventListener('change', invalidateLayout);
+  heroSizeQuery.addEventListener('change', invalidateLayout);
+  if ('ResizeObserver' in window) new ResizeObserver(invalidateLayout).observe(document.body);
+  if (document.fonts) document.fonts.ready.then(invalidateLayout);
 
   const reveals = [...document.querySelectorAll('.reveal')];
   if ('IntersectionObserver' in window) {
@@ -77,7 +102,7 @@
   const demos = new Map([...document.querySelectorAll('.service-demo')].map(element => [element, false]));
   function syncDemoMotion() {
     demos.forEach((visible, element) => {
-      element.classList.toggle('demo-playing', visible && !motionQuery.matches && !document.hidden);
+      element.classList.toggle('demo-playing', visible && !motionQuery.matches && !document.hidden && !labActive);
     });
   }
   if ('IntersectionObserver' in window) {
@@ -89,6 +114,12 @@
   }
   motionQuery.addEventListener('change', syncDemoMotion);
   document.addEventListener('visibilitychange', syncDemoMotion);
+  document.addEventListener('envision:lab-visibility', event => {
+    labActive = event.detail.open;
+    if(labActive) { cancelAnimationFrame(frame); frame = 0; }
+    else invalidateLayout();
+    syncDemoMotion();
+  });
 
   document.querySelectorAll('.service-card').forEach(card => {
     let pointerFrame = 0;

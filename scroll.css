@@ -119,7 +119,7 @@ img {
 
 .topbar.is-scrolled {
   background:rgba(5,8,7,.95);
-  backdrop-filter:blur(15px)
+  backdrop-filter:none
 }
 
 .brand {
