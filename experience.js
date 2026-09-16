@@ -9,9 +9,47 @@
   let introStarted = performance.now();
   let replayTarget = null;
   let introRun = 0;
+  let progressFrame = 0;
+  let displayedProgress = 0;
+  const progressTrack = document.getElementById('loader-progress');
+  const progressCount = document.getElementById('loader-count');
+
+  function animateProgress(target, run) {
+    cancelAnimationFrame(progressFrame);
+    const from = displayedProgress;
+    let started = null;
+    let preparationFrames = 2;
+    let lastNumber = Math.floor(from);
+    function paint(now) {
+      if(run !== introRun || !root.classList.contains('intro-pending')) return;
+      // Let the newly visible overlay paint before starting the numeric timeline.
+      if(!reducedMotion.matches && preparationFrames-- > 0) {
+        progressFrame = requestAnimationFrame(paint);
+        return;
+      }
+      if(started === null) started = now;
+      const elapsed = reducedMotion.matches ? 1 : Math.min(1, (now-started)/650);
+      displayedProgress = from+(target-from)*(1-Math.pow(1-elapsed,3));
+      progressTrack.style.transform = `scaleX(${displayedProgress/100})`;
+      const number = Math.floor(displayedProgress);
+      if(number !== lastNumber) { progressCount.textContent = String(number).padStart(2,'0'); lastNumber = number; }
+      if(elapsed < 1) progressFrame = requestAnimationFrame(paint);
+      else {
+        progressFrame = 0;
+        if(target === 100) {
+          clearTimeout(introTimer);
+          introTimer = setTimeout(() => finishIntro(), Math.max(180,1500-(performance.now()-introStarted)));
+        }
+      }
+    }
+    progressFrame = requestAnimationFrame(paint);
+  }
 
   function finishIntro(immediate = false) {
     if (!root.classList.contains('intro-pending')) return;
+    if (!immediate && loader.classList.contains('is-leaving')) return;
+    introRun += 1;
+    cancelAnimationFrame(progressFrame);
     clearTimeout(introTimer);
     clearTimeout(exitTimer);
     clearTimeout(window.envisionIntroFallback);
@@ -19,11 +57,12 @@
       root.classList.remove('intro-pending');
       loader.classList.remove('is-leaving');
       loader.setAttribute('aria-hidden', 'true');
+      document.dispatchEvent(new CustomEvent('envision:intro-visibility',{detail:{open:false}}));
       try { sessionStorage.setItem('envision-intro', 'seen'); } catch (_) {}
       if (replayTarget) { replayTarget.focus({ preventScroll:true }); replayTarget = null; }
     };
     if (immediate || reducedMotion.matches) leave();
-    else { loader.classList.add('is-leaving'); exitTimer = setTimeout(leave, 650); }
+    else { loader.classList.add('is-leaving'); exitTimer = setTimeout(leave, 600); }
   }
 
   function startIntro(replay = false) {
@@ -31,9 +70,14 @@
     clearTimeout(window.envisionIntroFallback);
     clearTimeout(introTimer);
     clearTimeout(exitTimer);
+    cancelAnimationFrame(progressFrame);
     root.classList.add('intro-pending');
     loader.classList.remove('is-leaving');
     loader.setAttribute('aria-hidden', 'false');
+    document.dispatchEvent(new CustomEvent('envision:intro-visibility',{detail:{open:true}}));
+    displayedProgress = 0;
+    progressTrack.style.transform = 'scaleX(0)';
+    progressCount.textContent = '00';
     introStarted = performance.now();
     const run = ++introRun;
     let completed = 0;
@@ -41,8 +85,7 @@
     const update = () => {
       if (run !== introRun) return;
       const progress = Math.round(completed / 3 * 100);
-      document.getElementById('loader-progress').style.transform = `scaleX(${progress / 100})`;
-      document.getElementById('loader-count').textContent = String(progress).padStart(2, '0');
+      animateProgress(progress, run);
       status.textContent = labels[completed];
     };
     update();
@@ -53,10 +96,6 @@
       if (run !== introRun || !root.classList.contains('intro-pending')) return;
       completed += 1;
       update();
-      if (completed === gates.length) {
-        clearTimeout(introTimer);
-        introTimer = setTimeout(() => finishIntro(), Math.max(0, 1500 - (performance.now() - introStarted)));
-      }
     }));
     introTimer = setTimeout(() => finishIntro(), 3200);
     if (replay) document.getElementById('skip-intro').focus({ preventScroll:true });

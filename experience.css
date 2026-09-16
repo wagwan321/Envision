@@ -2,41 +2,39 @@
 .mono { font:400 10px/1.5 var(--display); letter-spacing:.13em; }
 .visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
 [hidden] { display:none!important; }
-.site-loader { display:none; position:fixed; inset:0; z-index:200; padding:36px var(--pad); flex-direction:column; justify-content:space-between; overflow:hidden; background:#050b08; }
+:root { scrollbar-gutter:stable; }
+.site-loader { --display:Arial,sans-serif; font-family:Arial,sans-serif; display:none; position:fixed; inset:0; z-index:200; padding:36px var(--pad); flex-direction:column; justify-content:space-between; overflow:hidden; background:radial-gradient(ellipse at 50% 42%,#0e2117,#050b08 65%); }
 .intro-pending { overflow:hidden; }
-.intro-pending .site-loader { display:flex; }
-.site-loader::before,.hero-stage::before { content:''; position:absolute; inset:0; pointer-events:none; background-image:linear-gradient(#80d7a908 1px,transparent 1px),linear-gradient(90deg,#80d7a908 1px,transparent 1px); background-size:72px 72px; mask-image:radial-gradient(ellipse at 65% 45%,black,transparent 72%); }
-.site-loader::after { content:''; position:absolute; width:65vw; height:65vw; top:50%; left:50%; transform:translate(-50%,-50%); background:radial-gradient(circle,#3ab87913,transparent 65%); pointer-events:none; }
+.intro-pending .site-loader { display:flex; will-change:transform; }
+.hero-stage::before { content:''; position:absolute; inset:0; pointer-events:none; background-image:linear-gradient(#80d7a908 1px,transparent 1px),linear-gradient(90deg,#80d7a908 1px,transparent 1px); background-size:72px 72px; mask-image:radial-gradient(ellipse at 65% 45%,black,transparent 72%); }
 .loader-top,.loader-bottom { position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:24px; }
 .loader-brand { font:500 28px var(--display); letter-spacing:-1px; }
 .loader-brand>span { color:var(--accent); font-size:13px; vertical-align:top; margin-left:5px; }
 .loader-top>.mono { color:var(--muted); }
 .loader-center { position:relative; z-index:1; text-align:center; margin:auto 0; }
-.loader-orbit { position:relative; width:240px; height:190px; margin:0 auto 26px; perspective:700px; }
-.loader-orbit img { position:absolute; width:100px; height:auto; left:50%; top:50%; transform:translate(-50%,-50%); filter:drop-shadow(0 0 35px #63dcae60); animation:loader-logo 1.2s both; }
-.loader-axis { position:absolute; inset:0; border:1px solid #79e6ad80; border-radius:50%; box-shadow:0 0 25px #63dcae0b; }
+.loader-orbit { position:relative; width:240px; height:190px; margin:0 auto 26px; }
+.loader-orbit img { position:absolute; width:100px; height:auto; left:50%; top:50%; transform:translate(-50%,-50%); }
+.loader-axis { position:absolute; inset:28% -2%; border:1px solid #79e6ad80; border-radius:50%; }
 .loader-axis::before { content:''; position:absolute; width:6px; height:6px; border-radius:50%; background:#cdfde4; top:16%; left:16%; box-shadow:0 0 18px #8cf7c8; }
-.axis-one { animation:axis-one 3s ease-in-out infinite; }
-.axis-two { inset:9%; border-color:#79e6ad40; animation:axis-two 3.8s ease-in-out infinite; }
-.axis-three { inset:-10%; border-style:dashed; border-color:#79e6ad24; animation:axis-three 5s linear infinite; }
+.axis-one { animation:axis-one 12s linear infinite; }
+.axis-two { inset:15%; border-color:#79e6ad40; animation:axis-two 14s linear infinite; }
+.axis-three { inset:-10% 13%; border-style:dashed; border-color:#79e6ad24; animation:axis-three 16s linear infinite; }
 .loader-kicker { color:var(--accent); margin-bottom:20px; }
 .loader-word { font:500 clamp(44px,7.5vw,116px)/1.1 var(--display); letter-spacing:-.07em; overflow:hidden; }
-.loader-word>span,.loader-word>em { display:inline-block; animation:word-arrive 1s cubic-bezier(.2,.75,.2,1) both; }
-.loader-word>em { color:var(--accent); animation-delay:.15s; }
+.loader-word>span,.loader-word>em { display:inline-block; }
+.loader-word>em { color:var(--accent); }
 .loader-bottom>div { flex:1; max-width:420px; }
 .loader-bottom .mono { color:var(--muted); }
 .loader-track { margin-top:16px; height:2px; background:#ffffff18; overflow:hidden; }
-.loader-track>span { display:block; height:100%; background:var(--accent); transform:scaleX(0); transform-origin:left; transition:transform .35s; }
-.loader-count { font:400 clamp(40px,5vw,72px)/1 var(--display); letter-spacing:-.07em; margin-left:auto; font-variant-numeric:tabular-nums; }
+.loader-track>span { display:block; height:100%; background:var(--accent); transform:scaleX(0); transform-origin:left; will-change:transform; }
+.loader-count { width:3ch; flex-shrink:0; text-align:right; contain:layout paint; transform:translateZ(0); font:400 clamp(40px,5vw,72px)/1 var(--display); letter-spacing:-.07em; margin-left:auto; font-variant-numeric:tabular-nums; }
 #skip-intro { border:1px solid var(--line); border-radius:30px; color:var(--text); background:transparent; padding:13px 20px; font-size:12px; }
 #skip-intro span { margin-left:20px; color:var(--accent); }
-.intro-pending .site-loader.is-leaving { animation:loader-leave .65s cubic-bezier(.7,0,.2,1) both; pointer-events:none; }
-@keyframes axis-one { 0%,100% { transform:rotateZ(-30deg) rotateX(64deg); } 50% { transform:rotateZ(30deg) rotateX(45deg); } }
-@keyframes axis-two { 0%,100% { transform:rotateZ(40deg) rotateY(65deg); } 50% { transform:rotateZ(-40deg) rotateY(40deg); } }
-@keyframes axis-three { from { transform:rotateZ(0) rotateX(25deg); } to { transform:rotateZ(360deg) rotateX(25deg); } }
-@keyframes loader-logo { from { opacity:0; filter:blur(12px); scale:.75; } to { opacity:1; filter:blur(0); scale:1; } }
-@keyframes word-arrive { from { opacity:0; transform:translateY(120%) rotate(5deg); } to { opacity:1; transform:none; } }
-@keyframes loader-leave { to { clip-path:inset(0 0 100% 0); transform:translateY(-30px); } }
+.intro-pending .site-loader.is-leaving { animation:loader-leave .55s cubic-bezier(.65,0,.25,1) both; pointer-events:none; }
+@keyframes axis-one { from { transform:rotate(-28deg); } to { transform:rotate(332deg); } }
+@keyframes axis-two { from { transform:rotate(42deg); } to { transform:rotate(-318deg); } }
+@keyframes axis-three { from { transform:rotate(65deg); } to { transform:rotate(425deg); } }
+@keyframes loader-leave { from { transform:translate3d(0,0,0); } to { transform:translate3d(0,-100%,0); } }
 .hero-stage { isolation:isolate; }
 .hero-stage::before { z-index:-1; }
 .hero-edition { color:#789b86; }

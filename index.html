@@ -13,6 +13,7 @@
   <link rel="icon" href="favicon.ico" sizes="32x32">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=3">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3">
+  <link rel="preload" as="image" href="assets/logo-ev.png?v=4" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -26,7 +27,10 @@
     try {
       if (!sessionStorage.getItem('envision-intro') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.documentElement.classList.add('intro-pending');
-        window.envisionIntroFallback = setTimeout(function () { document.documentElement.classList.remove('intro-pending'); }, 4500);
+        window.envisionIntroFallback = setTimeout(function () {
+          document.documentElement.classList.remove('intro-pending');
+          document.dispatchEvent(new CustomEvent('envision:intro-visibility',{detail:{open:false}}));
+        }, 4500);
       }
     } catch (_) {}
   </script>

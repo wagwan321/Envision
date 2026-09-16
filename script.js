@@ -20,6 +20,7 @@
   let lastHeroProgress = -1;
   let lastActive = null;
   let labActive = false;
+  let introActive = root.classList.contains('intro-pending');
 
   function invalidateLayout() { layoutDirty = true; schedule(); }
   function measureLayout() {
@@ -38,7 +39,7 @@
   // Native scrolling drives the scene in both directions, without wheel interception.
   function render() {
     frame = 0;
-    if(labActive) return;
+    if(labActive || introActive) return;
     if(layoutDirty) measureLayout();
     const y = window.scrollY;
     const { viewport, heroTop, heroHeight, stageHeight, sectionTops, total } = geometry;
@@ -73,7 +74,7 @@
     }
   }
   function schedule() {
-    if (!labActive && !frame) frame = requestAnimationFrame(render);
+    if (!labActive && !introActive && !frame) frame = requestAnimationFrame(render);
   }
   root.classList.add('motion-ready');
   window.addEventListener('scroll', schedule, { passive: true });
@@ -102,7 +103,7 @@
   const demos = new Map([...document.querySelectorAll('.service-demo')].map(element => [element, false]));
   function syncDemoMotion() {
     demos.forEach((visible, element) => {
-      element.classList.toggle('demo-playing', visible && !motionQuery.matches && !document.hidden && !labActive);
+      element.classList.toggle('demo-playing', visible && !motionQuery.matches && !document.hidden && !labActive && !introActive);
     });
   }
   if ('IntersectionObserver' in window) {
@@ -117,6 +118,12 @@
   document.addEventListener('envision:lab-visibility', event => {
     labActive = event.detail.open;
     if(labActive) { cancelAnimationFrame(frame); frame = 0; }
+    else invalidateLayout();
+    syncDemoMotion();
+  });
+  document.addEventListener('envision:intro-visibility', event => {
+    introActive = event.detail.open;
+    if(introActive) { cancelAnimationFrame(frame); frame = 0; }
     else invalidateLayout();
     syncDemoMotion();
   });
