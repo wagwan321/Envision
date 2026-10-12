@@ -121,13 +121,14 @@
     const hasOwnMessage = message.value.trim() && message.value !== lastGeneratedBrief;
     if (!hasOwnMessage) {
       message.value = event.detail.brief;
+      message.rows = Math.min(10, event.detail.brief.split('\n').length + 1);
       message.setCustomValidity('');
       lastGeneratedBrief = event.detail.brief;
       form.elements.namedItem('type').value = event.detail.type;
     }
     document.getElementById('form-status').textContent = hasOwnMessage
-      ? 'Your existing enquiry has been kept. Add your lab findings if you would like.'
-      : 'Your lab choices are in your draft. Add your details and tell us a little more.';
+      ? 'Your existing message has been kept. Add your brief to it if you would like.'
+      : 'Your brief has been added to your message. Add your name and email, then send it.';
     document.getElementById('contact').scrollIntoView({ behavior:reducedMotion.matches ? 'instant' : 'smooth' });
     form.elements.namedItem('name').focus({ preventScroll:true });
   });
@@ -173,7 +174,7 @@
   });
   document.addEventListener('keydown', event => {
     const editing = event.target instanceof Element && (event.target.matches('input,textarea,select') || event.target.isContentEditable);
-    if (document.getElementById('possibility-dialog')?.open) return;
+    if (document.getElementById('brief-dialog')?.open) return;
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k' && !editing) {
       event.preventDefault();
       if (dialog.open) dialog.close(); else openCommands();
@@ -183,28 +184,24 @@
   const dock = document.querySelector('.studio-dock');
   let dockFrame;
   let dockGeometry;
-  let dockHiddenByLab = false;
+  let dockHiddenByBrief = false;
   function updateDock() {
     dockFrame = null;
-    if(dockHiddenByLab) return;
-    if(!dockGeometry) {
-      const labBounds = document.getElementById('studio-lab').getBoundingClientRect();
-      dockGeometry = {contactTop:document.getElementById('contact').getBoundingClientRect().top+scrollY, labTop:labBounds.top+scrollY, labBottom:labBounds.bottom+scrollY, height:innerHeight};
-    }
-    const {contactTop,labTop,labBottom,height} = dockGeometry;
-    const exploringLab = labTop-scrollY < height*.7 && labBottom-scrollY > height*.2;
-    dock.classList.toggle('is-visible', scrollY > height*.45 && contactTop-scrollY > height*.65 && !exploringLab);
+    if(dockHiddenByBrief) return;
+    if(!dockGeometry) dockGeometry = {contactTop:document.getElementById('contact').getBoundingClientRect().top+scrollY, height:innerHeight};
+    const {contactTop,height} = dockGeometry;
+    dock.classList.toggle('is-visible', scrollY > height*.45 && contactTop-scrollY > height*.65);
   }
-  function scheduleDock() { if (!dockHiddenByLab && !dockFrame) dockFrame = requestAnimationFrame(updateDock); }
+  function scheduleDock() { if (!dockHiddenByBrief && !dockFrame) dockFrame = requestAnimationFrame(updateDock); }
   function invalidateDock() { dockGeometry = null; scheduleDock(); }
   window.addEventListener('scroll', scheduleDock, { passive:true });
   window.addEventListener('resize', invalidateDock, { passive:true });
   window.addEventListener('pageshow', invalidateDock);
   if('ResizeObserver' in window) new ResizeObserver(invalidateDock).observe(document.body);
   if(document.fonts) document.fonts.ready.then(invalidateDock);
-  document.addEventListener('envision:lab-visibility', event => {
-    dockHiddenByLab = event.detail.open;
-    if(dockHiddenByLab) { cancelAnimationFrame(dockFrame); dockFrame = null; }
+  document.addEventListener('envision:brief-visibility', event => {
+    dockHiddenByBrief = event.detail.open;
+    if(dockHiddenByBrief) { cancelAnimationFrame(dockFrame); dockFrame = null; }
     else invalidateDock();
   });
   updateDock();

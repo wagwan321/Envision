@@ -25,7 +25,7 @@
 .service-copy .service-category { font-size:11px; letter-spacing:.09em; color:#bac9c0; margin:0 0 18px; line-height:1.5; }
 .service-card h3 { font-size:clamp(29px,2.8vw,42px); line-height:1.12; letter-spacing:-.04em; margin:0 0 20px; }
 .service-card h3 em { color:var(--accent); }
-.service-copy>p:last-child { font-size:15px; line-height:1.8; max-width:42ch; }
+.service-copy>p:not(.service-category) { font-size:15px; line-height:1.8; max-width:42ch; }
 .demo-piece { opacity:1; }
 .demo-playing .demo-piece { animation:demo-assemble .7s cubic-bezier(.2,.7,.25,1) var(--delay,0s) both; }
 @keyframes demo-assemble { from { opacity:0; transform:translateY(16px) scale(.96); } to { opacity:1; transform:translateY(0) scale(1); } }
@@ -123,6 +123,14 @@
 @keyframes demo-camera { from { transform:scale(1.2) translateX(-4%); } to { transform:scale(1.06) translateX(2%); } }
 @keyframes demo-timeline { from { transform:scaleX(0); } to { transform:scaleX(1); } }
 
+/* Each card opens its own short brief. The link stretches so the whole card is the target. */
+.service-card { position:relative; cursor:pointer; }
+.service-start { display:inline-flex; align-items:center; gap:22px; margin-top:26px; padding:12px 18px; border:1px solid var(--line); border-radius:30px; color:var(--text); font-size:13px; transition:background .25s,border-color .25s,color .25s; }
+.service-start::after { content:''; position:absolute; inset:0; }
+.service-start>span { color:var(--accent); font-size:17px; transition:transform .25s; }
+.service-card:hover .service-start,.service-start:focus-visible { background:var(--accent); border-color:var(--accent); color:#05150c; }
+.service-card:hover .service-start>span,.service-start:focus-visible>span { color:#05150c; transform:translate(2px,-2px); }
+.service-start:focus-visible { outline-offset:4px; }
 .service-card.has-pointer { border-color:#63dcae80; box-shadow:0 0 32px #42b9780d; }
 @media(hover:hover) and (pointer:fine) {
   .service-card:hover { border-color:#63dcae80; box-shadow:0 0 32px #42b9780d; }
@@ -139,7 +147,7 @@
   .service-demo { height:250px; }
   .service-copy { padding:28px 24px 30px; }
   .service-card h3 { font-size:34px; }
-  .service-copy>p:last-child { font-size:15px; }
+  .service-copy>p:not(.service-category) { font-size:15px; }
   .mini-browser { inset:13% 9% 12%; }
   .mini-site { padding:10px 12px; }
   .mini-web-layout { height:98px; }

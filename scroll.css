@@ -7,6 +7,12 @@
   --accent-light:#b2f6dc;
   --muted:#a0ada5;
   --line:rgba(222,241,230,.16);
+  --cream:#f3eee3;
+  --cream-raised:#fbf8f2;
+  --ink:#13201a;
+  --ink-muted:#58665d;
+  --ink-line:rgba(19,32,26,.14);
+  --forest:#1d6b4a;
   --pad:clamp(24px,5vw,88px);
   --display:'Space Grotesk',Arial,sans-serif;
   font-family:'DM Sans',Arial,sans-serif;

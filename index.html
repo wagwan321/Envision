@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="journey.css">
   <link rel="stylesheet" href="services.css">
   <link rel="stylesheet" href="experience.css">
-  <link rel="stylesheet" href="lab.css">
+  <link rel="stylesheet" href="brief.css">
   <script>
     // A failed script or slow connection must never trap visitors in the intro.
     try {
@@ -37,7 +37,7 @@
   <noscript><style>.contact-form>label,.contact-form>.form-row,.contact-form>.submit-button,.contact-form>.form-hint{display:none}</style></noscript>
   <script src="script.js" defer></script>
   <script src="experience.js" defer></script>
-  <script src="lab.js" defer></script>
+  <script src="brief.js" defer></script>
 </head>
 <body>
   <section class="site-loader" id="site-loader" aria-label="Welcome to Envision" aria-hidden="true">
@@ -80,7 +80,7 @@
           </div>
         </div>
         <div class="hero-resolution"><p class="eyebrow">Potential, unfolded.</p><h2>Good things happen<br>when it all <em>connects.</em></h2><p>Your vision. Our craft. One connected studio,<br>from the first what-if to the final what’s-next.</p></div>
-        <div class="hero-bottom"><a href="#services"><span class="scroll-icon" aria-hidden="true">↓</span> Scroll to explore</a><a class="hero-lab-link" href="#studio-lab">Have an idea? Shape it here <span aria-hidden="true">↗</span></a></div>
+        <div class="hero-bottom"><a href="#services"><span class="scroll-icon" aria-hidden="true">↓</span> Scroll to explore</a><a class="hero-brief-link" href="#services" data-brief aria-haspopup="dialog">Have an idea? Plan it here <span aria-hidden="true">↗</span></a></div>
       </div>
     </section>
     <section class="expertise section-pad" id="services" aria-labelledby="services-title">
@@ -106,7 +106,7 @@
               <div class="demo-toast demo-piece" style="--delay:1.65s"><span>✓</span> Ready for customers</div>
             </div>
           </div>
-          <div class="service-copy"><p class="service-category">Websites &amp; online stores</p><h3 id="service-web-title">Turn visitors into<br><em>customers.</em></h3><p>A clear story, thoughtful design, and an easy path to enquire or buy.</p></div>
+          <div class="service-copy"><p class="service-category">Websites &amp; online stores</p><h3 id="service-web-title">Turn visitors into<br><em>customers.</em></h3><p>A clear story, thoughtful design, and an easy path to enquire or buy.</p><a class="service-start" href="#contact" data-brief="web" aria-haspopup="dialog">Plan your website <span aria-hidden="true">↗</span></a></div>
         </article>
         <article class="service-card reveal" aria-labelledby="service-software-title">
           <div class="service-demo demo-software" aria-hidden="true">
@@ -122,7 +122,7 @@
               </div>
             </div>
           </div>
-          <div class="service-copy"><p class="service-category">Custom software</p><h3 id="service-software-title">Software that fits<br><em>your business.</em></h3><p>Dashboards, portals, and tools built around how your team actually works.</p></div>
+          <div class="service-copy"><p class="service-category">Custom software</p><h3 id="service-software-title">Software that fits<br><em>your business.</em></h3><p>Dashboards, portals, and tools built around how your team actually works.</p><a class="service-start" href="#contact" data-brief="software" aria-haspopup="dialog">Plan your software <span aria-hidden="true">↗</span></a></div>
         </article>
         <article class="service-card reveal" aria-labelledby="service-ai-title">
           <div class="service-demo demo-ai" aria-hidden="true">
@@ -137,7 +137,7 @@
               <div class="flow-result demo-piece" style="--delay:2.2s"><span>✓</span> Reply prepared for your team</div>
             </div>
           </div>
-          <div class="service-copy"><p class="service-category">AI &amp; automation</p><h3 id="service-ai-title">Less busywork.<br><em>More progress.</em></h3><p>Useful AI assistants and workflows that take repetitive tasks off your hands.</p></div>
+          <div class="service-copy"><p class="service-category">AI &amp; automation</p><h3 id="service-ai-title">Less busywork.<br><em>More progress.</em></h3><p>Useful AI assistants and workflows that take repetitive tasks off your hands.</p><a class="service-start" href="#contact" data-brief="ai" aria-haspopup="dialog">Plan your automation <span aria-hidden="true">↗</span></a></div>
         </article>
         <article class="service-card reveal" aria-labelledby="service-video-title">
           <div class="service-demo demo-video" aria-hidden="true">
@@ -150,21 +150,10 @@
               </div>
             </div>
           </div>
-          <div class="service-copy"><p class="service-category">Video &amp; virtual tours</p><h3 id="service-video-title">Give customers<br><em>a closer look.</em></h3><p>Product films, motion graphics, and immersive tours that bring your business to life.</p></div>
+          <div class="service-copy"><p class="service-category">Video &amp; virtual tours</p><h3 id="service-video-title">Give customers<br><em>a closer look.</em></h3><p>Product films, motion graphics, and immersive tours that bring your business to life.</p><a class="service-start" href="#contact" data-brief="video" aria-haspopup="dialog">Plan your video or tour <span aria-hidden="true">↗</span></a></div>
         </article>
       </div>
-      <a class="text-link services-link" href="#contact">Tell us about your project <span aria-hidden="true">↗</span></a>
-    </section>
-    <section class="studio-lab" id="studio-lab" aria-labelledby="lab-title">
-      <div class="lab-teaser">
-        <div class="lab-teaser-orbit" aria-hidden="true"><i></i><i></i><i></i><span>✳</span></div>
-        <p class="section-kicker mono"><span></span> THE POSSIBILITIES LAB</p>
-        <h2 id="lab-title">What if your next move<br>gave you <em>more?</em></h2>
-        <p class="lab-teaser-copy">More time. More room to create. More possibility.<br>Choose a direction. Discover what’s waiting on the other side.</p>
-        <button class="lab-enter" type="button" data-lab-open disabled>Discover your possibility <span aria-hidden="true">↗</span></button>
-        <div class="lab-teaser-bottom mono"><span>YOUR CHOICES. YOUR POSSIBILITIES.</span><span>01 — 04 / AN INTERACTIVE EXPLORATION</span></div>
-        <noscript><p class="widget-note">Tell us what you want to improve. <a href="#contact">Start a conversation ↗</a></p></noscript>
-      </div>
+      <a class="text-link services-link" href="#contact" data-brief aria-haspopup="dialog">Not sure which you need? Let’s work it out <span aria-hidden="true">↗</span></a>
     </section>
     <section class="work section-pad" id="work" aria-labelledby="work-title">
       <div class="section-heading reveal">
@@ -220,40 +209,28 @@
       <footer><a class="footer-brand" href="#home" aria-label="Envision home"><img src="assets/logo-ev.png?v=4" width="46" height="24" alt=""><span>© <span id="year">2026</span> Envision</span></a><button class="replay-intro" type="button" data-replay-intro>Replay the intro ↻</button><a href="#home">Back to top ↑</a></footer>
     </section>
   </main>
-  <dialog class="possibility-dialog" id="possibility-dialog" aria-labelledby="journey-title">
-    <div class="lab-atmosphere" aria-hidden="true"><i></i><i></i><i></i></div>
-    <div class="lab-shell">
-      <header class="lab-header"><a class="lab-wordmark" href="#studio-lab" data-lab-close>Envision<span> / possibilities lab</span></a><button class="lab-exit" type="button" data-lab-close>Keep exploring <span aria-hidden="true">×</span></button></header>
-      <ol class="lab-steps" aria-label="Your journey"><li aria-current="step"><span>01</span> Your direction</li><li><span>02</span> Your everyday</li><li><span>03</span> The hidden cost</li><li><span>04</span> Your possibility</li></ol>
-      <div class="lab-stage" id="lab-stage">
-        <section class="journey-panel" data-step="0" aria-labelledby="journey-title">
-          <div class="journey-heading"><p class="mono journey-eyebrow">EVERY POSSIBILITY STARTS WITH A CHOICE</p><h2 id="journey-title" tabindex="-1">What would you<br>make <em>possible?</em></h2><p>Choose the next chapter for your business.</p></div>
-          <div class="direction-gallery" role="group" aria-label="Choose your direction">
-            <button type="button" class="direction-object" data-direction="web" aria-pressed="false"><span class="artifact artifact-web" aria-hidden="true"><i></i><i></i><i></i><b>↗</b></span><span class="direction-name">A standout website</span><span class="direction-caption">Turn curiosity into connection.</span><span class="direction-index mono">01 / EXPLORE <b>↗</b></span></button>
-            <button type="button" class="direction-object" data-direction="software" aria-pressed="false"><span class="artifact artifact-software" aria-hidden="true"><i></i><i></i><i></i><b>+</b></span><span class="direction-name">Smarter software</span><span class="direction-caption">Find the flow in your everyday.</span><span class="direction-index mono">02 / EXPLORE <b>↗</b></span></button>
-            <button type="button" class="direction-object" data-direction="ai" aria-pressed="false"><span class="artifact artifact-ai" aria-hidden="true"><i></i><i></i><i></i><b>✳</b></span><span class="direction-name">A little AI magic</span><span class="direction-caption">Make space for the human part.</span><span class="direction-index mono">03 / EXPLORE <b>↗</b></span></button>
-            <button type="button" class="direction-object" data-direction="video" aria-pressed="false"><span class="artifact artifact-video" aria-hidden="true"><i></i><i></i><i></i><b>▷</b></span><span class="direction-name">A story in motion</span><span class="direction-caption">Let people see what you see.</span><span class="direction-index mono">04 / EXPLORE <b>↗</b></span></button>
-          </div>
+  <dialog class="brief-dialog" id="brief-dialog" aria-labelledby="brief-question">
+    <div class="brief-shell">
+      <header class="brief-header"><p class="brief-label"><img src="assets/logo-ev.png?v=4" width="46" height="24" alt="Envision"><span id="brief-name">Project brief</span></p><button class="brief-close" type="button" data-brief-close>Close <span aria-hidden="true">×</span></button></header>
+      <div class="brief-progress" aria-hidden="true"><span id="brief-progress"></span></div>
+      <div class="brief-stage" id="brief-stage">
+        <section class="brief-panel" id="brief-question-panel" aria-labelledby="brief-question">
+          <p class="brief-count mono" id="brief-count">QUESTION 1 OF 4</p>
+          <h2 id="brief-question" tabindex="-1">What can we help you with?</h2>
+          <p class="brief-hint" id="brief-hint">Choose one.</p>
+          <div class="brief-options" id="brief-options" role="group" aria-labelledby="brief-question" aria-describedby="brief-hint"></div>
         </section>
-        <section class="journey-panel" data-step="1" aria-labelledby="friction-title" hidden>
-          <div class="journey-split"><div class="journey-heading"><p class="mono journey-eyebrow" id="chosen-direction">YOUR NEXT CHAPTER</p><h2 id="friction-title" tabindex="-1">Where does your<br>time <em>disappear?</em></h2><p id="friction-intro">Pick the part of your day you’d love to change.</p><div class="journey-motif" aria-hidden="true"><span>↗</span><i></i><i></i></div></div><div class="friction-options" id="friction-options" role="group" aria-label="Choose a task to improve"></div></div>
-        </section>
-        <section class="journey-panel" data-step="2" aria-labelledby="measure-title" hidden>
-          <div class="journey-split"><div class="journey-heading"><p class="mono journey-eyebrow" id="measured-task">THE WORK BETWEEN THE WORK</p><h2 id="measure-title" tabindex="-1">Little tasks.<br><em>Not-so-little</em> cost.</h2><p>Think about the time your team spends on this task. Give it a number.</p><div class="baseline-reading"><output id="baseline-hours" for="lab-minutes lab-frequency">130</output><span>hours spent every year</span></div><p class="baseline-note">That’s <span id="baseline-days">16.3</span> eight-hour working days.</p></div><div class="measure-controls">
-            <label for="lab-minutes"><span>How long does it take?</span><output for="lab-minutes" id="lab-minutes-label">30 min</output></label><input type="range" id="lab-minutes" min="5" max="120" step="5" value="30">
-            <label for="lab-frequency"><span>How often, each week?</span><output for="lab-frequency" id="lab-frequency-label">5 times</output></label><input type="range" id="lab-frequency" min="1" max="30" value="5">
-            <div class="reduction-control"><p class="mono">NOW, IMAGINE A BETTER WAY</p><label for="lab-reduction"><span>What if we reduced that time by…</span><output for="lab-reduction" id="lab-reduction-label">50%</output></label><input type="range" id="lab-reduction" min="10" max="90" step="10" value="50"></div>
-            <p class="lab-assumption">Explore a scenario using your own estimates. A reduction is a possibility to investigate, not a promised result.</p>
-          </div></div>
-        </section>
-        <section class="journey-panel" data-step="3" aria-labelledby="result-title" hidden>
-          <div class="result-layout"><div class="result-orbit" aria-hidden="true"><i></i><i></i><i></i><div><span id="result-animated">65</span><small>HOURS / YEAR</small></div><span class="result-orbit-label mono">POTENTIAL, UNFOLDED.</span></div><div class="journey-heading result-copy"><p class="mono journey-eyebrow">THIS IS YOUR POSSIBILITY</p><h2 id="result-title" tabindex="-1">Less of that.<br><em>More of you.</em></h2><p id="result-summary" aria-live="polite">You could recover 65 hours a year.</p><p class="result-meaning" id="result-meaning">Time to create, connect, and move your business forward.</p><dl class="result-breakdown"><div><dt>Time spent now</dt><dd id="result-baseline">130 h / year</dd></div><div><dt>Scenario reduction</dt><dd id="result-reduction">50%</dd></div><div><dt>Potential time recovered</dt><dd id="result-recovered">65 h / year</dd></div></dl><p class="lab-assumption">Minutes × times per week × 52 ÷ 60 × reduction. Illustrative potential based on your inputs; actual results depend on the solution.</p></div></div>
+        <section class="brief-panel" id="brief-summary-panel" aria-labelledby="brief-summary-title" hidden>
+          <p class="brief-count mono">YOUR BRIEF</p>
+          <h2 id="brief-summary-title" tabindex="-1">Here’s where we’ll start.</h2>
+          <p class="brief-hint">Check your answers. We’ll add them to the contact form so you can send them with your details. Nothing is sent until you do.</p>
+          <dl class="brief-answers" id="brief-answers"></dl>
         </section>
       </div>
-      <footer class="lab-footer"><button class="lab-back" type="button" id="lab-back" hidden>← Back</button><p class="lab-choice-hint" id="lab-choice-hint" role="status">Choose a direction to begin.</p><button class="lab-next" type="button" id="lab-next" disabled>Choose your direction <span aria-hidden="true">↗</span></button></footer>
+      <footer class="brief-footer"><button class="brief-back" type="button" id="brief-back">← Back</button><button class="brief-next" type="button" id="brief-next" disabled>Next <span aria-hidden="true">→</span></button></footer>
     </div>
   </dialog>
-  <div class="studio-dock" aria-label="Studio shortcuts"><a href="#studio-lab"><span aria-hidden="true">✳</span> Shape your idea</a><span class="dock-divider"></span><button type="button" id="open-command" aria-label="Open quick navigation" aria-haspopup="dialog"><span aria-hidden="true">⌘</span><span class="dock-key">K</span></button></div>
-  <dialog class="command-dialog" id="command-dialog" aria-labelledby="command-title"><div class="command-top"><h2 id="command-title">Where to next?</h2><button type="button" id="close-command" aria-label="Close quick navigation">Esc <span aria-hidden="true">×</span></button></div><label class="visually-hidden" for="command-search">Find a section</label><input id="command-search" type="search" placeholder="Find your next move…" autocomplete="off"><div class="command-links"><a href="#home"><span>Back to the beginning</span><small>Home ↗</small></a><a href="#services"><span>Explore our capabilities</span><small>Services ↗</small></a><a href="#studio-lab"><span>Shape your project</span><small>Possibilities lab ↗</small></a><a href="#work"><span>See what’s possible</span><small>Studio concepts ↗</small></a><a href="#process"><span>Meet the process</span><small>How we work ↗</small></a><a href="#contact"><span>Start a conversation</span><small>Contact ↗</small></a></div><p class="command-empty" hidden>No match. Try “project”, “services”, or “contact”.</p><p class="command-hint mono">TAB TO EXPLORE <span>ENTER TO GO ↵</span></p></dialog>
+  <div class="studio-dock" aria-label="Studio shortcuts"><a href="#services" data-brief aria-haspopup="dialog"><span aria-hidden="true">✳</span> Plan your project</a><span class="dock-divider"></span><button type="button" id="open-command" aria-label="Open quick navigation" aria-haspopup="dialog"><span aria-hidden="true">⌘</span><span class="dock-key">K</span></button></div>
+  <dialog class="command-dialog" id="command-dialog" aria-labelledby="command-title"><div class="command-top"><h2 id="command-title">Where to next?</h2><button type="button" id="close-command" aria-label="Close quick navigation">Esc <span aria-hidden="true">×</span></button></div><label class="visually-hidden" for="command-search">Find a section</label><input id="command-search" type="search" placeholder="Find your next move…" autocomplete="off"><div class="command-links"><a href="#home"><span>Back to the beginning</span><small>Home ↗</small></a><a href="#services"><span>Explore our capabilities</span><small>Services ↗</small></a><a href="#services" data-brief><span>Plan your project</span><small>Project brief ↗</small></a><a href="#work"><span>See what’s possible</span><small>Studio concepts ↗</small></a><a href="#process"><span>Meet the process</span><small>How we work ↗</small></a><a href="#contact"><span>Start a conversation</span><small>Contact ↗</small></a></div><p class="command-empty" hidden>No match. Try “project”, “services”, or “contact”.</p><p class="command-hint mono">TAB TO EXPLORE <span>ENTER TO GO ↵</span></p></dialog>
 </body>
 </html>
