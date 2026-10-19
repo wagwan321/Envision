@@ -6,41 +6,38 @@
   const status = document.getElementById('loader-status');
   let introTimer;
   let exitTimer;
-  let introStarted = performance.now();
   let replayTarget = null;
   let introRun = 0;
   let progressFrame = 0;
-  let displayedProgress = 0;
   const progressTrack = document.getElementById('loader-progress');
   const progressCount = document.getElementById('loader-count');
+  const labels = [[0, 'Connecting the dots'], [30, 'Finding our form'], [62, 'Bringing it together'], [92, 'Ready when you are']];
+  const countDuration = 1300;
+  const exitDuration = 800;
+  const easeInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-  function animateProgress(target, run) {
-    cancelAnimationFrame(progressFrame);
-    const from = displayedProgress;
-    let started = null;
-    let preparationFrames = 2;
-    let lastNumber = Math.floor(from);
+  // The count is paced, not a download estimate. Each frame advances it by at most 34ms, so a
+  // slow frame pauses the count instead of making it jump, and it waits just short of 100 until
+  // the fonts and the logo are ready.
+  function runCount(run, ready) {
+    let elapsed = reducedMotion.matches ? countDuration : 0;
+    let last = null;
+    let shown = '';
+    let label = '';
     function paint(now) {
-      if(run !== introRun || !root.classList.contains('intro-pending')) return;
-      // Let the newly visible overlay paint before starting the numeric timeline.
-      if(!reducedMotion.matches && preparationFrames-- > 0) {
-        progressFrame = requestAnimationFrame(paint);
-        return;
-      }
-      if(started === null) started = now;
-      const elapsed = reducedMotion.matches ? 1 : Math.min(1, (now-started)/650);
-      displayedProgress = from+(target-from)*(1-Math.pow(1-elapsed,3));
-      progressTrack.style.transform = `scaleX(${displayedProgress/100})`;
-      const number = Math.floor(displayedProgress);
-      if(number !== lastNumber) { progressCount.textContent = String(number).padStart(2,'0'); lastNumber = number; }
-      if(elapsed < 1) progressFrame = requestAnimationFrame(paint);
-      else {
-        progressFrame = 0;
-        if(target === 100) {
-          clearTimeout(introTimer);
-          introTimer = setTimeout(() => finishIntro(), Math.max(180,1500-(performance.now()-introStarted)));
-        }
-      }
+      if (run !== introRun || !root.classList.contains('intro-pending')) return;
+      if (last !== null) elapsed += Math.min(34, now - last);
+      last = now;
+      if (!ready()) elapsed = Math.min(elapsed, countDuration * .9);
+      const linear = Math.min(1, elapsed / countDuration);
+      const progress = easeInOut(linear) * 100;
+      progressTrack.style.transform = `scaleX(${progress / 100})`;
+      const number = String(Math.floor(progress)).padStart(2, '0');
+      if (number !== shown) { progressCount.textContent = number; shown = number; }
+      const next = labels.filter(([from]) => progress >= from).pop()[1];
+      if (next !== label) { status.textContent = next; label = next; }
+      if (linear < 1) progressFrame = requestAnimationFrame(paint);
+      else { progressFrame = 0; root.classList.add('intro-releasing'); introTimer = setTimeout(() => finishIntro(), 240); }
     }
     progressFrame = requestAnimationFrame(paint);
   }
@@ -54,7 +51,7 @@
     clearTimeout(exitTimer);
     clearTimeout(window.envisionIntroFallback);
     const leave = () => {
-      root.classList.remove('intro-pending');
+      root.classList.remove('intro-pending', 'intro-releasing');
       loader.classList.remove('is-leaving');
       loader.setAttribute('aria-hidden', 'true');
       document.dispatchEvent(new CustomEvent('envision:intro-visibility',{detail:{open:false}}));
@@ -62,7 +59,7 @@
       if (replayTarget) { replayTarget.focus({ preventScroll:true }); replayTarget = null; }
     };
     if (immediate || reducedMotion.matches) leave();
-    else { loader.classList.add('is-leaving'); exitTimer = setTimeout(leave, 600); }
+    else { loader.classList.add('is-leaving'); exitTimer = setTimeout(leave, exitDuration + 20); }
   }
 
   function startIntro(replay = false) {
@@ -71,33 +68,22 @@
     clearTimeout(introTimer);
     clearTimeout(exitTimer);
     cancelAnimationFrame(progressFrame);
+    root.classList.remove('intro-releasing');
     root.classList.add('intro-pending');
     loader.classList.remove('is-leaving');
     loader.setAttribute('aria-hidden', 'false');
     document.dispatchEvent(new CustomEvent('envision:intro-visibility',{detail:{open:true}}));
-    displayedProgress = 0;
     progressTrack.style.transform = 'scaleX(0)';
     progressCount.textContent = '00';
-    introStarted = performance.now();
+    status.textContent = labels[0][1];
     const run = ++introRun;
-    let completed = 0;
-    const labels = ['Connecting the dots', 'Finding our form', 'Bringing it together', 'Ready when you are'];
-    const update = () => {
-      if (run !== introRun) return;
-      const progress = Math.round(completed / 3 * 100);
-      animateProgress(progress, run);
-      status.textContent = labels[completed];
-    };
-    update();
-    // Three real readiness gates; the counter is not an invented download estimate.
+    const begun = performance.now();
+    let assetsReady = false;
     const logo = loader.querySelector('img');
-    const gates = [Promise.resolve(), document.fonts ? document.fonts.ready : Promise.resolve(), logo.decode ? logo.decode().catch(() => {}) : Promise.resolve()];
-    gates.forEach(gate => Promise.resolve(gate).catch(() => {}).then(() => {
-      if (run !== introRun || !root.classList.contains('intro-pending')) return;
-      completed += 1;
-      update();
-    }));
-    introTimer = setTimeout(() => finishIntro(), 3200);
+    Promise.all([document.fonts ? document.fonts.ready : null, logo.decode ? logo.decode().catch(() => {}) : null])
+      .catch(() => {}).then(() => { assetsReady = true; });
+    // A slow font never holds the intro for long.
+    runCount(run, () => assetsReady || performance.now() - begun > 2600);
     if (replay) document.getElementById('skip-intro').focus({ preventScroll:true });
   }
 
@@ -129,6 +115,7 @@
     document.getElementById('form-status').textContent = hasOwnMessage
       ? 'Your existing message has been kept. Add your brief to it if you would like.'
       : 'Your brief has been added to your message. Add your name and email, then send it.';
+    document.dispatchEvent(new CustomEvent('envision:prime-layout'));
     document.getElementById('contact').scrollIntoView({ behavior:reducedMotion.matches ? 'instant' : 'smooth' });
     form.elements.namedItem('name').focus({ preventScroll:true });
   });

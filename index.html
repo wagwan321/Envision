@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="services.css">
   <link rel="stylesheet" href="experience.css">
   <link rel="stylesheet" href="daylight.css">
+  <link rel="stylesheet" href="work.css">
   <link rel="stylesheet" href="brief.css">
   <script>
     // A failed script or slow connection must never trap visitors in the intro.
@@ -38,6 +39,7 @@
   <noscript><style>.contact-form>label,.contact-form>.form-row,.contact-form>.submit-button,.contact-form>.form-hint{display:none}</style></noscript>
   <script src="script.js" defer></script>
   <script src="experience.js" defer></script>
+  <script src="work.js" defer></script>
   <script src="ideas.js" defer></script>
   <script src="brief.js" defer></script>
 </head>
@@ -57,6 +59,7 @@
     <button class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="site-navigation" type="button">Menu <span aria-hidden="true">+</span></button>
     <nav id="site-navigation" aria-label="Primary navigation">
       <a href="#services" data-section="services">Services</a>
+      <a href="#work" data-section="work">Work</a>
       <a href="#ideas" data-section="ideas">Ideas</a>
       <a href="#process" data-section="process">How we work</a>
       <a class="nav-contact" href="#contact" data-section="contact">Let’s talk <span aria-hidden="true">↗</span></a>
@@ -159,6 +162,42 @@
     </section>
     <div class="daylight" data-business="cafe">
       <div class="daylight-orbit" aria-hidden="true"></div>
+      <section class="work section-pad" id="work" aria-labelledby="work-title">
+        <div class="section-heading reveal">
+          <div><p class="chapter-kicker mono">SELECTED WORK</p><h2 id="work-title">Built with<br><em>real clients.</em></h2></div>
+          <p>What we’re making with the businesses we work with right now.</p>
+        </div>
+        <article class="case reveal" aria-labelledby="case-leisure-title">
+          <div class="case-visual">
+            <div class="case-device">
+              <div class="case-browser">
+                <div class="case-browser-bar" aria-hidden="true"><i></i><i></i><i></i><span>The Leisure Club</span></div>
+                <img id="case-leisure-shot" src="assets/work/leisure-en.webp" width="1080" height="675" alt="The Leisure Club homepage in English, headlined “More than a club.”" loading="lazy" decoding="async">
+              </div>
+              <img class="case-phone" src="assets/work/leisure-schedule.webp" width="484" height="1047" alt="The weekly class schedule on a phone, with filters for activity, age group, facility, and day." loading="lazy" decoding="async">
+              <div class="case-languages" role="group" aria-label="Show the homepage in">
+                <span class="mono" aria-hidden="true">SEE IT IN</span>
+                <button type="button" data-case-lang="en" aria-pressed="true">English</button>
+                <button type="button" data-case-lang="ar" aria-pressed="false" lang="ar">العربية</button>
+                <button type="button" data-case-lang="fr" aria-pressed="false" lang="fr">Français</button>
+              </div>
+            </div>
+          </div>
+          <div class="case-copy">
+            <img class="case-logo" src="assets/work/leisure-logo.png" width="196" height="178" alt="The Leisure Club">
+            <p class="case-meta mono"><i></i>DIK EL-MEHDI, LEBANON · SINCE 1991</p>
+            <h3 id="case-leisure-title">A new home online for<br>a <em>family country club.</em></h3>
+            <p>Fitness, pools, Leisure Island, events, and memberships, brought together in one calm website that speaks three languages.</p>
+            <ul class="case-facts">
+              <li><b>12</b><span>pages, from the gym to the island</span></li>
+              <li><b>3</b><span>languages, with right-to-left Arabic</span></li>
+              <li><b>43</b><span>weekly classes in a filterable schedule</span></li>
+            </ul>
+            <ul class="case-tags" aria-label="What we did"><li>Website design</li><li>Development</li><li>Multilingual</li><li>Membership guide</li></ul>
+            <p class="case-status"><i></i>In progress · 2026</p>
+          </div>
+        </article>
+      </section>
       <section class="ideas section-pad" id="ideas" aria-labelledby="ideas-title">
         <div class="section-heading reveal">
           <div><p class="chapter-kicker mono">THE IDEAS BOARD</p><h2 id="ideas-title">Picture it for<br><em>your business.</em></h2></div>
@@ -301,6 +340,6 @@
     </div>
   </dialog>
   <div class="studio-dock" aria-label="Studio shortcuts"><a href="#services" data-brief aria-haspopup="dialog"><span aria-hidden="true">✳</span> Plan your project</a><span class="dock-divider"></span><button type="button" id="open-command" aria-label="Open quick navigation" aria-haspopup="dialog"><span aria-hidden="true">⌘</span><span class="dock-key">K</span></button></div>
-  <dialog class="command-dialog" id="command-dialog" aria-labelledby="command-title"><div class="command-top"><h2 id="command-title">Where to next?</h2><button type="button" id="close-command" aria-label="Close quick navigation">Esc <span aria-hidden="true">×</span></button></div><label class="visually-hidden" for="command-search">Find a section</label><input id="command-search" type="search" placeholder="Find your next move…" autocomplete="off"><div class="command-links"><a href="#home"><span>Back to the beginning</span><small>Home ↗</small></a><a href="#services"><span>Explore our capabilities</span><small>Services ↗</small></a><a href="#services" data-brief><span>Plan your project</span><small>Project brief ↗</small></a><a href="#ideas"><span>Picture it for your business</span><small>Ideas board ↗</small></a><a href="#process"><span>Meet the process</span><small>How we work ↗</small></a><a href="#contact"><span>Start a conversation</span><small>Contact ↗</small></a></div><p class="command-empty" hidden>No match. Try “project”, “services”, or “contact”.</p><p class="command-hint mono">TAB TO EXPLORE <span>ENTER TO GO ↵</span></p></dialog>
+  <dialog class="command-dialog" id="command-dialog" aria-labelledby="command-title"><div class="command-top"><h2 id="command-title">Where to next?</h2><button type="button" id="close-command" aria-label="Close quick navigation">Esc <span aria-hidden="true">×</span></button></div><label class="visually-hidden" for="command-search">Find a section</label><input id="command-search" type="search" placeholder="Find your next move…" autocomplete="off"><div class="command-links"><a href="#home"><span>Back to the beginning</span><small>Home ↗</small></a><a href="#services"><span>Explore our capabilities</span><small>Services ↗</small></a><a href="#services" data-brief><span>Plan your project</span><small>Project brief ↗</small></a><a href="#work"><span>See our work</span><small>Selected work ↗</small></a><a href="#ideas"><span>Picture it for your business</span><small>Ideas board ↗</small></a><a href="#process"><span>Meet the process</span><small>How we work ↗</small></a><a href="#contact"><span>Start a conversation</span><small>Contact ↗</small></a></div><p class="command-empty" hidden>No match. Try “project”, “services”, or “contact”.</p><p class="command-hint mono">TAB TO EXPLORE <span>ENTER TO GO ↵</span></p></dialog>
 </body>
 </html>

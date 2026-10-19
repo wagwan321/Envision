@@ -213,7 +213,8 @@ img {
   height:100%;
   background:var(--accent);
   transform:scaleX(0);
-  transform-origin:left
+  transform-origin:left;
+  will-change:transform
 }
 
 /* The opening scene introduces the continuous scroll journey. */
@@ -226,15 +227,7 @@ img {
   position:relative;
   overflow:hidden;
   padding:120px var(--pad) 30px;
-  background:var(--background);
-  --opening-opacity:1;
-  --opening-y:0px;
-  --resolution-opacity:0;
-  --resolution-y:45px;
-  --art-y:0%;
-  --art-scale:1;
-  --art-rotation:-26deg;
-  --art-opacity:1
+  background:var(--background)
 }
 
 .motion-ready .hero {
@@ -280,8 +273,6 @@ img {
 .hero-opening {
   position:relative;
   z-index:3;
-  opacity:var(--opening-opacity);
-  transform:translateY(var(--opening-y));
   pointer-events:none
 }
 
@@ -381,8 +372,8 @@ img {
   top:27%;
   left:var(--pad);
   right:var(--pad);
-  opacity:var(--resolution-opacity);
-  transform:translateY(var(--resolution-y));
+  opacity:0;
+  transform:translateY(45px);
   pointer-events:none
 }
 

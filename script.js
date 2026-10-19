@@ -6,6 +6,8 @@
   const hero = document.querySelector('.hero');
   const stage = document.querySelector('.hero-stage');
   const orbit = document.querySelector('.orbit-art');
+  const opening = document.querySelector('.hero-opening');
+  const resolution = document.querySelector('.hero-resolution');
   const heroLink = document.querySelector('.hero-opening a');
   const progressBar = document.getElementById('reading-progress');
   const nav = document.getElementById('site-navigation');
@@ -18,6 +20,7 @@
   let layoutDirty = true;
   let geometry;
   let lastHeroProgress = -1;
+  let heroLinkHidden = false;
   let lastActive = null;
   let briefActive = false;
   let introActive = root.classList.contains('intro-pending');
@@ -43,21 +46,12 @@
     if(layoutDirty) measureLayout();
     const y = window.scrollY;
     const { viewport, heroTop, heroHeight, stageHeight, sectionTops, total } = geometry;
-    const reduced = motionQuery.matches;
-    const progress = reduced || !heroSizeQuery.matches ? 0 : clamp((y-heroTop) / Math.max(1, heroHeight-stageHeight));
-    if(progress !== lastHeroProgress) {
-      lastHeroProgress = progress;
-      stage.style.setProperty('--opening-opacity', 1 - clamp(progress / .43));
-      stage.style.setProperty('--opening-y', `${-progress * 100}px`);
-      stage.style.setProperty('--resolution-opacity', clamp((progress - .46) / .23));
-      stage.style.setProperty('--resolution-y', `${(1 - clamp((progress - .48) / .4)) * 45}px`);
-      stage.style.setProperty('--art-y', `${progress * 28}%`);
-      stage.style.setProperty('--art-scale', 1 - progress * .28);
-      orbit.style.setProperty('--orbit-turn', `${progress * 150}deg`);
-      stage.style.setProperty('--art-opacity', 1 - clamp((progress - .36) / .4) * .82);
-      // Invisible links should not intercept clicks or keyboard focus.
-      heroLink.tabIndex = progress > .43 ? -1 : 0;
-      heroLink.style.pointerEvents = progress > .43 ? 'none' : 'auto';
+    const animated = !motionQuery.matches && heroSizeQuery.matches;
+    const progress = animated ? clamp((y-heroTop) / Math.max(1, heroHeight-stageHeight)) : 0;
+    const heroState = animated ? progress : -2;
+    if(heroState !== lastHeroProgress) {
+      lastHeroProgress = heroState;
+      paintHero(progress, animated);
     }
     progressBar.style.transform = `scaleX(${total > 0 ? clamp(y / total) : 0})`;
     header.classList.toggle('is-scrolled', y > 20);
@@ -73,9 +67,41 @@
       });
     }
   }
+  // Transform and opacity go straight onto the three moving layers, so a scroll frame restyles
+  // three elements and never repaints the hero.
+  function paintHero(progress, animated) {
+    if(!animated) {
+      [opening, resolution, orbit].forEach(element => { element.style.removeProperty('transform'); element.style.removeProperty('opacity'); });
+      orbit.style.removeProperty('--orbit-turn');
+    } else {
+      opening.style.opacity = 1 - clamp(progress / .43);
+      opening.style.transform = `translate3d(0,${-progress * 100}px,0)`;
+      resolution.style.opacity = clamp((progress - .46) / .23);
+      resolution.style.transform = `translate3d(0,${(1 - clamp((progress - .48) / .4)) * 45}px,0)`;
+      orbit.style.opacity = 1 - clamp((progress - .36) / .4) * .82;
+      orbit.style.transform = `translate3d(0,${progress * 28}%,0) scale(${1 - progress * .28})`;
+      orbit.style.setProperty('--orbit-turn', `${progress * 150}deg`);
+    }
+    // Invisible links should not intercept clicks or keyboard focus.
+    const hidden = progress > .43;
+    if(hidden !== heroLinkHidden) {
+      heroLinkHidden = hidden;
+      heroLink.tabIndex = hidden ? -1 : 0;
+      heroLink.style.pointerEvents = hidden ? 'none' : 'auto';
+    }
+  }
   function schedule() {
     if (!briefActive && !introActive && !frame) frame = requestAnimationFrame(render);
   }
+  // Sections below the hero skip layout until they near the viewport. Before the first jump,
+  // lay them all out so the browser scrolls to real positions rather than estimates.
+  function primeLayout() {
+    if(root.classList.contains('layout-primed')) return;
+    root.classList.add('layout-primed');
+    void root.offsetHeight;
+    invalidateLayout();
+  }
+  document.addEventListener('envision:prime-layout', primeLayout);
   root.classList.add('motion-ready');
   window.addEventListener('scroll', schedule, { passive: true });
   window.addEventListener('resize', invalidateLayout, { passive: true });
@@ -183,6 +209,7 @@
   document.querySelectorAll('a[href^="#"]').forEach(link => {
     link.addEventListener('click', () => {
       closeMenu();
+      primeLayout();
       const target = document.querySelector(link.getAttribute('href'));
       if (target) {
         target.setAttribute('tabindex', '-1');

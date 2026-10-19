@@ -35,7 +35,7 @@
 .daylight .section-heading h2 em { color:var(--forest); }
 
 /* Ideas board */
-.ideas { padding-top:clamp(24px,4vw,56px); }
+
 .business-picker { display:flex; flex-wrap:wrap; gap:10px; margin:-26px 0 30px; }
 .business-picker button { display:inline-flex; align-items:center; gap:10px; padding:11px 18px 11px 14px; border:1px solid var(--ink-line); border-radius:30px; background:rgba(255,255,255,.4); color:var(--ink); font-size:14px; transition:background .25s,border-color .25s,color .25s; }
 .business-picker button:hover { border-color:rgba(19,32,26,.35); background:var(--cream-raised); }
@@ -131,8 +131,10 @@
 .evolve-live .mock-picture { margin:0; border-radius:8px; }
 .evolve-live .mock-button { align-self:flex-start; padding:6px 14px; border-radius:20px; background:var(--idea-a); color:var(--idea-on-a); font:600 10px var(--display); }
 .live-chip { display:flex; align-items:center; gap:7px; background:#fff; box-shadow:0 6px 16px -8px rgba(19,32,26,.4); color:var(--forest); font:600 11px var(--display); }
-.live-chip>i { width:7px; height:7px; border-radius:50%; background:#2fae6e; box-shadow:0 0 0 0 rgba(47,174,110,.5); animation:live-pulse 2.4s ease-out infinite; }
-@keyframes live-pulse { 0% { box-shadow:0 0 0 0 rgba(47,174,110,.5); } 70%,100% { box-shadow:0 0 0 8px rgba(47,174,110,0); } }
+.live-chip>i { position:relative; width:7px; height:7px; border-radius:50%; background:#2fae6e; }
+/* The pulse animates transform and opacity only, so it runs on the compositor without repainting. */
+.live-chip>i::after { content:''; position:absolute; inset:0; border-radius:50%; background:#2fae6e; animation:live-pulse 2.4s ease-out infinite; }
+@keyframes live-pulse { 0% { opacity:.55; transform:scale(1); } 70%,100% { opacity:0; transform:scale(3.3); } }
 .evolve-arrow { position:absolute; z-index:3; top:34%; right:-21%; width:24%; fill:none; stroke:var(--ink-muted); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
 .daylight .process-number { color:var(--forest); }
 
@@ -166,7 +168,7 @@
 @media(prefers-reduced-motion:reduce) {
   .daylight,.idea,.business-picker button,.film-progress>i { transition:none; }
   .idea:hover { translate:none; }
-  .live-chip>i { animation:none; }
+  .live-chip>i::after { animation:none; opacity:0; }
 }
 @media print {
   .daylight { background:none; padding:0; }

@@ -6,10 +6,10 @@
   right:0;
   top:20%;
   pointer-events:none;
-  transform:translateY(var(--art-y)) scale(var(--art-scale));
-  opacity:var(--art-opacity);
   --orbit-turn:0deg;
 }
+/* script.js writes transform and opacity straight onto these layers while the hero scrolls. */
+.motion-ready .hero-opening,.motion-ready .hero-resolution,.motion-ready .orbit-art { will-change:transform,opacity; }
 .orbit-halo {
   position:absolute;
   inset:3%;
@@ -42,7 +42,17 @@
   top:50%; left:50%;
   width:62%; height:auto;
   transform:translate(-50%,-50%) translateZ(35px);
-  filter:drop-shadow(0 20px 28px rgba(0,0,0,.8));
+}
+/* A painted shadow instead of a filter, so the GPU is not re-blurring the logo every frame. */
+.orbit-system::after {
+  content:'';
+  position:absolute;
+  top:50%; left:50%;
+  width:66%; height:40%;
+  transform:translate(-50%,-28%) translateZ(20px);
+  border-radius:50%;
+  background:radial-gradient(closest-side,rgba(0,0,0,.72),rgba(0,0,0,.3) 55%,transparent);
+  pointer-events:none;
 }
 .motion-ready .hero { height:180svh; }
 
@@ -54,6 +64,12 @@
 .hero-topline { font-size:12px; }
 .hero-bottom { font-size:11px; }
 .section-pad { padding:120px var(--pad); }
+/* Sections below the hero skip layout and paint until they near the viewport, which keeps the
+   intro from waiting on the whole page. script.js lays them out once before any in-page jump. */
+#services,.daylight,#contact { content-visibility:auto; contain-intrinsic-size:auto 1850px; }
+.daylight { contain-intrinsic-size:auto 4000px; }
+#contact { contain-intrinsic-size:auto 800px; }
+.layout-primed #services,.layout-primed .daylight,.layout-primed #contact { content-visibility:visible; }
 .section-heading { grid-template-columns:1.3fr 1fr; margin:0 0 72px; gap:60px; align-items:start; }
 .section-heading h2 { font-size:clamp(40px,4.6vw,66px); letter-spacing:-.055em; }
 .section-heading>p { font-size:16px; max-width:390px; color:var(--muted); }
@@ -111,6 +127,9 @@ footer { margin-top:96px; padding-top:28px; font-size:12px; }
   .service-card h3 { font-size:25px; margin-bottom:16px; }
   .service-card p { font-size:15px; }
   .services-link { margin-top:24px; font-size:13px; }
+  #services { contain-intrinsic-size:auto 2800px; }
+  .daylight { contain-intrinsic-size:auto 5000px; }
+  #contact { contain-intrinsic-size:auto 1080px; }
   .process-list { grid-template-columns:1fr; gap:38px; }
   .process-list h3 { font-size:25px; margin:0 0 14px; }
   .process-list p { font-size:15px; }
