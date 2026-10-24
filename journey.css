@@ -66,8 +66,8 @@
 .section-pad { padding:120px var(--pad); }
 /* Sections below the hero skip layout and paint until they near the viewport, which keeps the
    intro from waiting on the whole page. script.js lays them out once before any in-page jump. */
-#services,.daylight,#contact { content-visibility:auto; contain-intrinsic-size:auto 1850px; }
-.daylight { contain-intrinsic-size:auto 4000px; }
+#services,.daylight,#contact { content-visibility:auto; contain-intrinsic-size:auto 2130px; }
+.daylight { contain-intrinsic-size:auto 2030px; }
 #contact { contain-intrinsic-size:auto 800px; }
 .layout-primed #services,.layout-primed .daylight,.layout-primed #contact { content-visibility:visible; }
 .section-heading { grid-template-columns:1.3fr 1fr; margin:0 0 72px; gap:60px; align-items:start; }
@@ -127,8 +127,8 @@ footer { margin-top:96px; padding-top:28px; font-size:12px; }
   .service-card h3 { font-size:25px; margin-bottom:16px; }
   .service-card p { font-size:15px; }
   .services-link { margin-top:24px; font-size:13px; }
-  #services { contain-intrinsic-size:auto 2800px; }
-  .daylight { contain-intrinsic-size:auto 5000px; }
+  #services { contain-intrinsic-size:auto 2970px; }
+  .daylight { contain-intrinsic-size:auto 2170px; }
   #contact { contain-intrinsic-size:auto 1080px; }
   .process-list { grid-template-columns:1fr; gap:38px; }
   .process-list h3 { font-size:25px; margin:0 0 14px; }

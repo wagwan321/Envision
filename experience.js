@@ -175,9 +175,14 @@
   function updateDock() {
     dockFrame = null;
     if(dockHiddenByBrief) return;
-    if(!dockGeometry) dockGeometry = {contactTop:document.getElementById('contact').getBoundingClientRect().top+scrollY, height:innerHeight};
-    const {contactTop,height} = dockGeometry;
-    dock.classList.toggle('is-visible', scrollY > height*.45 && contactTop-scrollY > height*.65);
+    if(!dockGeometry) {
+      const clients = document.querySelector('.clients')?.getBoundingClientRect();
+      dockGeometry = {contactTop:document.getElementById('contact').getBoundingClientRect().top+scrollY, clientsTop:clients ? clients.top+scrollY : 0, clientsBottom:clients ? clients.bottom+scrollY : 0, height:innerHeight};
+    }
+    const {contactTop,clientsTop,clientsBottom,height} = dockGeometry;
+    // The client slideshow has its own controls along the bottom, so the dock steps aside for it.
+    const previewing = clientsTop-scrollY < height*.85 && clientsBottom-scrollY > height*.15;
+    dock.classList.toggle('is-visible', scrollY > height*.45 && contactTop-scrollY > height*.65 && !previewing);
   }
   function scheduleDock() { if (!dockHiddenByBrief && !dockFrame) dockFrame = requestAnimationFrame(updateDock); }
   function invalidateDock() { dockGeometry = null; scheduleDock(); }

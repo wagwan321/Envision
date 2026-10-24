@@ -1,54 +1,100 @@
-/* Selected work: real client projects, shown in each client's own colours inside the cream chapter. */
+/* Selected work: a macOS window and an iPhone whose screens move through client projects every few seconds. */
 .work { padding-top:clamp(24px,4vw,56px); }
-.case { --case-paper:#f6f5f2; --case-stone:#e8e6e1; --case-ink:#191919; --case-red:#e62028; display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); align-items:center; gap:clamp(36px,5vw,84px); padding:clamp(26px,3.5vw,54px) clamp(26px,3.5vw,54px) clamp(40px,4.5vw,64px); border-radius:28px; background:var(--case-paper); box-shadow:inset 0 0 0 1px var(--ink-line),0 40px 70px -60px rgba(19,32,26,.45); color:var(--case-ink); }
-.case-visual { min-width:0; padding-right:17%; }
-/* The phone hangs off the lower right of the browser; the margin reserves room for it. */
-.case-device { position:relative; margin-bottom:41%; }
-.case-browser { overflow:hidden; border-radius:14px; background:#fff; box-shadow:0 40px 70px -42px rgba(19,32,26,.6),0 0 0 1px rgba(19,32,26,.08); }
-.case-browser-bar { display:flex; align-items:center; gap:6px; height:32px; padding:0 14px; border-bottom:1px solid rgba(19,32,26,.08); background:var(--case-stone); }
-.case-browser-bar>i { width:8px; height:8px; border-radius:50%; background:rgba(19,32,26,.18); }
-.case-browser-bar>span { margin:0 auto; padding:3px 14px; border-radius:6px; background:rgba(255,255,255,.7); color:#5e5e5e; font-size:10px; translate:-15px 0; }
-.case-browser>img { display:block; width:100%; height:auto; aspect-ratio:1080/675; background:var(--case-paper); transition:opacity .25s; }
-.case-browser>img.is-swapping { opacity:.35; }
-.case-phone { position:absolute; top:58%; right:-19%; width:30%; height:auto; aspect-ratio:484/1047; border:6px solid var(--case-ink); border-radius:24px; background:var(--case-paper); box-shadow:0 34px 50px -26px rgba(19,32,26,.65); rotate:3deg; }
-.case-languages { position:absolute; left:0; top:calc(100% + 24px); max-width:84%; display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px; }
-.case-languages>.mono { margin-right:4px; color:var(--ink-muted); font-size:9px; }
-.case-languages button { padding:7px 14px; border:1px solid rgba(19,32,26,.16); border-radius:20px; background:rgba(255,255,255,.6); color:var(--case-ink); font-size:13px; transition:background .2s,border-color .2s,color .2s; }
-.case-languages button:hover { border-color:rgba(19,32,26,.4); }
-.case-languages [aria-pressed=true] { border-color:var(--case-ink); background:var(--case-ink); color:var(--case-paper); }
-.case-copy { min-width:0; }
-.case-logo { display:block; width:78px; height:auto; margin-bottom:22px; }
-.case-meta { display:flex; align-items:center; gap:9px; color:var(--ink-muted); font-size:10px; }
-.case-meta>i { width:6px; height:6px; border-radius:50%; background:var(--case-red); }
-.case-copy h3 { margin:16px 0 16px; font-size:clamp(28px,2.6vw,40px); line-height:1.1; letter-spacing:-.035em; }
-.case-copy h3 em { color:var(--case-red); }
-.case-copy>p:not(.case-meta):not(.case-status) { max-width:44ch; color:var(--ink-muted); font-size:15.5px; }
-.case-facts { display:grid; margin:26px 0 22px; padding:0; border-top:1px solid var(--ink-line); list-style:none; }
-.case-facts li { display:grid; grid-template-columns:62px minmax(0,1fr); align-items:baseline; gap:10px; padding:12px 0; border-bottom:1px solid var(--ink-line); }
-.case-facts b { font:500 30px/1 var(--display); letter-spacing:-.04em; }
-.case-facts span { color:var(--ink-muted); font-size:14px; }
-.case-tags { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 22px; padding:0; list-style:none; }
-.case-tags li { padding:6px 12px; border-radius:20px; background:rgba(19,32,26,.06); font-size:12px; }
-.case-status { display:inline-flex; align-items:center; gap:9px; font-size:13px; }
-.case-status>i { width:8px; height:8px; border-radius:50%; background:#d39a26; box-shadow:0 0 0 3px rgba(211,154,38,.2); }
+.clients { --client-tint:#f6f5f2; position:relative; padding:clamp(28px,4vw,60px) clamp(24px,4vw,60px) clamp(22px,3vw,36px); border-radius:28px; background:var(--client-tint); box-shadow:inset 0 0 0 1px var(--ink-line),0 40px 70px -60px rgba(19,32,26,.45); transition:background-color .8s; }
+.clients[data-active="1"] { --client-tint:#eef5fc; }
+.clients[data-active="2"] { --client-tint:#fbf3ea; }
+.clients-stage { display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); align-items:center; gap:clamp(36px,5vw,80px); }
+/* A horizontal swipe on the devices changes project; vertical swipes still scroll the page. */
+.clients-devices { position:relative; padding:0 10% 9% 0; touch-action:pan-y; user-select:none; }
+.clients-devices img { -webkit-user-drag:none; }
+
+/* A macOS window: rounded corners, a light title bar, and the red, yellow, and green buttons. */
+.mac-window { container-type:inline-size; overflow:hidden; border-radius:12px; background:#fff; box-shadow:0 0 0 1px rgba(0,0,0,.12),0 28px 70px -22px rgba(0,0,0,.35),0 12px 24px -14px rgba(0,0,0,.2); }
+.mac-window-bar { display:flex; align-items:center; gap:clamp(6px,1.35cqw,9px); height:clamp(24px,4.6cqw,36px); padding:0 clamp(10px,2.2cqw,16px); border-bottom:1px solid #d6d6d6; background:linear-gradient(#f4f4f4,#e7e7e7); }
+.mac-window-bar>i { width:clamp(9px,1.9cqw,13px); aspect-ratio:1; border-radius:50%; background:#ff5f57; box-shadow:inset 0 0 0 .5px rgba(0,0,0,.18); }
+.mac-window-bar>i:nth-child(2) { background:#febc2e; }
+.mac-window-bar>i:nth-child(3) { background:#28c840; }
+.mac-window-screen { position:relative; aspect-ratio:16/10; overflow:hidden; background:#f6f5f2; }
+
+/* A current iPhone: titanium rim, side buttons, Dynamic Island, and a status bar that takes on
+   each site's top colour. Sizes are in cqw, so the whole phone scales with its width. */
+.clients { --status-bg:#f6f5f2; --status-ink:#191919; }
+.clients[data-active="1"] { --status-bg:#25318c; --status-ink:#fff; }
+.clients[data-active="2"] { --status-bg:#17151c; --status-ink:#fff; }
+.client-phone { position:absolute; right:0; bottom:0; width:21%; container-type:inline-size; rotate:4deg; }
+.iphone { position:relative; padding:3.4cqw; border-radius:16cqw; background:#1c1c1e; box-shadow:inset 0 0 0 .7cqw #2c2c2e,0 0 0 .55cqw #a3a3a8,0 0 0 1.05cqw #4a4a4c,0 30px 50px -22px rgba(0,0,0,.55); }
+.iphone-key { position:absolute; width:1.2cqw; border-radius:.6cqw; background:#55555a; }
+.key-action { left:-2.1cqw; top:30cqw; height:8cqw; }
+.key-up { left:-2.1cqw; top:45cqw; height:16cqw; }
+.key-down { left:-2.1cqw; top:64cqw; height:16cqw; }
+.key-power { right:-2.1cqw; top:50cqw; height:25cqw; }
+.iphone-screen { position:relative; aspect-ratio:393/852; overflow:hidden; border-radius:12.6cqw; background:var(--status-bg); }
+.iphone-status { position:absolute; z-index:2; inset:0 0 auto; display:flex; align-items:center; justify-content:space-between; height:14cqw; padding:0 7.5cqw 0 10cqw; background:var(--status-bg); color:var(--status-ink); transition:background-color .7s,color .7s; }
+.iphone-status>b { font:600 4.6cqw/1 -apple-system,BlinkMacSystemFont,'Inter',var(--display); letter-spacing:-.01em; }
+.iphone-island { position:absolute; top:2.6cqw; left:50%; width:30cqw; height:8.8cqw; translate:-50% 0; border-radius:8.8cqw; background:#000; }
+.iphone-icons { display:flex; align-items:center; gap:1.3cqw; }
+.icon-signal { width:4.8cqw; height:3cqw; background:linear-gradient(currentColor,currentColor) 0 100%/.9cqw 38% no-repeat,linear-gradient(currentColor,currentColor) 1.3cqw 100%/.9cqw 58% no-repeat,linear-gradient(currentColor,currentColor) 2.6cqw 100%/.9cqw 80% no-repeat,linear-gradient(currentColor,currentColor) 3.9cqw 100%/.9cqw 100% no-repeat; }
+.icon-wifi { width:4.4cqw; height:3.2cqw; background:radial-gradient(circle at 50% 100%,currentColor 0 17%,transparent 18% 35%,currentColor 36% 52%,transparent 53% 69%,currentColor 70% 86%,transparent 87%); clip-path:polygon(0 0,100% 0,50% 100%); }
+.icon-battery { position:relative; width:6.6cqw; height:3.1cqw; border:.35cqw solid currentColor; border-radius:1cqw; opacity:.95; }
+.icon-battery::before { content:''; position:absolute; inset:.35cqw 1.6cqw .35cqw .35cqw; border-radius:.4cqw; background:currentColor; }
+.icon-battery::after { content:''; position:absolute; top:30%; right:-1.1cqw; width:.6cqw; height:40%; border-radius:0 .4cqw .4cqw 0; background:currentColor; }
+.iphone-screen>.client-shot { top:14cqw; height:calc(100% - 14cqw); }
+
+/* Screens cross-fade with a slight settle, which stays on the compositor. */
+.client-shot { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:top; opacity:0; transform:scale(1.04); transition:opacity .7s ease,transform 1.4s cubic-bezier(.2,.75,.2,1); }
+.client-shot.is-active { opacity:1; transform:none; }
+
+.clients-info { display:grid; }
+.client { grid-area:1/1; align-self:center; min-width:0; color:var(--client-ink); opacity:0; transform:translateY(14px); visibility:hidden; transition:opacity .4s,transform .5s cubic-bezier(.2,.75,.2,1),visibility 0s .5s; }
+.client.is-active { opacity:1; transform:none; visibility:visible; transition:opacity .6s .15s,transform .7s .15s cubic-bezier(.2,.75,.2,1),visibility 0s; }
+.client-leisure { --client-ink:#191919; --client-accent:#e62028; }
+.client-enfantillage { --client-ink:#25318c; --client-accent:#e8222b; }
+.client-noma { --client-ink:#23242b; --client-accent:#d4532a; }
+.client-logo { display:block; width:78px; height:auto; margin-bottom:20px; }
+.client-logo-wide { width:130px; }
+.client-meta { display:flex; align-items:center; gap:9px; color:var(--ink-muted); font-size:10px; }
+.client-meta>i { flex-shrink:0; width:6px; height:6px; border-radius:50%; background:var(--client-accent); }
+.client h3 { margin:14px 0; font-size:clamp(28px,2.6vw,40px); line-height:1.1; letter-spacing:-.035em; }
+.client h3 em { color:var(--client-accent); }
+.client>p:not(.client-meta) { max-width:42ch; color:var(--ink-muted); font-size:15.5px; }
+.client-stats { display:flex; flex-wrap:wrap; gap:12px clamp(20px,2.5vw,36px); margin:24px 0 20px; padding:16px 0; border-block:1px solid var(--ink-line); }
+.client-stats>div { display:flex; flex-direction:column-reverse; gap:5px; }
+.client-stats dd { margin:0; font:500 30px/1 var(--display); letter-spacing:-.04em; }
+.client-stats dt { color:var(--ink-muted); font-size:13px; }
+.client-tags { display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:0; list-style:none; }
+.client-tags li { padding:6px 12px; border-radius:20px; background:rgba(19,32,26,.06); font-size:12px; }
+
+.clients-controls { display:flex; align-items:center; justify-content:center; gap:14px; margin-top:clamp(22px,3vw,36px); }
+.clients-dots { display:flex; gap:8px; }
+.clients-dots button { display:grid; align-items:center; width:46px; height:26px; padding:0; border:0; background:none; }
+.clients-dots span { position:relative; display:block; height:3px; overflow:hidden; border-radius:3px; background:rgba(22,22,19,.16); }
+.clients-dots span::after { content:''; position:absolute; inset:0; background:var(--ink); transform:scaleX(0); transform-origin:left; }
+/* Each project stays on screen for 3.5 seconds; when the fill ends, work.js moves on. */
+.clients-dots [aria-current=true] span::after { animation:clients-fill 3.5s linear forwards; }
+.clients.is-paused .clients-dots [aria-current=true] span::after { animation-play-state:paused; }
+.clients.is-static .clients-dots [aria-current=true] span::after { animation:none; transform:none; }
+@keyframes clients-fill { to { transform:scaleX(1); } }
+.clients-toggle { display:grid; place-items:center; width:34px; height:34px; border:1px solid var(--ink-line); border-radius:50%; background:rgba(255,255,255,.5); color:var(--ink); transition:background .2s; }
+.clients-toggle:hover { background:#fff; }
+.clients-toggle>span { width:8px; height:10px; border-inline:2.5px solid currentColor; }
+.clients-toggle[aria-pressed=true]>span { width:0; height:0; border:0; border-block:5px solid transparent; border-left:8px solid currentColor; translate:1px 0; }
+.clients.is-static .clients-toggle { display:none; }
 @media(max-width:1050px) {
-  .case { grid-template-columns:1fr; }
-  .case-visual { padding-right:19%; }
+  .clients-stage { grid-template-columns:1fr; }
+  .clients-info { max-width:620px; }
 }
 @media(max-width:760px) {
-  .case { gap:30px; padding:18px 18px 28px; border-radius:22px; }
-  .case-browser { border-radius:10px; }
-  .case-browser-bar { height:22px; padding:0 10px; gap:4px; }
-  .case-browser-bar>i { width:6px; height:6px; }
-  .case-browser-bar>span { font-size:8px; padding:2px 8px; }
-  .case-phone { border-width:4px; border-radius:16px; }
-  .case-languages { top:calc(100% + 16px); }
-  .case-languages>.mono { display:none; }
-  .case-languages button { padding:5px 10px; font-size:12px; }
-  .case-logo { width:62px; margin-bottom:16px; }
-  .case-copy>p:not(.case-meta):not(.case-status) { font-size:15px; }
-  .case-facts b { font-size:26px; }
-  .case-facts li { grid-template-columns:48px minmax(0,1fr); }
+  .clients { padding:20px 18px 18px; border-radius:22px; }
+  .clients-stage { gap:28px; }
+  .clients-devices { padding:0 12% 12% 0; }
+  .client-phone { width:27%; }
+  .mac-window { border-radius:9px; }
+  .client-logo { width:62px; margin-bottom:14px; }
+  .client-logo-wide { width:104px; }
+  .client h3 { font-size:28px; }
+  .client>p:not(.client-meta) { font-size:15px; }
+  .client-stats dd { font-size:25px; }
+  .client-stats dt { font-size:12px; }
 }
-@media(prefers-reduced-motion:reduce) { .case-browser>img { transition:none; } }
-@media print { .case-languages { display:none; } .case { break-inside:avoid; } }
+@media(prefers-reduced-motion:reduce) { .clients,.client,.client.is-active,.client-shot,.clients-toggle { transition:none; } }
+@media print { .clients-controls { display:none; } .client { position:static; opacity:1; visibility:visible; transform:none; } .clients-info { display:block; } }

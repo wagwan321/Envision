@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Envision — Ideas into impact.</title>
   <meta name="description" content="An independent software studio turning ambitious ideas into websites, digital products, and practical AI. Strategy, design, and engineering, together.">
-  <meta name="theme-color" content="#050807">
+  <meta name="theme-color" content="#efe8dc">
   <meta property="og:title" content="Envision — Ideas into impact.">
   <meta property="og:description" content="Independent minds. Connected disciplines. Websites, digital products, and practical AI by Envision.">
   <meta property="og:type" content="website">
@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="daylight.css">
   <link rel="stylesheet" href="work.css">
   <link rel="stylesheet" href="brief.css">
+  <link rel="stylesheet" href="theme.css">
   <script>
     // A failed script or slow connection must never trap visitors in the intro.
     try {
@@ -40,7 +41,6 @@
   <script src="script.js" defer></script>
   <script src="experience.js" defer></script>
   <script src="work.js" defer></script>
-  <script src="ideas.js" defer></script>
   <script src="brief.js" defer></script>
 </head>
 <body>
@@ -60,7 +60,6 @@
     <nav id="site-navigation" aria-label="Primary navigation">
       <a href="#services" data-section="services">Services</a>
       <a href="#work" data-section="work">Work</a>
-      <a href="#ideas" data-section="ideas">Ideas</a>
       <a href="#process" data-section="process">How we work</a>
       <a class="nav-contact" href="#contact" data-section="contact">Let’s talk <span aria-hidden="true">↗</span></a>
     </nav>
@@ -160,146 +159,82 @@
       </div>
       <a class="text-link services-link" href="#contact" data-brief aria-haspopup="dialog">Not sure which you need? Let’s work it out <span aria-hidden="true">↗</span></a>
     </section>
-    <div class="daylight" data-business="cafe">
+    <div class="daylight">
       <div class="daylight-orbit" aria-hidden="true"></div>
       <section class="work section-pad" id="work" aria-labelledby="work-title">
         <div class="section-heading reveal">
           <div><p class="chapter-kicker mono">SELECTED WORK</p><h2 id="work-title">Built with<br><em>real clients.</em></h2></div>
-          <p>What we’re making with the businesses we work with right now.</p>
+          <p>A look at what we’re making with the businesses we work with right now.</p>
         </div>
-        <article class="case reveal" aria-labelledby="case-leisure-title">
-          <div class="case-visual">
-            <div class="case-device">
-              <div class="case-browser">
-                <div class="case-browser-bar" aria-hidden="true"><i></i><i></i><i></i><span>The Leisure Club</span></div>
-                <img id="case-leisure-shot" src="assets/work/leisure-en.webp" width="1080" height="675" alt="The Leisure Club homepage in English, headlined “More than a club.”" loading="lazy" decoding="async">
+        <div class="clients reveal" role="region" aria-roledescription="carousel" aria-label="Client projects" data-active="0">
+          <div class="clients-stage">
+            <div class="clients-devices">
+              <div class="mac-window">
+                <div class="mac-window-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+                <div class="mac-window-screen">
+                  <img class="client-shot is-active" src="assets/work/leisure-en.webp" width="1080" height="675" alt="The Leisure Club homepage, with the club film playing through the letters of “More than a club.”" loading="lazy" decoding="async">
+                  <img class="client-shot" src="assets/work/enfantillage-home.webp" width="1080" height="675" alt="The Enfantillage homepage, with a “Wishlists start here!” banner and toy promotions." loading="lazy" decoding="async" aria-hidden="true">
+                  <img class="client-shot" src="assets/work/noma-day.webp" width="1080" height="675" alt="The Noma Living homepage: a 3D-rendered shopfront in Hamra with “Swipe up to step inside.”" loading="lazy" decoding="async" aria-hidden="true">
+                </div>
               </div>
-              <img class="case-phone" src="assets/work/leisure-schedule.webp" width="484" height="1047" alt="The weekly class schedule on a phone, with filters for activity, age group, facility, and day." loading="lazy" decoding="async">
-              <div class="case-languages" role="group" aria-label="Show the homepage in">
-                <span class="mono" aria-hidden="true">SEE IT IN</span>
-                <button type="button" data-case-lang="en" aria-pressed="true">English</button>
-                <button type="button" data-case-lang="ar" aria-pressed="false" lang="ar">العربية</button>
-                <button type="button" data-case-lang="fr" aria-pressed="false" lang="fr">Français</button>
+              <div class="client-phone" aria-hidden="true">
+                <div class="iphone">
+                  <span class="iphone-key key-action"></span><span class="iphone-key key-up"></span><span class="iphone-key key-down"></span><span class="iphone-key key-power"></span>
+                  <div class="iphone-screen">
+                    <div class="iphone-status"><b>9:41</b><span class="iphone-island"></span><span class="iphone-icons"><i class="icon-signal"></i><i class="icon-wifi"></i><i class="icon-battery"></i></span></div>
+                    <img class="client-shot is-active" src="assets/work/leisure-schedule.webp" width="484" height="1047" alt="" loading="lazy" decoding="async">
+                    <img class="client-shot" src="assets/work/enfantillage-mobile.webp" width="484" height="1047" alt="" loading="lazy" decoding="async">
+                    <img class="client-shot" src="assets/work/noma-mobile.webp" width="484" height="1047" alt="" loading="lazy" decoding="async">
+                  </div>
+                </div>
               </div>
+            </div>
+            <div class="clients-info">
+              <article class="client client-leisure is-active" role="group" aria-roledescription="slide" aria-label="1 of 3">
+                <img class="client-logo" src="assets/work/leisure-logo.png" width="196" height="178" alt="The Leisure Club" loading="lazy">
+                <p class="client-meta mono"><i></i>DIK EL-MEHDI, LEBANON · SINCE 1991</p>
+                <h3>A new home online for<br>a <em>family country club.</em></h3>
+                <p>Fitness, pools, Leisure Island, events, and memberships in one calm website that speaks three languages.</p>
+                <dl class="client-stats"><div><dt>pages</dt><dd>15</dd></div><div><dt>languages</dt><dd>3</dd></div><div><dt>weekly classes</dt><dd>43</dd></div></dl>
+                <ul class="client-tags" aria-label="What we did"><li>Website design</li><li>Development</li><li>Multilingual</li></ul>
+              </article>
+              <article class="client client-enfantillage" role="group" aria-roledescription="slide" aria-label="2 of 3" inert>
+                <img class="client-logo client-logo-wide" src="assets/work/enfantillage-logo.png" width="280" height="160" alt="Enfantillage" loading="lazy">
+                <p class="client-meta mono"><i></i>MAZRAAT YACHOUH, LEBANON · FAMILY TOY STORE</p>
+                <h3>A storefront that feels<br>like <em>opening a toy box.</em></h3>
+                <p>A brighter, easier way to shop Lebanon’s family toy store, by age, brand, or favourite character.</p>
+                <dl class="client-stats"><div><dt>toys</dt><dd>592</dd></div><div><dt>age groups</dt><dd>6</dd></div><div><dt>ways to browse</dt><dd>5</dd></div></dl>
+                <ul class="client-tags" aria-label="What we did"><li>Storefront design</li><li>E-commerce</li><li>Development</li></ul>
+              </article>
+              <article class="client client-noma" role="group" aria-roledescription="slide" aria-label="3 of 3" inert>
+                <img class="client-logo client-logo-wide" src="assets/work/noma-logo.svg" width="200" height="58" alt="Noma Living" loading="lazy">
+                <p class="client-meta mono"><i></i>HAMRA, BEIRUT · NEXT TO LAU</p>
+                <h3>Student studios you can<br><em>walk into online.</em></h3>
+                <p>Furnished studios steps from LAU, with a 3D walk-through we rendered in Blender and tour bookings built in.</p>
+                <dl class="client-stats"><div><dt>3D frames</dt><dd>530</dd></div><div><dt>looks, day &amp; night</dt><dd>2</dd></div><div><dt>studio types</dt><dd>3</dd></div></dl>
+                <ul class="client-tags" aria-label="What we did"><li>Website design</li><li>3D in Blender</li><li>Development</li></ul>
+              </article>
             </div>
           </div>
-          <div class="case-copy">
-            <img class="case-logo" src="assets/work/leisure-logo.png" width="196" height="178" alt="The Leisure Club">
-            <p class="case-meta mono"><i></i>DIK EL-MEHDI, LEBANON · SINCE 1991</p>
-            <h3 id="case-leisure-title">A new home online for<br>a <em>family country club.</em></h3>
-            <p>Fitness, pools, Leisure Island, events, and memberships, brought together in one calm website that speaks three languages.</p>
-            <ul class="case-facts">
-              <li><b>12</b><span>pages, from the gym to the island</span></li>
-              <li><b>3</b><span>languages, with right-to-left Arabic</span></li>
-              <li><b>43</b><span>weekly classes in a filterable schedule</span></li>
-            </ul>
-            <ul class="case-tags" aria-label="What we did"><li>Website design</li><li>Development</li><li>Multilingual</li><li>Membership guide</li></ul>
-            <p class="case-status"><i></i>In progress · 2026</p>
+          <div class="clients-controls">
+            <div class="clients-dots" role="group" aria-label="Choose a project">
+              <button type="button" data-go="0" aria-label="Project 1 of 3" aria-current="true"><span></span></button>
+              <button type="button" data-go="1" aria-label="Project 2 of 3"><span></span></button>
+              <button type="button" data-go="2" aria-label="Project 3 of 3"><span></span></button>
+            </div>
+            <button type="button" class="clients-toggle" aria-pressed="false" aria-label="Pause the slideshow"><span aria-hidden="true"></span></button>
           </div>
-        </article>
-      </section>
-      <section class="ideas section-pad" id="ideas" aria-labelledby="ideas-title">
-        <div class="section-heading reveal">
-          <div><p class="chapter-kicker mono">THE IDEAS BOARD</p><h2 id="ideas-title">Picture it for<br><em>your business.</em></h2></div>
-          <p>Pick a kind of business and see a few things we could make for it. Sparks for your own ideas, shown with made-up brands.</p>
         </div>
-        <div class="business-picker reveal" role="group" aria-label="Choose a kind of business">
-          <button type="button" data-business="cafe" aria-pressed="true"><i aria-hidden="true"></i>Café &amp; restaurant</button>
-          <button type="button" data-business="clinic" aria-pressed="false"><i aria-hidden="true"></i>Clinic &amp; wellness</button>
-          <button type="button" data-business="shop" aria-pressed="false"><i aria-hidden="true"></i>Shop &amp; brand</button>
-          <button type="button" data-business="property" aria-pressed="false"><i aria-hidden="true"></i>Property &amp; spaces</button>
-        </div>
-        <div class="idea-board reveal" id="idea-board" role="region" aria-label="Ideas for Ember &amp; Oat, a neighbourhood café">
-          <p class="board-note"><span class="mono">IDEAS FOR</span><strong data-idea="brand">Ember &amp; Oat</strong><span data-idea="place">a neighbourhood café</span></p>
-          <figure class="idea idea-site">
-            <div class="idea-art" aria-hidden="true">
-              <div class="phone"><div class="phone-screen">
-                <div class="phone-top"><b data-idea="brand">Ember &amp; Oat</b><i></i></div>
-                <strong data-idea="siteHeadline">Coffee worth getting up for.</strong>
-                <div class="idea-picture"></div>
-                <span class="phone-button" data-idea="siteAction">Order for pickup</span>
-              </div></div>
-            </div>
-            <figcaption><span class="idea-tag mono">WEBSITE</span><span class="idea-note" data-idea="siteNote">A menu site that takes pickup orders.</span></figcaption>
-          </figure>
-          <figure class="idea idea-tool">
-            <div class="idea-art" aria-hidden="true">
-              <div class="tool">
-                <div class="tool-top"><b data-idea="toolTitle">Today’s orders</b><span data-idea="toolCount">12 new</span></div>
-                <div class="tool-row"><i></i><span data-idea="row1">Oat flat white × 2</span><b data-idea="row1Status">Ready</b></div>
-                <div class="tool-row"><i></i><span data-idea="row2">Sourdough toastie</span><b data-idea="row2Status">Making</b></div>
-                <div class="tool-row"><i></i><span data-idea="row3">Cinnamon bun box</span><b data-idea="row3Status">Queued</b></div>
-              </div>
-            </div>
-            <figcaption><span class="idea-tag mono">SOFTWARE</span><span class="idea-note" data-idea="toolNote">Orders land straight in the kitchen.</span></figcaption>
-          </figure>
-          <figure class="idea idea-chat">
-            <div class="idea-art" aria-hidden="true">
-              <div class="chat">
-                <p class="chat-question" data-idea="question">Are you open on Sunday?</p>
-                <p class="chat-answer"><small>✳ Assistant</small><span data-idea="answer">Yes! 8am to 3pm. Want me to save you a table?</span></p>
-              </div>
-            </div>
-            <figcaption><span class="idea-tag mono">AI ASSISTANT</span><span class="idea-note" data-idea="chatNote">Answers the usual questions, even at midnight.</span></figcaption>
-          </figure>
-          <figure class="idea idea-film">
-            <div class="idea-art" aria-hidden="true">
-              <div class="film">
-                <span class="film-tag mono" data-idea="filmTag">0:15 · REEL</span>
-                <i class="film-sun"></i><i class="film-hill"></i>
-                <span class="film-play">▶</span>
-                <strong data-idea="filmTitle">Fresh at 7am.</strong>
-                <span class="film-progress"><i></i></span>
-              </div>
-            </div>
-            <figcaption><span class="idea-tag mono">VIDEO</span><span class="idea-note" data-idea="filmNote">Short reels that make people hungry.</span></figcaption>
-          </figure>
-        </div>
-        <p class="ideas-cta reveal">Seen something you’d like? <a class="text-link" href="#contact" data-brief aria-haspopup="dialog">Plan your own <span aria-hidden="true">↗</span></a></p>
       </section>
       <section class="process section-pad" id="process" aria-labelledby="process-title">
-        <div class="section-heading reveal"><div><p class="chapter-kicker mono">ONE IDEA, START TO FINISH</p><h2 id="process-title">From idea<br>to <em>launch.</em></h2></div><p>You work directly with the people designing and building your project, from the first sketch to the day it goes live.</p></div>
-        <ol class="process-list evolve">
-          <li class="reveal">
-            <div class="evolve-art evolve-sketch" aria-hidden="true">
-              <div class="mock">
-                <div class="mock-nav"><span>logo</span><i></i><i></i></div>
-                <div class="mock-head"><span>big friendly headline</span></div>
-                <div class="mock-picture"><svg viewBox="0 0 100 60" preserveAspectRatio="none"><path d="M2 2 98 58M98 2 2 58"/></svg></div>
-                <div class="mock-button"><span>main button</span></div>
-              </div>
-              <span class="sketch-note">make this pop!</span>
-              <svg class="evolve-arrow" viewBox="0 0 120 50"><path d="M4 30C34 6 78 4 112 24"/><path d="M100 14 113 25 98 33"/></svg>
-            </div>
-            <span class="process-number" aria-hidden="true">01</span><h3>Plan together</h3><p>We understand what you need and agree on the scope, timeline, and budget.</p>
-          </li>
-          <li class="reveal">
-            <div class="evolve-art evolve-build" aria-hidden="true">
-              <span class="build-chip mono">BUILDING · 68%</span>
-              <div class="mock">
-                <div class="mock-nav"><span></span><i></i><i></i></div>
-                <div class="mock-head"><span></span><span></span></div>
-                <div class="mock-picture"></div>
-                <div class="mock-button"><span></span></div>
-              </div>
-              <svg class="build-cursor" viewBox="0 0 24 24"><path d="M5 3v16l4.5-4.2L12.8 21l2.6-1.2-3.2-6.1H18z"/></svg>
-              <svg class="evolve-arrow" viewBox="0 0 120 50"><path d="M4 30C34 6 78 4 112 24"/><path d="M100 14 113 25 98 33"/></svg>
-            </div>
-            <span class="process-number" aria-hidden="true">02</span><h3>Design &amp; build</h3><p>You review the direction as we turn it into a working website, tool, or experience.</p>
-          </li>
-          <li class="reveal">
-            <div class="evolve-art evolve-live" aria-hidden="true">
-              <span class="live-chip"><i></i> Live</span>
-              <div class="mock">
-                <div class="mock-nav"><b data-idea="brand">Ember &amp; Oat</b><i></i><i></i></div>
-                <strong class="mock-head" data-idea="siteHeadline">Coffee worth getting up for.</strong>
-                <div class="mock-picture idea-picture"></div>
-                <span class="mock-button" data-idea="siteAction">Order for pickup</span>
-              </div>
-            </div>
-            <span class="process-number" aria-hidden="true">03</span><h3>Launch &amp; improve</h3><p>We test the details, help you launch, and plan any support you need next.</p>
-          </li>
-        </ol>
+        <div class="process-strip reveal">
+          <div class="process-head"><p class="chapter-kicker mono">HOW WE WORK</p><h2 id="process-title">From idea<br>to <em>launch.</em></h2></div>
+          <ol class="process-list">
+            <li><span class="process-number" aria-hidden="true">01</span><h3>Plan together</h3><p>We understand what you need and agree on the scope, timeline, and budget.</p></li>
+            <li><span class="process-number" aria-hidden="true">02</span><h3>Design &amp; build</h3><p>You review the direction as we turn it into a working website, tool, or experience.</p></li>
+            <li><span class="process-number" aria-hidden="true">03</span><h3>Launch &amp; improve</h3><p>We test the details, help you launch, and plan any support you need next.</p></li>
+          </ol>
+        </div>
       </section>
     </div>
     <section class="contact section-pad" id="contact" aria-labelledby="contact-title">
@@ -340,6 +275,6 @@
     </div>
   </dialog>
   <div class="studio-dock" aria-label="Studio shortcuts"><a href="#services" data-brief aria-haspopup="dialog"><span aria-hidden="true">✳</span> Plan your project</a><span class="dock-divider"></span><button type="button" id="open-command" aria-label="Open quick navigation" aria-haspopup="dialog"><span aria-hidden="true">⌘</span><span class="dock-key">K</span></button></div>
-  <dialog class="command-dialog" id="command-dialog" aria-labelledby="command-title"><div class="command-top"><h2 id="command-title">Where to next?</h2><button type="button" id="close-command" aria-label="Close quick navigation">Esc <span aria-hidden="true">×</span></button></div><label class="visually-hidden" for="command-search">Find a section</label><input id="command-search" type="search" placeholder="Find your next move…" autocomplete="off"><div class="command-links"><a href="#home"><span>Back to the beginning</span><small>Home ↗</small></a><a href="#services"><span>Explore our capabilities</span><small>Services ↗</small></a><a href="#services" data-brief><span>Plan your project</span><small>Project brief ↗</small></a><a href="#work"><span>See our work</span><small>Selected work ↗</small></a><a href="#ideas"><span>Picture it for your business</span><small>Ideas board ↗</small></a><a href="#process"><span>Meet the process</span><small>How we work ↗</small></a><a href="#contact"><span>Start a conversation</span><small>Contact ↗</small></a></div><p class="command-empty" hidden>No match. Try “project”, “services”, or “contact”.</p><p class="command-hint mono">TAB TO EXPLORE <span>ENTER TO GO ↵</span></p></dialog>
+  <dialog class="command-dialog" id="command-dialog" aria-labelledby="command-title"><div class="command-top"><h2 id="command-title">Where to next?</h2><button type="button" id="close-command" aria-label="Close quick navigation">Esc <span aria-hidden="true">×</span></button></div><label class="visually-hidden" for="command-search">Find a section</label><input id="command-search" type="search" placeholder="Find your next move…" autocomplete="off"><div class="command-links"><a href="#home"><span>Back to the beginning</span><small>Home ↗</small></a><a href="#services"><span>Explore our capabilities</span><small>Services ↗</small></a><a href="#services" data-brief><span>Plan your project</span><small>Project brief ↗</small></a><a href="#work"><span>See our work</span><small>Selected work ↗</small></a><a href="#process"><span>Meet the process</span><small>How we work ↗</small></a><a href="#contact"><span>Start a conversation</span><small>Contact ↗</small></a></div><p class="command-empty" hidden>No match. Try “project”, “services”, or “contact”.</p><p class="command-hint mono">TAB TO EXPLORE <span>ENTER TO GO ↵</span></p></dialog>
 </body>
 </html>

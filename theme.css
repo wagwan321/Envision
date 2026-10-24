@@ -1,0 +1,99 @@
+/* Beige theme. The site is beige by default, like the app icon, with Services and Contact as
+   black sections. Loaded last, it re-colours the shared rules rather than rewriting them. */
+:root {
+  --beige:#efe8dc;
+  --beige-raised:#f8f4ec;
+  --night:#0e0e0d;
+  --background:var(--beige);
+  --text:#161613;
+  --muted:#5f5b52;
+  --line:rgba(22,22,19,.14);
+  --accent:#1d6b4a;
+  --accent-light:#b2f6dc;
+  --cream:var(--beige);
+  --cream-raised:var(--beige-raised);
+  --ink:#161613;
+  --ink-muted:#5f5b52;
+  --ink-line:rgba(22,22,19,.14);
+  /* The logo's green, from deep forest to mint, for headline accents. */
+  --logo-gradient:linear-gradient(100deg,#0d4630 0%,#1f8a5c 55%,#46c991 100%);
+  color-scheme:light;
+}
+/* Beige into black passes through muted sage, a quiet nod to the logo. Every blend shares it. */
+:root,.daylight {
+  --dusk-1:#111714;
+  --dusk-2:#23352c;
+  --dusk-3:#557060;
+  --dusk-4:#a3b0a0;
+  --dusk-5:#d6d6c8;
+}
+::selection { background:var(--accent-light); color:#161613; }
+.skip-link { color:#161613; }
+
+/* Black sections */
+.expertise,.contact,.studio-dock {
+  --background:var(--night);
+  --text:#f1efe9;
+  --muted:#a7a59d;
+  --line:rgba(241,239,233,.15);
+  --accent:#5fd6a6;
+  color:var(--text);
+  color-scheme:dark;
+}
+.contact { background:var(--night); }
+/* Services fade in from the beige hero, the same way the cream chapter fades out of them. */
+.expertise {
+  --blend:clamp(180px,22vw,320px);
+  padding-top:calc(var(--blend) + 72px);
+  background:linear-gradient(180deg,var(--beige) 0,var(--dusk-5) calc(var(--blend) * .14),var(--dusk-4) calc(var(--blend) * .3),var(--dusk-3) calc(var(--blend) * .48),var(--dusk-2) calc(var(--blend) * .66),var(--dusk-1) calc(var(--blend) * .84),var(--night) var(--blend)) top/100% var(--blend) no-repeat,var(--night);
+}
+.service-card { background:#151514; }
+.daylight { --blend-top:var(--night); --blend-bottom:var(--night); }
+
+/* Top bar */
+.topbar.is-scrolled { background:rgba(239,232,220,.94); }
+@media(max-width:760px) {
+  .topbar nav { box-shadow:0 15px 25px rgba(22,22,19,.12); }
+  .expertise { padding-top:calc(var(--blend) + 48px); }
+}
+
+/* Hero */
+.hero h1>span,.loader-word>em {
+  background:var(--logo-gradient);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.hero-stage::before { background-image:linear-gradient(rgba(22,22,19,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(22,22,19,.045) 1px,transparent 1px); }
+.hero-edition,.orbit-coordinate { color:var(--muted); }
+.status-dot { box-shadow:0 0 0 4px rgba(29,107,74,.14); }
+.orbit-halo { background:radial-gradient(ellipse,rgba(70,201,145,.2),rgba(29,107,74,.06) 45%,transparent 70%); }
+.orbit-ring { border-color:rgba(29,107,74,.5); box-shadow:none; }
+.ring-two { border-color:rgba(29,107,74,.32); }
+.ring-three { border-color:rgba(29,107,74,.2); }
+.orbit-ring i { background:var(--accent); box-shadow:0 0 0 4px rgba(29,107,74,.12); }
+.ring-two i { background:#46c991; }
+.orbit-system::after { background:radial-gradient(closest-side,rgba(13,70,48,.22),rgba(13,70,48,.08) 55%,transparent); }
+.hero-bottom .hero-brief-link { border-color:rgba(29,107,74,.3); background:rgba(255,255,255,.45); }
+.hero-brief-link:hover { border-color:var(--accent); background:var(--beige-raised); }
+
+/* Loader */
+.site-loader { background:radial-gradient(ellipse at 50% 42%,var(--beige-raised),var(--beige) 65%); color:var(--text); }
+.loader-axis { border-color:rgba(29,107,74,.45); }
+.axis-two { border-color:rgba(29,107,74,.28); }
+.axis-three { border-color:rgba(29,107,74,.18); }
+.loader-axis::before { background:var(--accent); box-shadow:0 0 0 4px rgba(29,107,74,.14); }
+.loader-track { background:rgba(22,22,19,.1); }
+
+/* The floating dock stays a dark pill so it reads over both beige and black. */
+.studio-dock { background:#161614f2; border-color:rgba(241,239,233,.16); box-shadow:0 10px 40px rgba(22,22,19,.25); }
+
+/* Quick navigation */
+.command-dialog { background:var(--beige-raised); border-color:var(--line); color:var(--text); box-shadow:0 35px 100px rgba(22,22,19,.3); }
+.command-dialog::backdrop { background:rgba(22,22,19,.35); }
+#command-search { background:#fff; }
+.command-links>a:hover,.command-links>a:focus-visible { background:rgba(22,22,19,.06); }
+.command-links small,.command-hint { color:var(--muted); }
+
+.brief-dialog::backdrop { background:var(--beige); }
+@media(forced-colors:active) { .hero h1>span,.loader-word>em { color:CanvasText; background:none; } }
