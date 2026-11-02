@@ -29,9 +29,13 @@
 .daylight .section-pad { overflow-x:visible; }
 .chapter-kicker { color:var(--forest); margin-bottom:20px; }
 .daylight .section-heading h2 em { color:var(--forest); }
+/* The client work follows the beige hero directly, so it needs no dawn; the services below fade it to black. */
+.daylight-work { padding:0; background:var(--cream); }
+.daylight-work::before { mask-image:linear-gradient(180deg,transparent,#000 clamp(160px,18vw,260px),#000 calc(100% - clamp(160px,18vw,260px)),transparent); }
+.daylight-work .work { padding-top:clamp(56px,7vw,110px); }
 
 /* From idea to launch, as one compact strip just before the contact form. */
-.daylight .process { overflow:visible; padding-top:clamp(64px,8vw,120px); padding-bottom:clamp(32px,4vw,64px); background:none; color:inherit; }
+.daylight .process { overflow:visible; padding-top:clamp(24px,4vw,56px); padding-bottom:clamp(32px,4vw,64px); background:none; color:inherit; }
 .process-strip { display:grid; grid-template-columns:minmax(0,.75fr) minmax(0,2fr); align-items:start; gap:clamp(32px,5vw,80px); }
 .process-head h2 { font-size:clamp(36px,3.6vw,54px); line-height:1.04; letter-spacing:-.05em; }
 .process-head h2 em { color:var(--forest); }
