@@ -15,7 +15,8 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
-  <link rel="manifest" href="manifest.webmanifest">
+  <!-- No web manifest on purpose: phones then save the page's current address (the #go= link)
+       for the icon, instead of a fixed start address that can't carry the dashboard link. -->
   <style>
     :root { --bg:#f3f5fa; --card:#fff; --fg:#111827; --muted:#5b6474; --line:#e3e7ef; --primary:#1f2a3d; }
     * { box-sizing:border-box; }
@@ -45,7 +46,7 @@
     </section>
 
     <section id="setup" hidden>
-      <p>Add it to your home screen once. After that, tapping the icon opens your dashboard.</p>
+      <p>This screen only shows up for setup. Add it to your home screen now, and the icon will open your dashboard straight away.</p>
       <div class="card">
         <b>Add it to your home screen</b>
         <ol id="setup-steps"></ol>
@@ -65,19 +66,24 @@
       const keep = id => { try { localStorage.setItem(KEY, id); } catch (_) {} };
       const show = name => { document.getElementById(name).hidden = false; };
 
-      const fromLink = new URLSearchParams(location.hash.slice(1)).get('w');
+      // Two kinds of link: the setup link (#w=) shows how to add the icon, and the address the
+      // icon saves (#go=) always opens the dashboard at once.
+      const params = new URLSearchParams(location.hash.slice(1));
+      const launch = valid(params.get('go')) ? params.get('go') : '';
+      const setup = valid(params.get('w')) ? params.get('w') : '';
       const saved = read();
-      const id = valid(fromLink) ? fromLink : valid(saved) ? saved : '';
+      const id = launch || setup || (valid(saved) ? saved : '');
       if (!id) { show('missing'); return; }
+      keep(id);
       const target = 'https://claude.ai/artifact/' + encodeURIComponent(id);
+      const fromIcon = navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
 
-      // The first visit on a device shows how to add the icon. Every later visit, which is the
-      // home-screen icon being tapped, goes straight to the dashboard.
-      if (valid(fromLink) && saved !== fromLink) {
-        keep(id);
+      if (setup && !launch && !fromIcon) {
+        // Swap the address before the person adds it, so the icon saves the open-at-once link.
+        history.replaceState(null, '', location.pathname + '#go=' + encodeURIComponent(id));
         const ua = navigator.userAgent;
         const steps = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-          ? ['In Safari, tap the <b>Share</b> button (the square with an arrow).', 'Tap <b>Add to Home Screen</b>, then <b>Add</b>.']
+          ? ['In Safari, tap the <b>Share</b> button (the square with an arrow).', 'Tap <b>Add to Home Screen</b>. If you see <b>Open as Web App</b>, turn it off, so it opens where you’re signed in to Claude.', 'Tap <b>Add</b>.']
           : /Android/.test(ua)
             ? ['In Chrome, tap <b>⋮</b> at the top right.', 'Tap <b>Add to home screen</b>, then <b>Add</b>.']
             : ['In Chrome, open <b>⋮</b> → <b>Cast, save and share</b>.', 'Choose <b>Create shortcut…</b>, then <b>Create</b>.'];
@@ -86,7 +92,6 @@
         show('setup');
         return;
       }
-      keep(id);
       document.getElementById('opening-link').href = target;
       show('opening');
       location.replace(target);
