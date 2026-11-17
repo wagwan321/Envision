@@ -241,9 +241,10 @@
     </div>
     <section class="contact section-pad" id="contact" aria-labelledby="contact-title">
       <div class="contact-layout">
-        <div class="contact-copy reveal"><h2 id="contact-title">Tell us what<br>you need.</h2><p>Share a little about your business and what you’d like to create. We’ll help you work out the next step.</p><a class="contact-email" href="mailto:envision.startup@gmail.com">envision.startup@gmail.com <span aria-hidden="true">↗</span></a></div>
+        <div class="contact-copy reveal"><h2 id="contact-title">Tell us what<br>you need.</h2><p>Share a little about your business and what you’d like to create. We’ll help you work out the next step.</p><div class="contact-links"><a class="contact-email" href="mailto:envision.startup@gmail.com">envision.startup@gmail.com <span aria-hidden="true">↗</span></a><a class="contact-email" href="https://cal.com/chris-el-haddad-067gwf/15min" target="_blank" rel="noopener">Book a 15-minute call <span aria-hidden="true">↗</span></a></div></div>
         <form class="contact-form reveal" id="contact-form">
           <div class="form-row"><label>Your name<input name="name" autocomplete="name" placeholder="Alex Morgan" required maxlength="120"></label><label>Email address<input type="email" name="email" autocomplete="email" placeholder="alex@company.com" required maxlength="254"></label></div>
+          <div class="form-row"><label>Company or project<input name="company" autocomplete="organization" placeholder="Morgan &amp; Co." required maxlength="120"></label><label>Website or Instagram<input name="website" autocomplete="url" placeholder="morganco.com or @morganco" maxlength="200"></label></div>
           <label>What can we help with?<select name="type" required><option value="" selected disabled>Select a project type</option><option>Website or e-commerce</option><option>Custom software</option><option>AI or automation</option><option>Video or virtual tour</option><option>Something else</option></select></label>
           <label>About your project<textarea name="message" rows="3" placeholder="What would you like to build or improve?" required maxlength="2500"></textarea></label>
           <button class="submit-button" type="submit">Start a conversation <span aria-hidden="true">↗</span></button>
@@ -273,8 +274,27 @@
           <section class="brief-panel" id="brief-summary-panel" aria-labelledby="brief-summary-title" hidden>
             <p class="brief-count mono">YOUR BRIEF</p>
             <h2 id="brief-summary-title" tabindex="-1">Here’s where we’ll start.</h2>
-            <p class="brief-hint">Check your answers. We’ll add them to the contact form so you can send them with your details. Nothing is sent until you do.</p>
+            <p class="brief-hint">Check your answers, then book a quick call. We’ll look at your business beforehand, so we come with ideas.</p>
             <dl class="brief-answers" id="brief-answers"></dl>
+          </section>
+          <section class="brief-panel" id="brief-details-panel" aria-labelledby="brief-details-title" hidden>
+            <p class="brief-count mono">BOOK A CALL</p>
+            <h2 id="brief-details-title" tabindex="-1">Tell us about your business.</h2>
+            <p class="brief-hint">So we can look you up before we talk.</p>
+            <form class="brief-form" id="brief-form">
+              <label>Your name<input name="name" autocomplete="name" placeholder="Alex Morgan" required pattern=".*\S.*" maxlength="120"></label>
+              <label>Email<input type="email" name="email" autocomplete="email" placeholder="alex@company.com" required maxlength="254"></label>
+              <label>Company or project<input name="company" autocomplete="organization" placeholder="Morgan &amp; Co." required pattern=".*\S.*" maxlength="120"></label>
+              <label>Website or Instagram <span>Optional</span><input name="website" autocomplete="url" placeholder="morganco.com or @morganco" maxlength="200"></label>
+              <label class="is-wide">WhatsApp or phone <span>Optional</span><input type="tel" name="phone" autocomplete="tel" placeholder="+961 70 123 456" maxlength="40"></label>
+            </form>
+          </section>
+          <section class="brief-panel" id="brief-booking-panel" aria-labelledby="brief-booking-title" hidden>
+            <p class="brief-count mono">PICK A TIME</p>
+            <h2 id="brief-booking-title" tabindex="-1">Choose a time that suits you.</h2>
+            <div class="brief-calendar" id="brief-calendar"></div>
+            <div class="brief-booked" id="brief-booked" hidden><p class="brief-booked-mark" aria-hidden="true">✓</p><p>You’re booked. The invite is on its way to your inbox.</p></div>
+            <button class="brief-email-instead" type="button" id="brief-email-instead">Rather not call? Send the brief by email</button>
           </section>
         </div>
       </div>

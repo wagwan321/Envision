@@ -1,5 +1,8 @@
 (() => {
   'use strict';
+  // The Cal.com booking page shown after the brief, written as it appears after cal.com/.
+  // Left empty, the brief goes to the contact form instead.
+  const bookingLink = 'chris-el-haddad-067gwf/15min';
   const root = document.documentElement;
   const dialog = document.getElementById('brief-dialog');
   if (!dialog || typeof dialog.showModal !== 'function') return;
@@ -9,6 +12,11 @@
   const stepList = byId('brief-steps');
   const questionPanel = byId('brief-question-panel');
   const summaryPanel = byId('brief-summary-panel');
+  const detailsPanel = byId('brief-details-panel');
+  const bookingPanel = byId('brief-booking-panel');
+  const detailsForm = byId('brief-form');
+  const calendar = byId('brief-calendar');
+  const booked = byId('brief-booked');
   const count = byId('brief-count');
   const numeral = byId('brief-numeral');
   const heading = byId('brief-question');
@@ -110,7 +118,9 @@
   let usePicker = true;
   let step = 0;
   let reviewing = false;
-  let wasSummary = false;
+  let celebrated = false;
+  let isBooked = false;
+  const contact = {};
   const answers = {};
   let returnFocus = null;
   let advanceTimer = 0;
@@ -371,6 +381,10 @@
   }
   function stopShowcase() { clearInterval(showcaseTimer); showcaseTimer = 0; }
 
+  // Once the visitor names their company, the window carries it.
+  const projectNames = { web:'website', software:'software', ai:'automation', video:'video' };
+  const projectTitle = () => contact.company ? `${contact.company} · ${projectNames[service]}` : `Your ${projectNames[service]}`;
+
   function renderPreview(fresh = false) {
     const onPicker = !service || flow()[step] === picker;
     preview.classList.toggle('is-showroom', onPicker);
@@ -378,7 +392,7 @@
     stopShowcase();
     const result = estimate(service);
     preview.dataset.tint = service;
-    fields.title.textContent = { web:'Your website', software:'Your software', ai:'Your automation', video:'Your video' }[service];
+    fields.title.textContent = projectTitle();
     preview.style.setProperty('--p', result.readiness);
     tween(fields.readiness, result.readiness, value => Math.round(value));
     if (result.weeks) tween(fields.weeks, result.weeks, value => Math.round(value));
@@ -489,13 +503,16 @@
 
   function updateFooter() {
     const questions = flow();
-    const onSummary = step >= questions.length;
-    back.hidden = step === 0;
-    tip.hidden = onSummary;
+    const page = step - questions.length;
+    back.hidden = step === 0 || isBooked;
+    tip.hidden = page >= 0;
+    next.hidden = page === 2 && !isBooked;
     let label = 'Next';
     let arrow = '→';
     let ready = true;
-    if (onSummary) { label = 'Add to my enquiry'; arrow = '↗'; }
+    if (page === 0) label = 'Book a call';
+    else if (page === 1) { label = bookingLink ? 'Choose a time' : 'Send my brief'; arrow = bookingLink ? '→' : '↗'; }
+    else if (page === 2) { label = 'Done'; arrow = '✓'; }
     else {
       ready = chosen(questions[step]).length > 0;
       if (reviewing || (step === questions.length - 1 && service)) label = 'Review my brief';
@@ -556,19 +573,24 @@
     const questions = flow();
     // Changing one answer from the summary returns there instead of walking the rest again.
     if (reviewing && index > step) index = questions.length;
-    step = Math.max(0, Math.min(index, questions.length));
-    const onSummary = step === questions.length;
+    // After the questions: the summary, the visitor's details, then the booking calendar.
+    step = Math.max(0, Math.min(index, questions.length + (bookingLink ? 2 : 1)));
+    const page = step - questions.length;
+    const onSummary = page >= 0;
     if (onSummary) reviewing = false;
     nameLabel.textContent = service && questions[step] !== picker ? `${services[service].name} brief` : 'Project brief';
     const total = service ? questions.length : 5;
     dialog.dataset.service = service && questions[step] !== picker ? service : '';
-    questionPanel.hidden = onSummary;
-    summaryPanel.hidden = !onSummary;
-    let panel = summaryPanel;
-    if (onSummary) { renderSummary(); reveal(summaryTitle, 'Here’s where we’ll start.'); }
+    const panel = [summaryPanel, detailsPanel, bookingPanel][page] ?? questionPanel;
+    [questionPanel, summaryPanel, detailsPanel, bookingPanel].forEach(item => { item.hidden = item !== panel; });
+    if (page === 0) { renderSummary(); reveal(summaryTitle, 'Here’s where we’ll start.'); }
+    else if (page === 1) {
+      reveal(byId('brief-details-title'), 'Tell us about your business.');
+      Object.entries(contact).forEach(([key, value]) => { const field = detailsForm.elements.namedItem(key); if (field && !field.value) field.value = value; });
+    }
+    else if (page === 2) { reveal(byId('brief-booking-title'), 'Choose a time that suits you.'); showCalendar(); }
     else {
       const question = questions[step];
-      panel = questionPanel;
       count.textContent = `QUESTION ${step + 1} OF ${total}`;
       numeral.textContent = String(step + 1).padStart(2, '0');
       numeral.classList.remove('is-entering'); void numeral.offsetWidth; numeral.classList.add('is-entering');
@@ -576,7 +598,7 @@
       hint.textContent = question.multi ? 'Choose all that apply.' : 'Choose one.';
       renderOptions(question);
     }
-    dialog.setAttribute('aria-labelledby', onSummary ? 'brief-summary-title' : 'brief-question');
+    dialog.setAttribute('aria-labelledby', panel.querySelector('h2').id);
     updateFooter();
     renderSteps();
     renderPreview();
@@ -585,14 +607,40 @@
     byId('brief-stage').scrollTo({ top:0, behavior:'instant' });
     if (!motion.matches && typeof panel.animate === 'function') {
       animations.push(panel.animate([{ opacity:0, transform:'translateY(14px)' }, { opacity:1, transform:'none' }], { duration:420, easing:'cubic-bezier(.2,.75,.2,1)' }));
-      panel.querySelectorAll('.brief-option,.brief-answers>div').forEach((item, i) => animations.push(item.animate(
+      panel.querySelectorAll('.brief-option,.brief-answers>div,.brief-form label').forEach((item, i) => animations.push(item.animate(
         [{ opacity:0, transform:'translateY(16px) scale(.98)' }, { opacity:1, transform:'none' }],
         { duration:480, delay:180 + i * 70, easing:'cubic-bezier(.2,.75,.25,1.15)', fill:'backwards' }
       )));
     }
-    if (onSummary && !wasSummary) setTimeout(celebrate, 350);
-    wasSummary = onSummary;
-    panel.querySelector('h2').focus({ preventScroll:true });
+    if (page === 0 && !celebrated) { celebrated = true; setTimeout(celebrate, 350); }
+    // With a mouse, the details step starts in its first empty field; on touch screens the
+    // keyboard would cover the page, so focus stays on the heading.
+    const firstEmpty = page === 1 && matchMedia('(pointer: fine)').matches && [...detailsForm.elements].find(field => !field.value);
+    (firstEmpty || panel.querySelector('h2')).focus({ preventScroll:true });
+  }
+
+  // Cal.com's embed loads on first use and opens inside the brief, already filled in with the
+  // visitor's details and the brief itself, so nothing has to be typed twice.
+  let calendarFor = '';
+  function showCalendar() {
+    booked.hidden = !isBooked;
+    calendar.hidden = isBooked;
+    byId('brief-email-instead').hidden = isBooked;
+    const notes = briefText(true);
+    const signature = JSON.stringify([contact, notes]);
+    if (isBooked || calendarFor === signature) return;
+    calendarFor = signature;
+    if (!window.Cal) {
+      // Cal.com's standard loader: it queues calls until embed.js has arrived.
+      (function (C, A, L) { const p = (a, ar) => { a.q.push(ar); }; const d = C.document; C.Cal = C.Cal || function () { const cal = C.Cal; const ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement('script')).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if (typeof namespace === 'string') { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ['initNamespace', namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, 'https://app.cal.com/embed/embed.js', 'init');
+      window.Cal('init', 'brief', { origin:'https://cal.com' });
+      window.Cal.ns.brief('ui', { theme:'light', cssVarsPerTheme:{ light:{ 'cal-brand':'#1d6b4a' } }, hideEventTypeDetails:false, layout:'month_view' });
+      const done = () => { isBooked = true; showCalendar(); updateFooter(); celebrate(); };
+      window.Cal.ns.brief('on', { action:'bookingSuccessful', callback:done });
+      window.Cal.ns.brief('on', { action:'bookingSuccessfulV2', callback:done });
+    }
+    calendar.replaceChildren();
+    window.Cal.ns.brief('inline', { elementOrSelector:'#brief-calendar', calLink:bookingLink, config:{ layout:'month_view', name:contact.name, email:contact.email, notes, company:contact.company, website:contact.website ?? '', phone:contact.phone ?? '' } });
   }
 
   function openBrief(key, trigger) {
@@ -600,7 +648,9 @@
     if (key && services[key]) { service = key; usePicker = false; }
     else usePicker = true;
     reviewing = false;
-    wasSummary = false;
+    celebrated = false;
+    isBooked = false;
+    calendarFor = '';
     // Each opening starts the preview fresh, so numbers count up and pieces build from nothing.
     lastEstimate = '';
     builtFor = null;
@@ -616,19 +666,30 @@
     go(0);
   }
 
-  function sendBrief() {
+  // The brief as plain text, for the booking notes or the contact form. The contact form has its
+  // own company and website fields, so it only needs the phone number added.
+  function briefText(withCompany) {
     const questions = flow().filter(question => question !== picker);
     const result = estimate(service);
     const guide = [result.weeks && `${result.weeks[0]}–${result.weeks[1]} weeks`, result.time && `about ${result.time.yearly[0]}–${result.time.yearly[1]} hours a year back`].filter(Boolean).join(', ');
-    const brief = [
+    return [
       `Project brief: ${services[service].name}`,
       ...questions.map(question => `${question.label}: ${describe(question)}`),
-      ...(guide ? [`Rough guide from the brief: ${guide}`] : []),
-      '', 'A little more about my business: '
-    ].join('\n');
+      guide && `Rough guide from the brief: ${guide}`,
+      withCompany && contact.company && `Company: ${contact.company}`,
+      withCompany && contact.website && `Website or Instagram: ${contact.website}`,
+      contact.phone && `WhatsApp or phone: ${contact.phone}`
+    ].filter(Boolean).join('\n');
+  }
+
+  function sendBrief() {
+    const brief = `${briefText(false)}\n\nAnything else we should know: `;
     returnFocus = null;
     dialog.close();
-    document.dispatchEvent(new CustomEvent('envision:enquiry', { detail:{ type:services[service].type, brief } }));
+    document.dispatchEvent(new CustomEvent('envision:enquiry', { detail:{ type:services[service].type, brief, contact:{ ...contact } } }));
+  }
+  function saveContact() {
+    new FormData(detailsForm).forEach((value, key) => { contact[key] = String(value).trim(); });
   }
 
   // A soft light follows the pointer around the page.
@@ -681,9 +742,20 @@
   });
   next.addEventListener('click', () => {
     if (next.disabled) return;
-    if (step >= flow().length) sendBrief();
+    const page = step - flow().length;
+    if (page === 1) detailsForm.requestSubmit();
+    else if (page === 2) dialog.close();
     else go(step + 1);
   });
+  // With details in, the visitor picks a time, or without a booking page, the brief goes to the contact form.
+  detailsForm.addEventListener('submit', event => {
+    event.preventDefault();
+    saveContact();
+    if (bookingLink) go(step + 1);
+    else sendBrief();
+  });
+  detailsForm.addEventListener('input', () => { saveContact(); fields.title.textContent = projectTitle(); });
+  byId('brief-email-instead').addEventListener('click', () => { saveContact(); sendBrief(); });
   // Letter keys pick the matching answer, as shown on each option.
   dialog.addEventListener('keydown', event => {
     if (event.ctrlKey || event.metaKey || event.altKey || questionPanel.hidden || event.key.length !== 1) return;

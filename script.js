@@ -222,16 +222,20 @@
   form.addEventListener('submit', event => {
     event.preventDefault();
     const name = form.elements.namedItem('name');
+    const company = form.elements.namedItem('company');
     const message = form.elements.namedItem('message');
-    [name, message].forEach(field => {
+    [name, company, message].forEach(field => {
       field.setCustomValidity(field.value.trim() ? '' : 'Please enter a value.');
     });
     if (!form.reportValidity()) return;
     const data = new FormData(form);
-    const subject = `Project enquiry from ${String(data.get('name')).trim()}`;
+    const subject = `Project enquiry from ${String(data.get('company')).trim()}`;
+    const website = String(data.get('website')).trim();
     const body = [
       `Name: ${String(data.get('name')).trim()}`,
       `Email: ${data.get('email')}`,
+      `Company: ${String(data.get('company')).trim()}`,
+      ...(website ? [`Website or Instagram: ${website}`] : []),
       `Project: ${data.get('type')}`,
       '', String(data.get('message')).trim()
     ].join('\n');

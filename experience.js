@@ -112,12 +112,19 @@
       lastGeneratedBrief = event.detail.brief;
       form.elements.namedItem('type').value = event.detail.type;
     }
+    // Details given in the brief fill any empty fields; nothing the visitor typed here is replaced.
+    const contact = event.detail.contact ?? {};
+    ['name', 'email', 'company', 'website'].forEach(key => {
+      const field = form.elements.namedItem(key);
+      if (contact[key] && !field.value.trim()) field.value = contact[key];
+    });
+    const complete = ['name', 'email', 'company'].every(key => form.elements.namedItem(key).value.trim());
     document.getElementById('form-status').textContent = hasOwnMessage
       ? 'Your existing message has been kept. Add your brief to it if you would like.'
-      : 'Your brief has been added to your message. Add your name and email, then send it.';
+      : complete ? 'Your brief and details are ready. Check them, then send.' : 'Your brief has been added to your message. Add your details, then send it.';
     document.dispatchEvent(new CustomEvent('envision:prime-layout'));
     document.getElementById('contact').scrollIntoView({ behavior:reducedMotion.matches ? 'instant' : 'smooth' });
-    form.elements.namedItem('name').focus({ preventScroll:true });
+    (complete ? form.querySelector('.submit-button') : form.elements.namedItem('name')).focus({ preventScroll:true });
   });
 
   const dialog = document.getElementById('command-dialog');
