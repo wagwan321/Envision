@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Envision</title>
+  <!-- Home-screen front door for the team dashboard, which lives in Claude. It exists so that
+       "Add to Home Screen" picks up the Envision icon. The dashboard address is never stored in
+       this file: it arrives in the link's #fragment (never sent to the server) and stays on the device. -->
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#f3f5fa">
+  <meta name="apple-mobile-web-app-title" content="Envision">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <style>
+    :root { --bg:#f3f5fa; --card:#fff; --fg:#111827; --muted:#5b6474; --line:#e3e7ef; --primary:#1f2a3d; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; }
+    body { display:grid; place-items:center; min-height:100svh; padding:24px 16px; background:var(--bg); color:var(--fg); font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif; }
+    main { display:grid; justify-items:center; gap:14px; width:min(400px,100%); text-align:center; }
+    .icon { width:88px; height:88px; border-radius:22px; box-shadow:0 18px 40px -22px rgba(17,24,39,.45); }
+    h1 { margin:6px 0 0; font-size:22px; letter-spacing:-.02em; }
+    p { margin:0; color:var(--muted); }
+    .card { display:grid; gap:10px; width:100%; margin-top:6px; padding:18px; border:1px solid var(--line); border-radius:18px; background:var(--card); text-align:left; }
+    .card b { color:var(--fg); }
+    ol { margin:0; padding-left:20px; color:var(--muted); }
+    li + li { margin-top:4px; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 22px; border-radius:14px; background:var(--primary); color:#fff; font-weight:600; text-decoration:none; }
+    .note { font-size:13px; }
+    [hidden] { display:none !important; }
+  </style>
+</head>
+<body>
+  <main>
+    <img class="icon" src="icon-192.png" alt="" width="88" height="88">
+    <h1>Envision dashboard</h1>
+
+    <section id="opening" hidden>
+      <p>Opening your dashboard…</p>
+      <p class="note"><a id="opening-link" href="#">Tap here if nothing happens</a></p>
+    </section>
+
+    <section id="setup" hidden>
+      <p>Add it to your home screen once. After that, tapping the icon opens your dashboard.</p>
+      <div class="card">
+        <b>Add it to your home screen</b>
+        <ol id="setup-steps"></ol>
+      </div>
+      <p style="margin-top:8px"><a class="btn" id="setup-link" href="#">Open dashboard</a></p>
+    </section>
+
+    <section id="missing" hidden>
+      <p>This phone doesn’t know your dashboard yet. Open the setup link you were sent, on this phone, then add it to your home screen.</p>
+    </section>
+  </main>
+  <script>
+    (() => {
+      const KEY = 'envision-dashboard';
+      const valid = id => /^[A-Za-z0-9_-]{8,64}$/.test(id || '');
+      const read = () => { try { return localStorage.getItem(KEY); } catch (_) { return null; } };
+      const keep = id => { try { localStorage.setItem(KEY, id); } catch (_) {} };
+      const show = name => { document.getElementById(name).hidden = false; };
+
+      const fromLink = new URLSearchParams(location.hash.slice(1)).get('w');
+      const saved = read();
+      const id = valid(fromLink) ? fromLink : valid(saved) ? saved : '';
+      if (!id) { show('missing'); return; }
+      const target = 'https://claude.ai/artifact/' + encodeURIComponent(id);
+
+      // The first visit on a device shows how to add the icon. Every later visit, which is the
+      // home-screen icon being tapped, goes straight to the dashboard.
+      if (valid(fromLink) && saved !== fromLink) {
+        keep(id);
+        const ua = navigator.userAgent;
+        const steps = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+          ? ['In Safari, tap the <b>Share</b> button (the square with an arrow).', 'Tap <b>Add to Home Screen</b>, then <b>Add</b>.']
+          : /Android/.test(ua)
+            ? ['In Chrome, tap <b>⋮</b> at the top right.', 'Tap <b>Add to home screen</b>, then <b>Add</b>.']
+            : ['In Chrome, open <b>⋮</b> → <b>Cast, save and share</b>.', 'Choose <b>Create shortcut…</b>, then <b>Create</b>.'];
+        document.getElementById('setup-steps').innerHTML = steps.map(s => `<li>${s}</li>`).join('');
+        document.getElementById('setup-link').href = target;
+        show('setup');
+        return;
+      }
+      keep(id);
+      document.getElementById('opening-link').href = target;
+      show('opening');
+      location.replace(target);
+    })();
+  </script>
+</body>
+</html>
