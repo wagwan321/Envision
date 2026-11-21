@@ -6,6 +6,18 @@
   --ops-mono:"Martian Mono",ui-monospace,Consolas,monospace; --ops-disp:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   position:relative; height:1250vh; background:var(--ops-bg); color:var(--ops-ink);
 }
+/* "Work" in the menu lands where the camera turns towards the first client (10% through). */
+.ops-anchor { position:absolute; left:0; top:calc((1250vh - 100vh) * .1); width:1px; height:1px; }
+/* The opening words, over the globe */
+.ops-hero { position:absolute; z-index:2; left:max(28px,6vw); top:50%; --hy:0px; transform:translateY(calc(-50% + var(--hy))); width:min(560px,46vw); will-change:transform,opacity; }
+.ops-hero .ops-kicker { margin:0 0 18px; font-family:var(--ops-mono); font-stretch:85%; font-size:11px; letter-spacing:.08em; color:var(--ops-g); }
+.ops-hero h1 { margin:0; font-family:var(--ops-disp); font-size:clamp(56px,7.6vw,120px); line-height:.9; font-weight:800; letter-spacing:-.05em; color:var(--ops-deep); text-wrap:balance; }
+.ops-hero h1 em { font-family:inherit; font-style:normal; font-weight:inherit; letter-spacing:inherit; color:var(--ops-g); background:none; -webkit-text-fill-color:currentColor; }
+.ops-hero .ops-lede { margin:22px 0 0; max-width:40ch; font-family:var(--ops-disp); font-size:17px; line-height:1.5; color:var(--ops-muted); }
+.ops-hero-actions { display:flex; flex-wrap:wrap; align-items:center; gap:14px 24px; margin-top:28px; }
+.ops-go { font-family:var(--ops-disp); font-size:16px; font-weight:800; color:#fff; background:var(--ops-g); text-decoration:none; padding:14px 22px; border-radius:999px; }
+.ops-plan { font-family:var(--ops-disp); font-size:15px; font-weight:600; color:var(--ops-deep); }
+.ops-go:focus-visible,.ops-plan:focus-visible { outline:2px solid var(--ops-deep); outline-offset:4px; }
 .ops-sr { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
 .ops-stage { position:sticky; top:0; height:100vh; height:100svh; overflow:hidden; }
 .ops-world { position:absolute; inset:0; width:100%; height:100%; display:block; }
@@ -86,6 +98,11 @@
 
 @media (max-width:760px) {
   .ops { height:1000vh; }
+  .ops-anchor { top:calc((1000vh - 100vh) * .1); }
+  .ops-hero { left:18px; right:18px; top:auto; bottom:28px; width:auto; transform:translateY(var(--hy)); padding:22px 0 0; background:linear-gradient(transparent,rgba(251,253,252,.94) 22%); }
+  .ops-hero h1 { font-size:56px; }
+  .ops-hero .ops-lede { font-size:15px; margin-top:14px; }
+  .ops-hero-actions { margin-top:18px; }
   .ops-c1,.ops-c2 { top:74px; }
   .ops-top { top:84px; left:18px; right:18px; }
   .ops-clock,.ops-readout,.ops-strip,.ops-leader { display:none; }

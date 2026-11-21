@@ -2,13 +2,6 @@
   'use strict';
   const root = document.documentElement;
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const heroSizeQuery = window.matchMedia('(min-height: 700px)');
-  const hero = document.querySelector('.hero');
-  const stage = document.querySelector('.hero-stage');
-  const orbit = document.querySelector('.orbit-art');
-  const opening = document.querySelector('.hero-opening');
-  const resolution = document.querySelector('.hero-resolution');
-  const heroLink = document.querySelector('.hero-opening a');
   const progressBar = document.getElementById('reading-progress');
   const nav = document.getElementById('site-navigation');
   const menu = document.getElementById('menu-toggle');
@@ -19,8 +12,6 @@
   let frame = 0;
   let layoutDirty = true;
   let geometry;
-  let lastHeroProgress = -1;
-  let heroLinkHidden = false;
   let lastActive = null;
   let briefActive = false;
   let introActive = root.classList.contains('intro-pending');
@@ -30,9 +21,6 @@
     const y = window.scrollY;
     geometry = {
       viewport:window.innerHeight,
-      heroTop:hero.getBoundingClientRect().top+y,
-      heroHeight:hero.offsetHeight,
-      stageHeight:stage.offsetHeight,
       sectionTops:sections.map(section => section.getBoundingClientRect().top+y),
       total:root.scrollHeight-window.innerHeight
     };
@@ -45,14 +33,7 @@
     if(briefActive || introActive) return;
     if(layoutDirty) measureLayout();
     const y = window.scrollY;
-    const { viewport, heroTop, heroHeight, stageHeight, sectionTops, total } = geometry;
-    const animated = !motionQuery.matches && heroSizeQuery.matches;
-    const progress = animated ? clamp((y-heroTop) / Math.max(1, heroHeight-stageHeight)) : 0;
-    const heroState = animated ? progress : -2;
-    if(heroState !== lastHeroProgress) {
-      lastHeroProgress = heroState;
-      paintHero(progress, animated);
-    }
+    const { viewport, sectionTops, total } = geometry;
     progressBar.style.transform = `scaleX(${total > 0 ? clamp(y / total) : 0})`;
     header.classList.toggle('is-scrolled', y > 20);
     let active = '';
@@ -65,29 +46,6 @@
         if (link.dataset.section === active) link.setAttribute('aria-current', 'location');
         else link.removeAttribute('aria-current');
       });
-    }
-  }
-  // Transform and opacity go straight onto the three moving layers, so a scroll frame restyles
-  // three elements and never repaints the hero.
-  function paintHero(progress, animated) {
-    if(!animated) {
-      [opening, resolution, orbit].forEach(element => { element.style.removeProperty('transform'); element.style.removeProperty('opacity'); });
-      orbit.style.removeProperty('--orbit-turn');
-    } else {
-      opening.style.opacity = 1 - clamp(progress / .43);
-      opening.style.transform = `translate3d(0,${-progress * 100}px,0)`;
-      resolution.style.opacity = clamp((progress - .46) / .23);
-      resolution.style.transform = `translate3d(0,${(1 - clamp((progress - .48) / .4)) * 45}px,0)`;
-      orbit.style.opacity = 1 - clamp((progress - .36) / .4) * .82;
-      orbit.style.transform = `translate3d(0,${progress * 28}%,0) scale(${1 - progress * .28})`;
-      orbit.style.setProperty('--orbit-turn', `${progress * 150}deg`);
-    }
-    // Invisible links should not intercept clicks or keyboard focus.
-    const hidden = progress > .43;
-    if(hidden !== heroLinkHidden) {
-      heroLinkHidden = hidden;
-      heroLink.tabIndex = hidden ? -1 : 0;
-      heroLink.style.pointerEvents = hidden ? 'none' : 'auto';
     }
   }
   function schedule() {
@@ -107,7 +65,6 @@
   window.addEventListener('resize', invalidateLayout, { passive: true });
   window.addEventListener('pageshow', invalidateLayout);
   motionQuery.addEventListener('change', invalidateLayout);
-  heroSizeQuery.addEventListener('change', invalidateLayout);
   if ('ResizeObserver' in window) new ResizeObserver(invalidateLayout).observe(document.body);
   if (document.fonts) document.fonts.ready.then(invalidateLayout);
 
