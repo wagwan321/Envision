@@ -255,11 +255,16 @@ function hud(p, time, v, pxPerKm) {
 }
 
 // ---- Run only while the section is on screen. The map redraws only when the camera moved. ----
-let running = false, raf = 0;
+let running = false, raf = 0, pNow = -1, lastT = 0;
+const finePointer = matchMedia('(pointer: fine)');
 function progress() { const r = section.getBoundingClientRect(); return clamp(-r.top / Math.max(1, r.height - innerHeight)); }
 function frame(time) {
   raf = 0;
-  const p = progress(), v = camera(p);
+  // A mouse wheel moves in big steps, so it gets a short glide; touch stays tied to the finger.
+  const target = progress(), dt = Math.min(64, time - (lastT || time)); lastT = time;
+  pNow = pNow < 0 || reduce.matches || !finePointer.matches ? target : pNow + (target - pNow) * (1 - Math.exp(-dt / 90));
+  if (Math.abs(target - pNow) < 1e-5) pNow = target;
+  const p = pNow, v = camera(p);
   if (ready) {
     projection.rotate([-v.lon, -v.lat]).scale(v.R).translate([W / 2 + v.ox * W, H / 2]);
     const key = `${v.lon.toFixed(5)},${v.lat.toFixed(5)},${v.R.toFixed(2)},${v.ox.toFixed(4)},${W},${H},${seg(p, .07, .12).toFixed(2)},${levels[2] && levels[2].length}`;
@@ -271,7 +276,7 @@ function frame(time) {
 }
 new IntersectionObserver(([e]) => {
   running = e.isIntersecting;
-  if (running && !raf) { size(); raf = requestAnimationFrame(frame); }
+  if (running && !raf) { size(); pNow = -1; lastT = 0; raf = requestAnimationFrame(frame); }
 }).observe(section);
 // "See the work" jumps to where the camera turns towards the first client.
 q('.ops-go')?.addEventListener('click', e => {
