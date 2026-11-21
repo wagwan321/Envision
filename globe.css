@@ -1,0 +1,61 @@
+/* Opening: the headline beside an interactive globe of the client work, all on the beige page. */
+.globe-hero {
+  --gh-deep:#0d4630; --gh-green:#1d6b4a; --gh-mint:#46c991;
+  position:relative; display:grid; grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr); align-items:center; gap:clamp(16px,3vw,48px);
+  min-height:100svh; padding:clamp(96px,11vh,128px) max(24px,var(--pad,5vw)) clamp(40px,6vh,72px);
+  background:var(--beige); color:var(--text);
+}
+.gh-copy { position:relative; z-index:2; max-width:640px; }
+.gh-kicker { display:flex; align-items:center; gap:10px; margin:0 0 26px; color:var(--muted); font:500 .8rem/1 var(--display); letter-spacing:.02em; }
+.globe-hero h1 { margin:0; font:500 clamp(4rem,8.4vw,8.6rem)/.9 var(--display); letter-spacing:-.075em; color:var(--text); }
+.globe-hero h1 > span { background:var(--logo-gradient); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.gh-lede { margin:26px 0 0; max-width:34ch; color:var(--muted); font-size:1.08rem; line-height:1.55; }
+.gh-actions { display:flex; flex-wrap:wrap; align-items:center; gap:14px 26px; margin-top:30px; }
+.gh-primary { display:inline-flex; align-items:center; gap:10px; padding:15px 22px; border-radius:999px; background:var(--gh-green); color:#fff; text-decoration:none; font:600 .95rem/1 var(--display); }
+.gh-primary:hover { background:var(--gh-deep); }
+.gh-link { color:var(--text); text-decoration:none; font:500 .95rem/1 var(--display); border-bottom:1px solid var(--line); padding-bottom:4px; }
+.gh-link:hover { border-color:var(--gh-green); }
+.gh-work { margin-top:clamp(34px,6vh,64px); scroll-margin-top:110px; }
+.gh-work > p { margin:0 0 12px; color:var(--muted); font:500 .74rem/1.4 var(--display); letter-spacing:.06em; text-transform:uppercase; }
+.gh-chips { display:flex; flex-wrap:wrap; gap:8px; }
+.gh-chips button { display:inline-flex; align-items:center; gap:8px; padding:9px 14px 9px 11px; border:1px solid var(--line); border-radius:999px; background:var(--beige-raised); color:var(--text); font:500 .86rem/1 var(--display); cursor:pointer; transition:border-color .2s,background .2s; }
+.gh-chips button i { width:7px; height:7px; border-radius:50%; background:var(--gh-green); }
+.gh-chips button:hover,.gh-chips button[aria-pressed="true"] { border-color:var(--gh-green); background:#fff; }
+.globe-hero :focus-visible { outline:2px solid var(--gh-green); outline-offset:3px; }
+
+/* the globe */
+.gh-globe { position:relative; height:min(78svh,820px); min-height:420px; }
+.gh-globe canvas { position:absolute; inset:0; width:100%; height:100%; display:block; cursor:grab; touch-action:pan-y; }
+.gh-globe canvas.is-pointing { cursor:pointer; }
+.gh-globe canvas.is-dragging { cursor:grabbing; }
+.gh-pop { position:absolute; left:0; top:0; z-index:3; width:max-content; max-width:240px; padding:10px 12px; border:1px solid var(--line); border-radius:14px; background:var(--beige-raised); box-shadow:0 18px 40px -18px rgba(22,22,19,.35); pointer-events:none; font-size:.85rem; line-height:1.4; }
+.gh-pop b { display:block; font:600 1rem/1.2 var(--display); letter-spacing:-.01em; }
+.gh-pop span { display:block; color:var(--muted); }
+.gh-pop img { display:block; width:216px; aspect-ratio:16/10; object-fit:cover; object-position:top; margin-top:8px; border-radius:8px; border:1px solid var(--line); }
+.gh-pop em { display:block; margin-top:6px; color:var(--gh-green); font-style:normal; font-weight:600; font-size:.78rem; }
+.gh-card { position:absolute; z-index:3; left:0; bottom:0; width:min(380px,100%); padding:12px; border:1px solid var(--line); border-radius:20px; background:var(--beige-raised); box-shadow:0 30px 60px -30px rgba(22,22,19,.4); }
+.gh-card img { display:block; width:100%; aspect-ratio:16/10; object-fit:cover; object-position:top; border-radius:12px; border:1px solid var(--line); }
+.gh-card h2 { margin:14px 4px 2px; font:600 1.4rem/1.1 var(--display); letter-spacing:-.03em; }
+.gh-card .gh-place { margin:0 4px; color:var(--gh-green); font:500 .78rem/1.4 var(--display); }
+.gh-card p { margin:8px 4px 0; color:var(--muted); font-size:.92rem; line-height:1.5; }
+.gh-card .gh-facts { color:var(--text); font-weight:500; }
+.gh-card a { display:inline-block; margin:12px 4px 4px; color:var(--gh-green); font:600 .9rem/1 var(--display); text-decoration:none; }
+.gh-back { position:absolute; z-index:3; right:0; top:0; display:inline-flex; align-items:center; gap:8px; padding:10px 15px; border:1px solid var(--line); border-radius:999px; background:var(--beige-raised); color:var(--text); font:500 .86rem/1 var(--display); cursor:pointer; }
+.gh-back:hover { border-color:var(--gh-green); }
+.gh-hint { position:absolute; right:0; bottom:0; margin:0; color:var(--muted); font:500 .74rem/1.4 var(--display); letter-spacing:.04em; }
+
+@media (max-width:860px) {
+  .globe-hero { grid-template-columns:1fr; min-height:0; padding-top:104px; gap:8px; }
+  .globe-hero h1 { font-size:clamp(3.4rem,15vw,5rem); }
+  .gh-globe { height:min(100vw,520px); min-height:0; margin:0 -8px; }
+  .gh-globe { height:min(118vw,560px); }
+  .gh-card { left:8px; right:8px; bottom:8px; width:auto; display:grid; grid-template-columns:96px 1fr; gap:4px 12px; padding:10px; }
+  .gh-card img { grid-row:span 3; aspect-ratio:1; }
+  .gh-card h2 { margin:2px 0 0; font-size:1.1rem; }
+  .gh-card .gh-place,.gh-card p,.gh-card a { margin:0; }
+  .gh-card p:not(.gh-place):not(.gh-facts) { display:none; }
+  .gh-card .gh-facts { grid-column:1 / -1; font-size:.85rem; }
+  .gh-card a { grid-column:1 / -1; }
+  .gh-hint { display:none; }
+}
+@media (prefers-reduced-motion:reduce) { .gh-chips button { transition:none; } }

@@ -30,8 +30,9 @@
 ::selection { background:var(--accent-light); color:#161613; }
 .skip-link { color:#161613; }
 
-/* Black sections */
-.expertise,.contact,.studio-dock {
+/* Every section sits on the same beige, so the page reads as one piece from the globe to the footer.
+   Only the floating dock stays dark, as a small pill that reads over anything. */
+.studio-dock {
   --background:var(--night);
   --text:#f1efe9;
   --muted:#a7a59d;
@@ -40,21 +41,31 @@
   color:var(--text);
   color-scheme:dark;
 }
-.contact { background:var(--night); }
-/* Services fade in from the beige hero, the same way the cream chapter fades out of them. */
-.expertise {
-  --blend:clamp(180px,22vw,320px);
-  padding-top:calc(var(--blend) + 72px);
-  background:linear-gradient(180deg,var(--beige) 0,var(--dusk-5) calc(var(--blend) * .14),var(--dusk-4) calc(var(--blend) * .3),var(--dusk-3) calc(var(--blend) * .48),var(--dusk-2) calc(var(--blend) * .66),var(--dusk-1) calc(var(--blend) * .84),var(--night) var(--blend)) top/100% var(--blend) no-repeat,var(--night);
-}
-.service-card { background:#151514; }
-.daylight { --blend-top:var(--night); --blend-bottom:var(--night); }
+.expertise,.contact { --background:var(--beige); color:var(--text); background:var(--beige); }
+.expertise { padding-top:clamp(72px,9vw,120px); border-top:1px solid var(--line); }
+.contact { border-top:1px solid var(--line); }
+.contact-glow { opacity:.5; }
+.service-card { background:var(--beige-raised); border:1px solid var(--line); }
+.service-card:hover { background:#fff; }
+.service-copy .service-category,.service-copy ul,.service-number { color:var(--muted); }
+/* The demo screens inside the cards stay dark, like the device screens they picture. */
+.service-demo { border-radius:14px; overflow:hidden; }
+.service-card:hover .service-start,.service-start:focus-visible { color:#fff; }
+.service-card:hover .service-start>span,.service-start:focus-visible>span { color:#fff; }
+.contact-form { background:var(--beige-raised); box-shadow:0 30px 70px -40px rgba(22,22,19,.35); }
+.contact-form label > span { color:var(--muted); }
+.contact-form label > span i { color:#8b867b; }
+.contact-form input,.contact-form select,.contact-form textarea { color:var(--text); background:#fff; border-color:var(--line); }
+.contact-form input::placeholder,.contact-form textarea::placeholder { color:#9a958a; }
+.contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus { border-color:var(--accent); box-shadow:0 0 0 4px rgba(29,107,74,.12); }
+.daylight { --blend:clamp(72px,9vw,120px); background:var(--beige); border-top:1px solid var(--line); }
+.daylight-orbit { display:none; }
 
-/* Top bar */
-.topbar.is-scrolled { background:rgba(239,232,220,.94); }
+/* Top bar: the same beige as the page, so it never reads as a separate strip. */
+.topbar,.topbar.is-scrolled { background:rgba(239,232,220,.92); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
 @media(max-width:760px) {
   .topbar nav { box-shadow:0 15px 25px rgba(22,22,19,.12); }
-  .expertise { padding-top:calc(var(--blend) + 48px); }
+  .expertise { padding-top:64px; }
 }
 
 /* Hero */
