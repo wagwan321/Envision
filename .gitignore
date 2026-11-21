@@ -11,3 +11,7 @@ desktop.ini
 
 # Local browser checks, profiles, and screenshots
 .tools/
+
+# Design working files (decision pages, sketches, previews)
+.impeccable/mocks/
+.impeccable/questions/

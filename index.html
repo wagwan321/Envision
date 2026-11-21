@@ -17,12 +17,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Martian+Mono:wdth,wght@75..112.5,400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="scroll.css">
   <link rel="stylesheet" href="journey.css">
   <link rel="stylesheet" href="services.css">
   <link rel="stylesheet" href="experience.css">
   <link rel="stylesheet" href="daylight.css">
-  <link rel="stylesheet" href="work.css">
+  <link rel="stylesheet" href="ops.css">
   <link rel="stylesheet" href="brief.css">
   <link rel="stylesheet" href="theme.css">
   <script>
@@ -40,7 +41,7 @@
   <noscript><style>.contact-form>label,.contact-form>.form-row,.contact-form>.submit-button,.contact-form>.form-hint{display:none}</style></noscript>
   <script src="script.js" defer></script>
   <script src="experience.js" defer></script>
-  <script src="work.js" defer></script>
+  <script src="ops.js" defer></script>
   <script src="brief.js" defer></script>
 </head>
 <body>
@@ -87,73 +88,40 @@
         <div class="hero-bottom"><a href="#work"><span class="scroll-icon" aria-hidden="true">↓</span> Scroll to explore</a><a class="hero-brief-link" href="#services" data-brief aria-haspopup="dialog">Have an idea? Plan it here <span aria-hidden="true">↗</span></a></div>
       </div>
     </section>
-    <div class="daylight daylight-work">
-      <section class="work section-pad" id="work" aria-labelledby="work-title">
-        <div class="section-heading reveal">
-          <div><p class="chapter-kicker mono">SELECTED WORK</p><h2 id="work-title">Built with<br><em>real clients.</em></h2></div>
-          <p>A look at what we’re making with the businesses we work with right now.</p>
-        </div>
-        <div class="clients reveal" role="region" aria-roledescription="carousel" aria-label="Client projects" data-active="0">
-          <div class="clients-stage">
-            <div class="clients-devices">
-              <div class="mac-window">
-                <div class="mac-window-bar" aria-hidden="true"><i></i><i></i><i></i></div>
-                <div class="mac-window-screen">
-                  <img class="client-shot is-active" src="assets/work/leisure-en.webp" width="1080" height="675" alt="The Leisure Club homepage, with the club film playing through the letters of “More than a club.”" loading="lazy" decoding="async">
-                  <img class="client-shot" src="assets/work/enfantillage-home.webp" width="1080" height="675" alt="The Enfantillage homepage, with a “Wishlists start here!” banner and toy promotions." loading="lazy" decoding="async" aria-hidden="true">
-                  <img class="client-shot" src="assets/work/noma-day.webp" width="1080" height="675" alt="The Noma Living homepage: a 3D-rendered shopfront in Hamra with “Swipe up to step inside.”" loading="lazy" decoding="async" aria-hidden="true">
-                </div>
-              </div>
-              <div class="client-phone" aria-hidden="true">
-                <div class="iphone">
-                  <span class="iphone-key key-action"></span><span class="iphone-key key-up"></span><span class="iphone-key key-down"></span><span class="iphone-key key-power"></span>
-                  <div class="iphone-screen">
-                    <div class="iphone-status"><b>9:41</b><span class="iphone-island"></span><span class="iphone-icons"><i class="icon-signal"></i><i class="icon-wifi"></i><i class="icon-battery"></i></span></div>
-                    <img class="client-shot is-active" src="assets/work/leisure-schedule.webp" width="484" height="1047" alt="" loading="lazy" decoding="async">
-                    <img class="client-shot" src="assets/work/enfantillage-mobile.webp" width="484" height="1047" alt="" loading="lazy" decoding="async">
-                    <img class="client-shot" src="assets/work/noma-mobile.webp" width="484" height="1047" alt="" loading="lazy" decoding="async">
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="clients-info">
-              <article class="client client-leisure is-active" role="group" aria-roledescription="slide" aria-label="1 of 3">
-                <img class="client-logo" src="assets/work/leisure-logo.png" width="196" height="178" alt="The Leisure Club" loading="lazy">
-                <p class="client-meta mono"><i></i>DIK EL-MEHDI, LEBANON · SINCE 1991</p>
-                <h3>A new home online for<br>a <em>family country club.</em></h3>
-                <p>Fitness, pools, Leisure Island, events, and memberships in one calm website that speaks three languages.</p>
-                <dl class="client-stats"><div><dt>pages</dt><dd>15</dd></div><div><dt>languages</dt><dd>3</dd></div><div><dt>weekly classes</dt><dd>43</dd></div></dl>
-                <ul class="client-tags" aria-label="What we did"><li>Website design</li><li>Development</li><li>Multilingual</li></ul>
-              </article>
-              <article class="client client-enfantillage" role="group" aria-roledescription="slide" aria-label="2 of 3" inert>
-                <img class="client-logo client-logo-wide" src="assets/work/enfantillage-logo.png" width="280" height="160" alt="Enfantillage" loading="lazy">
-                <p class="client-meta mono"><i></i>MAZRAAT YACHOUH, LEBANON · FAMILY TOY STORE</p>
-                <h3>A storefront that feels<br>like <em>opening a toy box.</em></h3>
-                <p>A brighter, easier way to shop Lebanon’s family toy store, by age, brand, or favourite character.</p>
-                <dl class="client-stats"><div><dt>toys</dt><dd>592</dd></div><div><dt>age groups</dt><dd>6</dd></div><div><dt>ways to browse</dt><dd>5</dd></div></dl>
-                <ul class="client-tags" aria-label="What we did"><li>Storefront design</li><li>E-commerce</li><li>Development</li></ul>
-              </article>
-              <article class="client client-noma" role="group" aria-roledescription="slide" aria-label="3 of 3" inert>
-                <img class="client-logo client-logo-wide" src="assets/work/noma-logo.svg" width="200" height="58" alt="Noma Living" loading="lazy">
-                <p class="client-meta mono"><i></i>HAMRA, BEIRUT · NEXT TO LAU</p>
-                <h3>Student studios you can<br><em>walk into online.</em></h3>
-                <p>Furnished studios steps from LAU, with a 3D walk-through we rendered in Blender and tour bookings built in.</p>
-                <dl class="client-stats"><div><dt>3D frames</dt><dd>530</dd></div><div><dt>looks, day &amp; night</dt><dd>2</dd></div><div><dt>studio types</dt><dd>3</dd></div></dl>
-                <ul class="client-tags" aria-label="What we did"><li>Website design</li><li>3D in Blender</li><li>Development</li></ul>
-              </article>
-            </div>
+    <section class="ops" id="work" aria-labelledby="work-title">
+      <h2 class="ops-sr" id="work-title">Selected work</h2>
+      <ul class="ops-sr">
+        <li>The Leisure Club, Dik El-Mehdi, Lebanon: a family country club website with 15 pages in 3 languages and 43 weekly classes.</li>
+        <li>Enfantillage, Mazraat Yachouh, Lebanon: an online toy store with 592 toys, 6 age groups and 5 ways to browse.</li>
+        <li>Noma Living, Hamra, Beirut: furnished student studios next to LAU, with a 3D walk-through rendered in Blender and tour booking.</li>
+        <li>First Nutrition, Amman, Jordan: an official supplement store in English and Arabic with 69 products from 21 brands and WhatsApp ordering.</li>
+      </ul>
+      <div class="ops-stage">
+        <canvas class="ops-world" aria-hidden="true"></canvas>
+        <div class="ops-hud">
+          <div aria-hidden="true">
+            <i class="ops-corner ops-c1"></i><i class="ops-corner ops-c2"></i><i class="ops-corner ops-c3"></i><i class="ops-corner ops-c4"></i>
+            <div class="ops-top"><span>SELECTED WORK // <span class="ops-mode">BOOT</span></span><span class="ops-clock"></span></div>
+            <div class="ops-term"></div>
+            <div class="ops-scale"><span></span><i></i></div>
+            <div class="ops-readout"></div>
+            <div class="ops-ret"><svg viewBox="-90 -90 180 180"><path class="br" d="M-46 -26 V-46 H-26 M26 -46 H46 V-26 M46 26 V46 H26 M-26 46 H-46 V26"/>
+              <line class="cross" x1="-90" y1="0" x2="-16" y2="0"/><line class="cross" x1="16" y1="0" x2="90" y2="0"/><line class="cross" x1="0" y1="-90" x2="0" y2="-16"/><line class="cross" x1="0" y1="16" x2="0" y2="90"/></svg>
+              <div class="ops-coords"><b></b><span class="ops-tlat"></span> <span class="ops-tlon"></span></div></div>
+            <div class="ops-leader"></div>
+            <div class="ops-site"><div class="ops-bar"><span class="ops-url"></span><span><span class="ops-led"></span><span class="ops-state"></span></span></div>
+              <div class="ops-frame"><div class="ops-shots"></div><div class="ops-tint"></div><div class="ops-lines"></div><div class="ops-scan"></div></div>
+              <div class="ops-tag"></div></div>
+            <div class="ops-data"></div>
+            <div class="ops-big ops-intro"><h2>Selected work.</h2><p>SCROLL TO FIND OUR CLIENTS ↓</p></div>
+            <div class="ops-big ops-handoff"><h2>4 sites live.<br>Lebanon to Jordan.</h2><p>WEBSITES · SOFTWARE · AI TOOLS · VIDEO &amp; 3D</p></div>
+            <div class="ops-strip"></div>
           </div>
-          <div class="clients-controls">
-            <div class="clients-dots" role="group" aria-label="Choose a project">
-              <button type="button" data-go="0" aria-label="Project 1 of 3" aria-current="true"><span></span></button>
-              <button type="button" data-go="1" aria-label="Project 2 of 3"><span></span></button>
-              <button type="button" data-go="2" aria-label="Project 3 of 3"><span></span></button>
-            </div>
-            <button type="button" class="clients-toggle" aria-pressed="false" aria-label="Pause the slideshow"><span aria-hidden="true"></span></button>
-          </div>
+          <div class="ops-big ops-final" style="visibility:hidden"><p>NEXT TARGET ACQUIRED</p><h2>Your site is next.</h2>
+            <div class="ops-actions"><a class="ops-cta" href="https://cal.com/chris-el-haddad-067gwf/15min" target="_blank" rel="noopener">Book a 15-minute call →</a><a class="ops-alt" href="#services" data-brief aria-haspopup="dialog">or plan your project</a></div></div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
     <section class="expertise section-pad" id="services" aria-labelledby="services-title">
       <div class="section-heading reveal">
         <h2 id="services-title">What we do.<br><span>See it in action.</span></h2>
