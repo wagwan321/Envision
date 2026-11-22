@@ -8,7 +8,7 @@ html { scrollbar-gutter:stable; }
 /* The home page: a short sticky stage. The scroll dives from the planet to a map of every client;
    hovering a client previews it in a small window at its pin, clicking dives into it. */
 .film { position:relative; height:calc(var(--film-screens, 3.9) * 100vh); height:calc(var(--film-screens, 3.9) * 100svh); background:var(--beige); color:var(--text); }
-.film-anchor { position:absolute; left:0; top:calc(1.55 * 100svh); width:1px; height:1px; }
+.film-anchor { position:absolute; left:0; top:calc(1.35 * 100svh); width:1px; height:1px; }
 .film-stage { position:sticky; top:0; height:100vh; height:100svh; overflow:hidden; background:var(--beige); }
 .film-layers { position:absolute; inset:0; }
 .film-layer { position:absolute; inset:0; overflow:hidden; display:none; background:var(--beige); -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; }
@@ -51,7 +51,7 @@ html { scrollbar-gutter:stable; }
 
 /* Captions inside a client */
 .film-caps { position:absolute; inset:0; z-index:50; pointer-events:none; }
-.film-cap { position:absolute; left:max(24px,5vw); bottom:max(24px,6vh); width:min(410px,34vw); }
+.film-cap { position:absolute; left:max(24px,5vw); bottom:calc(max(16px,3vh) + 74px); width:min(410px,34vw); }
 .cap-page { position:absolute; left:0; bottom:0; width:100%; padding:22px 24px 24px; border:1px solid var(--line); border-radius:22px; background:var(--beige-raised); box-shadow:0 30px 60px -34px rgba(22,22,19,.45); opacity:0; visibility:hidden; pointer-events:auto; }
 .cap-num { margin:0 0 12px; color:var(--accent); font:600 .72rem/1.4 var(--display); letter-spacing:.07em; text-transform:uppercase; }
 .cap-name { margin:0; font:600 clamp(1.7rem,2.8vw,2.5rem)/1 var(--display); letter-spacing:-.045em; }
@@ -66,33 +66,30 @@ html { scrollbar-gutter:stable; }
 .cap-actions .cap-next { border-color:#1d6b4a; background:#1d6b4a; color:#fff; }
 .cap-actions .cap-next:hover { background:#0d4630; }
 
-/* The chooser: heading, a name beside each pin, a card per client */
-.film-hub { position:absolute; inset:0; z-index:55; opacity:0; visibility:hidden; pointer-events:none; }
-.hub-head { position:absolute; left:max(24px,5vw); top:clamp(92px,11vh,124px); max-width:440px; }
-.hub-kicker { margin:0 0 10px; color:var(--accent); font:600 .74rem/1.4 var(--display); letter-spacing:.08em; text-transform:uppercase; }
-.hub-head h2 { margin:0; font:500 clamp(2.2rem,3.8vw,3.6rem)/.98 var(--display); letter-spacing:-.06em; }
-.hub-head h2 span { background:var(--logo-gradient); -webkit-background-clip:text; background-clip:text; color:transparent; }
-.hub-hint { margin:14px 0 0; color:var(--muted); font-size:.95rem; }
-.hint-touch { display:none; }
-@media (hover:none),(pointer:coarse) { .hint-fine { display:none; } .hint-touch { display:inline; } }
-.hub-chips { position:absolute; inset:0; }
-.hub-chip { position:absolute; left:0; top:0; padding:6px 11px; border:1px solid var(--line); border-radius:999px; background:rgba(248,244,236,.95); color:var(--text); font:600 .8rem/1 var(--display); white-space:nowrap; cursor:pointer; pointer-events:auto; box-shadow:0 8px 20px -12px rgba(22,22,19,.45); transition:background .2s,color .2s,border-color .2s; }
-.hub-chip:hover,.hub-chip.is-on { border-color:#1d6b4a; background:#1d6b4a; color:#fff; }
-.hub-cards { position:absolute; left:0; right:0; bottom:max(18px,3.5vh); display:flex; justify-content:center; gap:14px; padding:6px max(24px,5vw) 8px; overflow-x:auto; scrollbar-width:none; pointer-events:auto; }
-.hub-cards::-webkit-scrollbar { display:none; }
-.hub-card { flex:0 0 auto; width:clamp(190px,15vw,236px); display:grid; gap:10px; padding:8px 8px 12px; border:1px solid var(--line); border-radius:18px; background:var(--beige-raised); color:var(--text); text-align:left; cursor:pointer; box-shadow:0 18px 40px -30px rgba(22,22,19,.45); transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .3s,box-shadow .3s,opacity .3s; }
-.hub-card img { display:block; width:100%; aspect-ratio:16/10; object-fit:cover; object-position:top; border:1px solid var(--line); border-radius:11px; }
-.hub-card span { display:grid; gap:4px; padding:0 4px; }
-.hub-card b { font:600 1rem/1.15 var(--display); letter-spacing:-.02em; }
-.hub-card i { color:var(--muted); font-style:normal; font-size:.82rem; }
-.hub-card:hover,.hub-card.is-on,.hub-card:focus-visible { transform:translateY(-6px); border-color:#1d6b4a; box-shadow:0 26px 50px -30px rgba(13,70,48,.55); }
-.is-previewing .hub-card:not(.is-on) { opacity:.72; }
+/* The chapter bar: every client, where the film is, a preview on hover, a glide on click */
+.film-chapters { position:absolute; z-index:58; left:0; right:0; bottom:max(16px,3vh); width:max-content; max-width:calc(100% - 32px); margin-inline:auto; display:flex; align-items:center; gap:12px; padding:6px 8px 6px 18px; border:1px solid var(--line); border-radius:999px; background:rgba(248,244,236,.9); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); box-shadow:0 18px 40px -26px rgba(22,22,19,.5); opacity:0; visibility:hidden; }
+.chap-label { margin:0; color:var(--accent); font:600 .7rem/1 var(--display); letter-spacing:.08em; text-transform:uppercase; white-space:nowrap; }
+.film-chapters ol { display:flex; gap:2px; margin:0; padding:0; list-style:none; }
+.chap { position:relative; display:grid; gap:7px; padding:10px 14px 9px; border:0; border-radius:999px; background:transparent; color:var(--muted); font:600 .84rem/1 var(--display); white-space:nowrap; cursor:pointer; transition:color .2s,background .2s; }
+.chap:hover,.chap:focus-visible { color:var(--text); background:rgba(22,22,19,.05); }
+.chap.is-on { color:var(--text); }
+.chap-track { display:block; height:2px; overflow:hidden; border-radius:2px; background:rgba(22,22,19,.12); }
+.chap-track i { display:block; height:100%; background:#1d6b4a; transform:scaleX(0); transform-origin:0 50%; }
+.chap-tip { position:absolute; left:50%; bottom:calc(100% + 14px); width:220px; margin-left:-110px; display:grid; gap:5px; padding:8px 8px 12px; border:1px solid var(--line); border-radius:16px; background:var(--beige-raised); box-shadow:0 24px 50px -28px rgba(22,22,19,.5); text-align:left; opacity:0; transform:translateY(6px); pointer-events:none; transition:opacity .2s,transform .2s; }
+.chap-tip img { display:block; width:100%; aspect-ratio:16/10; object-fit:cover; object-position:top; border:1px solid var(--line); border-radius:10px; }
+.chap-tip b { padding:4px 4px 0; color:var(--text); font:600 .95rem/1.1 var(--display); }
+.chap-tip em { padding:0 4px; color:var(--muted); font-style:normal; font-weight:500; font-size:.78rem; }
+.chap:hover .chap-tip,.chap:focus-visible .chap-tip { opacity:1; transform:none; }
+@media (hover:none) { .chap-tip { display:none; } }
 
 /* Opening words */
-.film-intro { position:absolute; z-index:60; left:0; right:0; top:clamp(88px,11.5vh,128px); padding:0 24px; text-align:center; }
+.film-intro,.film-outro { position:absolute; z-index:60; left:0; right:0; top:clamp(88px,11.5vh,128px); padding:0 24px; text-align:center; }
 .fi-kicker { display:flex; justify-content:center; align-items:center; gap:10px; margin:0 0 18px; color:var(--muted); font:500 .8rem/1 var(--display); letter-spacing:.02em; }
 .film-intro h1 { margin:0; font:500 clamp(3.4rem,7.4vw,7.6rem)/.92 var(--display); letter-spacing:-.07em; color:var(--text); }
-.film-intro h1 span { background:var(--logo-gradient); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.film-intro h1 span,.film-outro h2 span { background:var(--logo-gradient); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.film-outro { bottom:0; opacity:0; visibility:hidden; pointer-events:none; }
+.film-outro h2 { margin:18px 0 0; font:500 clamp(2.6rem,5.6vw,5.6rem)/.92 var(--display); letter-spacing:-.07em; color:var(--text); pointer-events:auto; }
+.film-outro .film-foot { text-align:left; }
 .film-foot { position:absolute; z-index:60; left:max(24px,5vw); right:max(24px,5vw); bottom:max(24px,5vh); display:flex; justify-content:space-between; align-items:flex-end; gap:24px; pointer-events:none; }
 .film-foot > * { pointer-events:auto; }
 .fi-lede { max-width:29ch; margin:0 0 18px; color:var(--muted); font-size:1.05rem; line-height:1.55; }
@@ -118,15 +115,14 @@ html { scrollbar-gutter:stable; }
   .film-foot { left:16px; right:16px; bottom:18px; }
   .fi-lede { max-width:none; margin-bottom:14px; font-size:.98rem; }
   .film-cue { display:none; }
-  .hub-head { left:16px; right:16px; top:86px; }
-  .hub-head h2 { font-size:clamp(2rem,9vw,2.6rem); }
-  .hub-hint { margin-top:10px; font-size:.88rem; }
-  .hub-cards { justify-content:flex-start; gap:10px; padding:6px 16px 8px; bottom:14px; }
-  .hub-card { width:156px; padding:6px 6px 10px; border-radius:15px; }
-  .hub-card b { font-size:.9rem; }
-  .hub-card i { font-size:.74rem; }
-  .hub-chip { padding:5px 9px; font-size:.72rem; }
-  .film-cap { left:12px; right:12px; bottom:12px; width:auto; }
+  .film-outro { top:96px; }
+  .film-outro h2 { font-size:clamp(2.4rem,11vw,3.6rem); }
+  .film-chapters { left:12px; right:12px; bottom:12px; width:auto; max-width:none; padding:4px; }
+  .chap-label { display:none; }
+  .film-chapters ol { overflow-x:auto; scrollbar-width:none; }
+  .film-chapters ol::-webkit-scrollbar { display:none; }
+  .chap { padding:9px 12px 8px; font-size:.78rem; }
+  .film-cap { left:12px; right:12px; bottom:70px; width:auto; }
   .cap-page { padding:16px 18px 18px; border-radius:18px; }
   .cap-num { margin-bottom:8px; }
   .cap-name { font-size:1.6rem; }
@@ -144,7 +140,7 @@ html { scrollbar-gutter:stable; }
 /* Reduced motion: no film. The opening stays, and the projects show as a simple list of cards. */
 .film.is-static { height:auto; }
 .is-static .film-stage { position:relative; height:100vh; height:100svh; }
-.is-static .film-cue,.is-static .film-hub { display:none; }
+.is-static .film-cue,.is-static .film-chapters { display:none; }
 .is-static .film-list { position:static; width:auto; height:auto; margin:0; overflow:visible; clip-path:none; white-space:normal; padding:clamp(48px,8vw,96px) max(24px,5vw); }
 .is-static .film-list h2 { position:static; width:auto; height:auto; margin:0 0 28px; overflow:visible; clip-path:none; white-space:normal; font:600 clamp(2rem,4vw,3rem)/1 var(--display); letter-spacing:-.04em; }
 .is-static .film-list ol { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px; }
