@@ -16,8 +16,9 @@ const smooth = t => t * t * (3 - 2 * t);
 const lerp = (a, b, t) => a + (b - a) * t;
 
 // ---- Timeline, in screens of scroll: a hold for each shape, a morph between each pair ----
-const HOLD = [[0, .35], [.9, 1.55], [2.1, 2.75], [3.3, 3.95], [4.5, 5.15], [5.7, 6.2]];
-const END = 6.2, CLOUD = 6;
+// each change gets about nine tenths of a screen, so the particles take their time to transform
+const HOLD = [[0, .35], [1.25, 1.9], [2.8, 3.45], [4.35, 5], [5.9, 6.55], [7.45, 7.8]];
+const END = 7.8, CLOUD = 6;
 sec.style.setProperty('--ideas-screens', String(END + 1));
 function stateAt(s) {
   if (s <= HOLD[0][1]) return [0, 0, 0];
@@ -214,7 +215,9 @@ function frame(now) {
   if (!W || !ready) return;
   const dt = Math.min(64, now - (last || now)); last = now;
   const sT = STATIC ? 0 : clamp((scrollY - secTop) / stageH, 0, END), d = sT - sC;
-  sC = Math.abs(d) < .2 || Math.abs(d) > 3 ? sT : sC + d * (1 - Math.exp(-dt / 90));
+  // the particles ease after the scroll rather than snapping to it, so even a quick flick of the
+  // wheel plays out as a fluid change; only a jump of several screens (a link) lands at once
+  sC = Math.abs(d) > 3 ? sT : sC + d * (1 - Math.exp(-dt / 260));
   const s = sC;
   let [from, to, mix] = stateAt(s);
   // the opening: the cloud of ideas gathers into the mark, on its own, as the page loads

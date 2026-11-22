@@ -7,8 +7,8 @@ html { scrollbar-gutter:stable; }
 
 /* "Ideas into impact", in particles: a tall section with a sticky stage. The particles live on one
    WebGL canvas; the words sit above it. */
-.ideas { position:relative; height:calc(var(--ideas-screens, 7.2) * 100vh); height:calc(var(--ideas-screens, 7.2) * 100svh); background:var(--beige); color:var(--text); }
-.ideas-anchor { position:absolute; left:0; top:calc(.95 * 100svh); width:1px; height:1px; }
+.ideas { position:relative; height:calc(var(--ideas-screens, 8.8) * 100vh); height:calc(var(--ideas-screens, 8.8) * 100svh); background:var(--beige); color:var(--text); }
+.ideas-anchor { position:absolute; left:0; top:calc(1.3 * 100svh); width:1px; height:1px; }
 .ideas-stage { position:sticky; top:0; height:100vh; height:100svh; overflow:hidden; background:radial-gradient(ellipse 60% 55% at 62% 50%,rgba(255,255,255,.38),transparent 70%),var(--beige); }
 .ideas-gl { position:absolute; inset:0; width:100%; height:100%; display:block; opacity:0; transition:opacity .9s ease; }
 .ideas.is-ready .ideas-gl { opacity:1; }
