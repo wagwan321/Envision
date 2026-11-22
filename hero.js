@@ -101,15 +101,19 @@ const DRAW = [
     dot(g, 772, 346, 22);
     for (const x of [170, 393, 616]) { g.lineWidth = 12; rr(g, x, 560, 204, 150, 18); g.stroke(); dot(g, x + 36, 598, 14); line(g, x + 26, 640, x + 160, 640, 16); line(g, x + 26, 672, x + 120, 672, 13); }
   },
-  // 2 a software dashboard
+  // 2 a software dashboard: a sidebar, three stat tiles, bars and a trend line, each with room
+  // around it so the particles of one part never run into the next
   g => {
-    g.lineCap = 'round'; g.lineWidth = 14; rr(g, 100, 160, 800, 600, 34); g.stroke(); line(g, 270, 160, 270, 760, 12);
-    [230, 290, 350, 410, 470].forEach((y, k) => { g.globalAlpha = k ? .55 : 1; line(g, 145, y, k ? 220 : 235, y, 20); }); g.globalAlpha = 1;
-    for (const x of [310, 510, 710]) { g.lineWidth = 10; rr(g, x, 200, 160, 100, 16); g.stroke(); line(g, x + 24, 236, x + 70, 236, 17); line(g, x + 24, 268, x + 120, 268, 26); }
-    [150, 230, 190, 290, 250, 330, 280].forEach((hh, k) => { const x = 320 + k * 46; g.globalAlpha = .9; rr(g, x, 720 - hh, 28, hh, 8); g.fill(); }); g.globalAlpha = 1;
-    g.lineWidth = 14; g.lineJoin = 'round'; g.beginPath(); [[660, 650], [705, 600], [750, 620], [795, 520], [850, 470]].forEach(([x, y], k) => k ? g.lineTo(x, y) : g.moveTo(x, y)); g.stroke();
-    [[660, 650], [705, 600], [750, 620], [795, 520], [850, 470]].forEach(([x, y]) => dot(g, x, y, 13));
-    g.lineWidth = 10; rr(g, 640, 340, 230, 380, 18); g.stroke();
+    g.lineCap = 'round'; g.lineJoin = 'round';
+    g.lineWidth = 14; rr(g, 100, 160, 800, 600, 34); g.stroke();
+    line(g, 250, 160, 250, 760, 11);
+    [240, 300, 360, 420].forEach((y, k) => { g.globalAlpha = k ? .6 : 1; line(g, 148, y, k ? 200 : 214, y, 16); }); g.globalAlpha = 1;
+    for (const x of [300, 500, 700]) { g.lineWidth = 10; rr(g, x, 215, 160, 90, 16); g.stroke(); line(g, x + 28, 248, x + 70, 248, 12); line(g, x + 28, 276, x + 118, 276, 16); }
+    [150, 230, 185, 280, 240].forEach((hh, k) => { rr(g, 312 + k * 54, 700 - hh, 30, hh, 8); g.fill(); });
+    g.lineWidth = 10; rr(g, 610, 360, 250, 340, 18); g.stroke();
+    const pts = [[640, 650], [690, 600], [740, 625], [790, 520], [835, 460]];
+    g.lineWidth = 12; g.beginPath(); pts.forEach(([x, y], k) => k ? g.lineTo(x, y) : g.moveTo(x, y)); g.stroke();
+    pts.forEach(([x, y]) => dot(g, x, y, 13));
   },
   // 3 an AI assistant: a big sparkle, two small ones, an orbit, a conversation
   g => {
