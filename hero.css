@@ -43,16 +43,8 @@ html { scrollbar-gutter:stable; }
 .step-cta:hover { border-color:#1d6b4a; background:#1d6b4a; color:#fff; }
 
 /* The closing: the particles spell "impact.", with the way on beneath */
-.ideas-finale { position:absolute; z-index:5; left:0; right:0; bottom:max(56px,11vh); display:flex; justify-content:center; flex-wrap:wrap; gap:14px 26px; align-items:center; opacity:0; visibility:hidden; }
+.ideas-finale { position:absolute; z-index:5; left:0; right:0; bottom:max(48px,10vh); display:flex; justify-content:center; flex-wrap:wrap; gap:14px 26px; align-items:center; opacity:0; visibility:hidden; }
 
-/* The rail: what we build, where you are, a click away */
-.ideas-rail { position:absolute; z-index:6; left:0; right:0; bottom:max(16px,3vh); width:max-content; max-width:calc(100% - 32px); margin-inline:auto; display:flex; gap:2px; padding:6px; border:1px solid var(--line); border-radius:999px; background:rgba(248,244,236,.88); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); box-shadow:0 18px 40px -26px rgba(22,22,19,.5); opacity:0; visibility:hidden; }
-.ideas-rail button { display:grid; gap:7px; padding:10px 15px 9px; border:0; border-radius:999px; background:transparent; color:var(--muted); font:600 .84rem/1 var(--display); white-space:nowrap; cursor:pointer; transition:color .2s,background .2s; }
-.ideas-rail button span { margin-right:6px; color:var(--accent); font-size:.72rem; }
-.ideas-rail button:hover,.ideas-rail button:focus-visible { color:var(--text); background:rgba(22,22,19,.05); }
-.ideas-rail button.is-on { color:var(--text); }
-.ideas-rail i { display:block; height:2px; overflow:hidden; border-radius:2px; background:rgba(22,22,19,.12); }
-.ideas-rail b { display:block; height:100%; background:#1d6b4a; transform:scaleX(0); transform-origin:0 50%; }
 .ideas :focus-visible { outline:2px solid #1d6b4a; outline-offset:3px; }
 
 /* The businesses we have worked with */
@@ -69,16 +61,13 @@ html { scrollbar-gutter:stable; }
   .film-foot { left:16px; right:16px; bottom:18px; }
   .fi-lede { max-width:none; margin-bottom:14px; font-size:.98rem; }
   .film-cue { display:none; }
-  .ideas-steps { left:20px; right:20px; width:auto; top:auto; bottom:84px; height:46vh; }
+  .ideas-steps { left:20px; right:20px; width:auto; top:auto; bottom:28px; height:46vh; }
   .ideas-step { top:auto; bottom:0; margin-top:0; }
   .step-kicker { margin-bottom:14px; }
   .ideas-step h2 { font-size:clamp(2.2rem,9.6vw,3rem); }
   .ideas-step p:not(.step-kicker) { margin-top:12px; font-size:.95rem; }
   .step-cta { margin-top:16px; }
-  .ideas-finale { bottom:96px; }
-  .ideas-rail { left:12px; right:12px; bottom:12px; width:auto; max-width:none; overflow-x:auto; scrollbar-width:none; }
-  .ideas-rail::-webkit-scrollbar { display:none; }
-  .ideas-rail button { padding:9px 11px 8px; font-size:.76rem; }
+  .ideas-finale { bottom:40px; }
   .clients img { height:calc(var(--h,56px) * .78); }
 }
 
@@ -93,5 +82,5 @@ html { scrollbar-gutter:stable; }
 .is-static .ideas-steps,.no-gl .ideas-steps { position:static; width:auto; height:auto; display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:32px; padding:calc(100svh + 24px) max(24px,5vw) 0; pointer-events:auto; }
 .is-static .ideas-step,.no-gl .ideas-step { position:static; margin:0; opacity:1 !important; visibility:visible !important; transform:none !important; }
 .is-static .ideas-step h2,.no-gl .ideas-step h2 { font-size:clamp(2rem,3vw,2.6rem); }
-.is-static .ideas-rail,.no-gl .ideas-rail,.is-static .film-cue,.no-gl .film-cue,.is-static .ideas-finale,.no-gl .ideas-finale { display:none; }
+.is-static .film-cue,.no-gl .film-cue,.is-static .ideas-finale,.no-gl .ideas-finale { display:none; }
 @media (prefers-reduced-motion:reduce) { .film-cue i::after { animation:none; } .ideas-gl { transition:none; } }

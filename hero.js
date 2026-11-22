@@ -8,7 +8,6 @@ const sec = document.querySelector('.ideas');
 if (!sec) return;
 const stage = sec.querySelector('.ideas-stage'), canvas = sec.querySelector('.ideas-gl');
 const steps = [...sec.querySelectorAll('.ideas-step')], intro = [...sec.querySelectorAll('[data-ideas-intro]')], finale = sec.querySelector('.ideas-finale');
-const rail = sec.querySelector('.ideas-rail'), railBtns = [...rail.querySelectorAll('button')];
 const reduce = matchMedia('(prefers-reduced-motion: reduce)'), narrowQ = matchMedia('(max-width: 860px)'), fineQ = matchMedia('(pointer: fine)');
 const STATIC = reduce.matches;
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -81,7 +80,7 @@ const U = { proj:uni('uProj'), view:uni('uView'), mix:uni('uMix'), time:uni('uTi
 gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); gl.disable(gl.DEPTH_TEST);
 
 // ---- The shapes, drawn on a hidden canvas and turned into points ----
-const N = narrowQ.matches ? 11000 : 22000;
+const N = narrowQ.matches ? 15000 : 30000;
 const rr = (g, x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
 const line = (g, x1, y1, x2, y2, w) => { g.lineWidth = w; g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); };
 const dot = (g, x, y, r) => { g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); };
@@ -89,13 +88,18 @@ const sparkle = (g, x, y, r) => { g.beginPath(); g.moveTo(x, y - r); g.quadratic
 const DRAW = [
   // 0 the Envision mark
   (g, img) => { const w = 780, h = w * img.height / img.width; g.drawImage(img, 500 - w / 2, 500 - h / 2, w, h); },
-  // 1 a website
+  // 1 a website: a headline and a button beside a picture, three cards beneath; all in clean lines,
+  // so its particles sit as densely as in the other shapes
   g => {
-    g.lineCap = 'round'; g.lineWidth = 14; rr(g, 110, 170, 780, 580, 36); g.stroke(); line(g, 110, 250, 890, 250, 12);
+    g.lineCap = 'round'; g.lineJoin = 'round';
+    g.lineWidth = 14; rr(g, 110, 170, 780, 580, 36); g.stroke(); line(g, 110, 250, 890, 250, 12);
     [160, 196, 232].forEach(x => dot(g, x, 210, 11)); g.lineWidth = 9; rr(g, 300, 192, 380, 36, 18); g.stroke();
-    g.globalAlpha = .4; rr(g, 160, 290, 680, 210, 22); g.fill(); g.globalAlpha = 1;
-    line(g, 215, 352, 590, 352, 35); line(g, 215, 400, 470, 400, 35); rr(g, 215, 438, 150, 40, 20); g.fill();
-    for (const x of [160, 393, 626]) { g.lineWidth = 12; rr(g, x, 530, 214, 180, 18); g.stroke(); g.globalAlpha = .42; rr(g, x + 18, 548, 178, 80, 10); g.fill(); g.globalAlpha = 1; line(g, x + 22, 660, x + 150, 660, 17); line(g, x + 22, 688, x + 110, 688, 14); }
+    line(g, 172, 322, 468, 322, 34); line(g, 172, 372, 418, 372, 34); line(g, 172, 418, 380, 418, 14); line(g, 172, 448, 340, 448, 14);
+    rr(g, 170, 474, 150, 44, 22); g.fill();
+    g.lineWidth = 12; rr(g, 520, 292, 320, 222, 18); g.stroke();
+    g.beginPath(); g.moveTo(546, 488); g.lineTo(626, 398); g.lineTo(682, 452); g.lineTo(732, 406); g.lineTo(816, 488); g.stroke();
+    dot(g, 772, 346, 22);
+    for (const x of [170, 393, 616]) { g.lineWidth = 12; rr(g, x, 560, 204, 150, 18); g.stroke(); dot(g, x + 36, 598, 14); line(g, x + 26, 640, x + 160, 640, 16); line(g, x + 26, 672, x + 120, 672, 13); }
   },
   // 2 a software dashboard
   g => {
@@ -180,7 +184,7 @@ function size() {
 new ResizeObserver(size).observe(stage);
 new ResizeObserver(measure).observe(document.body);
 // where each shape sits: to the right of the words on wide screens, above them on phones
-const OFF = () => narrowQ.matches ? [[0, -.04], [0, .17], [0, .17], [0, .17], [0, .17], [0, .06]] : [[0, -.05], [.2, 0], [.2, 0], [.2, 0], [.2, 0], [0, .03]];
+const OFF = () => narrowQ.matches ? [[0, -.04], [0, .11], [0, .11], [0, .11], [0, .11], [0, .06]] : [[0, -.05], [.2, 0], [.2, 0], [.2, 0], [.2, 0], [0, .03]];
 const mouse = { x:0, y:0, tx:0, ty:0, pull:0, on:false };
 stage.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; const r = stage.getBoundingClientRect(); mouse.tx = (e.clientX - r.left) / r.width * 2 - 1; mouse.ty = 1 - (e.clientY - r.top) / r.height * 2; mouse.on = true; kick(); });
 stage.addEventListener('pointerleave', () => { mouse.on = false; });
@@ -189,7 +193,7 @@ function view(tx, ty, tz, rx, ry) {
   return new Float32Array([cy, sx * sy, -cx * sy, 0, 0, cx, sx, 0, sy, -sx * cy, cx * cy, 0, tx, ty, tz, 1]);
 }
 
-// ---- Words: the opening, one caption per shape, the closing, and the rail ----
+// ---- Words: the opening, one caption per shape, the closing ----
 const css = (el, k, v) => { if (el['_' + k] === v) return; el['_' + k] = v; el.style[k] = v; };
 function setOp(el, a, dy) {
   a = Math.round(a * 1000) / 1000;
@@ -198,11 +202,6 @@ function setOp(el, a, dy) {
   el.style.transform = a < 1 ? `translateY(${((1 - a) * dy).toFixed(1)}px)` : '';
   el.style.pointerEvents = a > .6 ? '' : 'none';
 }
-const lenis = () => window.envisionLenis;
-railBtns.forEach((b, k) => b.addEventListener('click', () => {
-  const s = (HOLD[k + 1][0] + HOLD[k + 1][1]) / 2, y = secTop + s * stageH, l = lenis();
-  if (l) l.scrollTo(y, { duration:1.6 }); else scrollTo({ top:y, behavior:'smooth' });
-}));
 
 // ---- One frame ----
 let raf = 0, onScreen = true, last = 0, sC = 0;
@@ -230,7 +229,7 @@ function frame(now) {
   gl.uniformMatrix4fv(U.proj, false, proj);
   gl.uniformMatrix4fv(U.view, false, view(ox * vw, oy * vh, -D, rx, ry));
   gl.uniform1f(U.mix, from === to ? 0 : mix); gl.uniform1f(U.time, tt);
-  gl.uniform1f(U.size, (narrowQ.matches ? 1.9 : 2.3) * DPR); gl.uniform1f(U.aspect, W / H); gl.uniform1f(U.pull, mouse.pull);
+  gl.uniform1f(U.size, (narrowQ.matches ? 2.2 : 2.3) * DPR); gl.uniform1f(U.aspect, W / H); gl.uniform1f(U.pull, mouse.pull);
   gl.uniform2f(U.mouse, mouse.x, mouse.y);
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers[from]); gl.enableVertexAttribArray(A.from); gl.vertexAttribPointer(A.from, 3, gl.FLOAT, false, 0, 0);
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers[to]); gl.enableVertexAttribArray(A.to); gl.vertexAttribPointer(A.to, 3, gl.FLOAT, false, 0, 0);
@@ -241,13 +240,6 @@ function frame(now) {
   for (const el of intro) setOp(el, ia, -30);
   steps.forEach((el, i) => { const h = HOLD[i + 1]; setOp(el, smooth(seg(s, h[0] - .3, h[0] + .02)) * (1 - smooth(seg(s, h[1] + .02, h[1] + .32))), 22); });
   setOp(finale, smooth(seg(s, HOLD[5][0] - .2, HOLD[5][0] + .1)), 18);
-  setOp(rail, smooth(seg(s, .5, .9)) * (1 - smooth(seg(s, HOLD[5][0] - .4, HOLD[5][0] - .1))), 12);
-  railBtns.forEach((b, i) => {
-    const f = seg(s, i ? HOLD[i][1] : .35, HOLD[i + 1][1]);
-    css(b.querySelector('b'), 'transform', `scaleX(${f.toFixed(3)})`);
-    const on = s >= (i ? HOLD[i][1] : 0) && s < HOLD[i + 1][1] + (i === 3 ? .7 : 0);
-    if (b._on !== on) { b._on = on; b.classList.toggle('is-on', on); b.setAttribute('aria-current', on ? 'step' : 'false'); }
-  });
   if (onScreen && !STATIC) raf = requestAnimationFrame(frame);
 }
 function kick() { if (!raf && (onScreen || STATIC)) raf = requestAnimationFrame(frame); }
