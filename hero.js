@@ -2,12 +2,14 @@
 'use strict';
 // "Ideas into impact", told in particles. Thousands of points drift in as a loose cloud of ideas and
 // gather into the Envision mark. Scrolling reshapes them into each thing we build: a website, a
-// software dashboard, an AI assistant, a film camera, and finally the word "impact.". Everything
+// software dashboard, an AI assistant, a film camera, the word "impact.", and last the logos of the
+// businesses we have worked with, which show their own colours when you point at them. Everything
 // moves on the graphics card (WebGL); the page only reads the scroll and the pointer.
 const sec = document.querySelector('.ideas');
 if (!sec) return;
 const stage = sec.querySelector('.ideas-stage'), canvas = sec.querySelector('.ideas-gl');
 const steps = [...sec.querySelectorAll('.ideas-step')], intro = [...sec.querySelectorAll('[data-ideas-intro]')], finale = sec.querySelector('.ideas-finale');
+const clientsBox = sec.querySelector('.ideas-clients'), clientsHead = sec.querySelector('.ideas-clients-head'), clients = [...sec.querySelectorAll('.ideas-client')];
 const reduce = matchMedia('(prefers-reduced-motion: reduce)'), narrowQ = matchMedia('(max-width: 860px)'), fineQ = matchMedia('(pointer: fine)');
 const STATIC = reduce.matches;
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -17,8 +19,8 @@ const lerp = (a, b, t) => a + (b - a) * t;
 
 // ---- Timeline, in screens of scroll: a hold for each shape, a morph between each pair ----
 // each change gets about nine tenths of a screen, so the particles take their time to transform
-const HOLD = [[0, .35], [1.25, 1.9], [2.8, 3.45], [4.35, 5], [5.9, 6.55], [7.45, 7.8]];
-const END = 7.8, CLOUD = 6;
+const HOLD = [[0, .35], [1.25, 1.9], [2.8, 3.45], [4.35, 5], [5.9, 6.55], [7.45, 7.9], [8.75, 9.7]];
+const END = 9.7, LOGOS = 6, CLOUD = 7;
 sec.style.setProperty('--ideas-screens', String(END + 1));
 function stateAt(s) {
   if (s <= HOLD[0][1]) return [0, 0, 0];
@@ -151,6 +153,36 @@ function sample(draw, img) {
   pts.sort((p, q) => Math.atan2(p[1], p[0]) - Math.atan2(q[1], q[0]));
   return pts;
 }
+// The businesses we have worked with, two by two: each logo's box in the 1000-unit drawing, and an
+// equal share of the particles for each, so a fine line logo is as clear as a bold one.
+const CELLS = [[270, 335, 330, 250], [730, 335, 360, 220], [270, 680, 340, 110], [730, 680, 330, 180]];
+function logos() {
+  const S = 640, pts = [], share = Math.floor(N / clients.length);
+  clients.forEach((fig, i) => {
+    const img = fig.querySelector('img'), [cx, cy, bw, bh] = CELLS[i];
+    const iw = +img.getAttribute('width') || img.naturalWidth, ih = +img.getAttribute('height') || img.naturalHeight, k = Math.min(bw / iw, bh / ih), w = iw * k, h = ih * k;
+    const c = document.createElement('canvas'); c.width = c.height = S;
+    const g = c.getContext('2d', { willReadFrequently:true }); g.scale(S / 1000, S / 1000); g.drawImage(img, cx - w / 2, cy - h / 2, w, h);
+    const x0 = Math.max(0, Math.floor((cx - w / 2) * S / 1000)), x1 = Math.min(S, Math.ceil((cx + w / 2) * S / 1000));
+    const y0 = Math.max(0, Math.floor((cy - h / 2) * S / 1000)), y1 = Math.min(S, Math.ceil((cy + h / 2) * S / 1000));
+    const d = g.getImageData(0, 0, S, S).data, cand = [];
+    // ink is colour and darkness, not white: a logo's white outlines and fills stay empty
+    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+      const o = (y * S + x) * 4, a = d[o + 3]; if (a < 24) continue;
+      const lum = (.299 * d[o] + .587 * d[o + 1] + .114 * d[o + 2]) / 255, wgt = a * (1 - .88 * lum);
+      if (wgt > 14) cand.push(x, y, wgt);
+    }
+    const m = cand.length / 3, want = i < clients.length - 1 ? share : N - share * (clients.length - 1);
+    for (let n = 0; n < want && m;) {
+      const j = (Math.random() * m) | 0;
+      if (Math.random() * 255 > cand[j * 3 + 2]) continue;
+      pts.push([(cand[j * 3] + Math.random()) / S * 1000 - 500, 500 - (cand[j * 3 + 1] + Math.random()) / S * 1000, (Math.random() - .5) * 30]); n++;
+    }
+  });
+  while (pts.length < N) pts.push(pts[(Math.random() * pts.length) | 0].slice());
+  pts.sort((p, q) => Math.atan2(p[1], p[0]) - Math.atan2(q[1], q[0]));
+  return pts;
+}
 function cloud() {
   const pts = [];
   for (let i = 0; i < N; i++) { const u = Math.random() * 2 - 1, t = Math.random() * 6.2832, r = 380 + Math.random() * 520, q = Math.sqrt(1 - u * u); pts.push([Math.cos(t) * q * r * 1.5, u * r * .9, Math.sin(t) * q * r]); }
@@ -164,9 +196,11 @@ const seedBuf = gl.createBuffer();
 { const a = new Float32Array(N * 4); for (let i = 0; i < N; i++) { a[i * 4] = .7 * i / N + .3 * Math.random(); a[i * 4 + 1] = Math.random(); a[i * 4 + 2] = Math.random(); a[i * 4 + 3] = Math.pow(Math.random(), 1.4); } gl.bindBuffer(gl.ARRAY_BUFFER, seedBuf); gl.bufferData(gl.ARRAY_BUFFER, a, gl.STATIC_DRAW); }
 let ready = false, t0 = 0;
 const mark = new Image(); mark.src = 'assets/logo-ev.png';
-Promise.all([mark.decode ? mark.decode() : new Promise(r => { mark.onload = r; }), document.fonts ? document.fonts.load('600 250px "Space Grotesk"').catch(() => {}) : 0]).then(() => {
+const decoded = im => im.decode ? im.decode() : new Promise(r => { if (im.complete) r(); else im.onload = r; });
+Promise.all([decoded(mark), ...clients.map(f => decoded(f.querySelector('img'))), document.fonts ? document.fonts.load('600 250px "Space Grotesk"').catch(() => {}) : 0]).then(() => {
   upload(CLOUD, cloud());
   DRAW.forEach((d, k) => upload(k, sample(d, mark)));
+  upload(LOGOS, logos());
   ready = true; t0 = performance.now(); sec.classList.add('is-ready'); kick();
 }).catch(() => sec.classList.add('no-gl'));
 
@@ -189,10 +223,15 @@ function size() {
 new ResizeObserver(size).observe(stage);
 new ResizeObserver(measure).observe(document.body);
 // where each shape sits: to the right of the words on wide screens, above them on phones
-const OFF = () => narrowQ.matches ? [[0, -.04], [0, .11], [0, .11], [0, .11], [0, .11], [0, .06]] : [[0, -.05], [.2, 0], [.2, 0], [.2, 0], [.2, 0], [0, .03]];
+const OFF = () => narrowQ.matches ? [[0, -.04], [0, .11], [0, .11], [0, .11], [0, .11], [0, .06], [0, .02]] : [[0, -.05], [.2, 0], [.2, 0], [.2, 0], [.2, 0], [0, .03], [0, -.045]];
 const mouse = { x:0, y:0, tx:0, ty:0, pull:0, on:false };
 stage.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; const r = stage.getBoundingClientRect(); mouse.tx = (e.clientX - r.left) / r.width * 2 - 1; mouse.ty = 1 - (e.clientY - r.top) / r.height * 2; mouse.on = true; kick(); });
 stage.addEventListener('pointerleave', () => { mouse.on = false; });
+// where a point of the drawing lands on screen, for laying the real logos over their particles
+function project(V, x, y) {
+  const vx = V[0] * x + V[4] * y + V[12], vy = V[1] * x + V[5] * y + V[13], vz = V[2] * x + V[6] * y + V[14];
+  return [(proj[0] * vx / -vz * .5 + .5) * W, (.5 - proj[5] * vy / -vz * .5) * H];
+}
 function view(tx, ty, tz, rx, ry) {
   const cx = Math.cos(rx), sx = Math.sin(rx), cy = Math.cos(ry), sy = Math.sin(ry);
   return new Float32Array([cy, sx * sy, -cx * sy, 0, 0, cx, sx, 0, sy, -sx * cy, cx * cy, 0, tx, ty, tz, 1]);
@@ -231,12 +270,15 @@ function frame(now) {
   const tt = STATIC ? 0 : now / 1000, vw = D * Math.tan(FOV / 2) * 2 * (W / H), vh = D * Math.tan(FOV / 2) * 2;
   // while a shape changes, the camera turns through it, so the change reads in depth
   const turn = from === to ? 0 : Math.sin(Math.PI * smooth(mix)) * .42;
-  const ry = mouse.x * .28 + Math.sin(tt * .25) * .07 + turn, rx = -mouse.y * .16 + Math.sin(tt * .19) * .04 - turn * .25;
+  // on the logos the camera holds almost still, so each real logo sits exactly over its particles
+  const Lg = to === LOGOS ? (from === LOGOS ? 1 : e) : 0, calm = 1 - .85 * Lg;
+  const ry = (mouse.x * .28 + Math.sin(tt * .25) * .07) * calm + turn, rx = (-mouse.y * .16 + Math.sin(tt * .19) * .04) * calm - turn * .25;
+  const V = view(ox * vw, oy * vh, -D, rx, ry);
   gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
   gl.uniformMatrix4fv(U.proj, false, proj);
-  gl.uniformMatrix4fv(U.view, false, view(ox * vw, oy * vh, -D, rx, ry));
+  gl.uniformMatrix4fv(U.view, false, V);
   gl.uniform1f(U.mix, from === to ? 0 : mix); gl.uniform1f(U.time, tt);
-  gl.uniform1f(U.size, (narrowQ.matches ? 2.2 : 2.3) * DPR); gl.uniform1f(U.aspect, W / H); gl.uniform1f(U.pull, mouse.pull);
+  gl.uniform1f(U.size, (narrowQ.matches ? 2.2 : 2.3) * DPR); gl.uniform1f(U.aspect, W / H); gl.uniform1f(U.pull, mouse.pull * (1 + .9 * Lg));
   gl.uniform2f(U.mouse, mouse.x, mouse.y);
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers[from]); gl.enableVertexAttribArray(A.from); gl.vertexAttribPointer(A.from, 3, gl.FLOAT, false, 0, 0);
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers[to]); gl.enableVertexAttribArray(A.to); gl.vertexAttribPointer(A.to, 3, gl.FLOAT, false, 0, 0);
@@ -246,7 +288,14 @@ function frame(now) {
   const ia = 1 - smooth(seg(s, .05, .42));
   for (const el of intro) setOp(el, ia, -30);
   steps.forEach((el, i) => { const h = HOLD[i + 1]; setOp(el, smooth(seg(s, h[0] - .3, h[0] + .02)) * (1 - smooth(seg(s, h[1] + .02, h[1] + .32))), 22); });
-  setOp(finale, smooth(seg(s, HOLD[5][0] - .2, HOLD[5][0] + .1)), 18);
+  setOp(finale, smooth(seg(s, HOLD[5][0] - .2, HOLD[5][0] + .1)) * (1 - smooth(seg(s, HOLD[5][1], HOLD[5][1] + .3))), 18);
+  // the logos: a heading, and each real logo laid over its particles, shown in colour on hover
+  const la = smooth(seg(s, HOLD[6][0] - .25, HOLD[6][0] + .05));
+  setOp(clientsHead, la, 18); clientsBox.classList.toggle('is-live', la > .9);
+  if (la > .01) clients.forEach((fig, i) => {
+    const [cx, cy, bw, bh] = CELLS[i], a = project(V, cx - bw / 2 - 500, 500 - cy + bh / 2), b = project(V, cx + bw / 2 - 500, 500 - cy - bh / 2);
+    css(fig, 'transform', `translate(${a[0].toFixed(1)}px,${a[1].toFixed(1)}px)`); css(fig, 'width', (b[0] - a[0]).toFixed(1) + 'px'); css(fig, 'height', (b[1] - a[1]).toFixed(1) + 'px');
+  });
   if (onScreen && !STATIC) raf = requestAnimationFrame(frame);
 }
 function kick() { if (!raf && (onScreen || STATIC)) raf = requestAnimationFrame(frame); }
