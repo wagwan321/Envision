@@ -1,18 +1,25 @@
+/* Smooth scrolling (Lenis, see smooth.js) */
+html.lenis,html.lenis body { height:auto; }
+html.lenis,.lenis.lenis-smooth { scroll-behavior:auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior:contain; }
+.lenis.lenis-stopped { overflow:hidden; }
+
 /* The home page film: a tall section holds a sticky stage. The scroll drives one camera that dives
    from the planet to each client, into the place itself, into the website, and on to the next. */
 .film { position:relative; height:calc(var(--film-screens, 23.9) * 100vh); height:calc(var(--film-screens, 23.9) * 100svh); background:var(--beige); color:var(--text); }
 .film-anchor { position:absolute; left:0; top:calc(1.3 * 100svh); width:1px; height:1px; }
 .film-stage { position:sticky; top:0; height:100vh; height:100svh; overflow:hidden; background:var(--beige); }
 .film-layers { position:absolute; inset:0; }
-.film-layer { position:absolute; inset:0; overflow:hidden; display:none; background:var(--beige); }
+.film-layer { position:absolute; inset:0; overflow:hidden; display:none; background:var(--beige); -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; }
 .film-layer.on { display:block; }
 .film-map { background:transparent; }
 .film-map canvas,.film-fx { position:absolute; inset:0; width:100%; height:100%; display:block; }
+/* the glow around the planet: one gradient, moved and scaled on the GPU */
+.map-atmo { position:absolute; left:0; top:0; width:200px; height:200px; border-radius:50%; background:radial-gradient(closest-side,rgba(70,201,145,0) 82.5%,rgba(70,201,145,.18) 89.5%,rgba(70,201,145,0) 100%); visibility:hidden; will-change:transform; pointer-events:none; }
 .film-fx { z-index:40; pointer-events:none; }
 .film-content { position:absolute; inset:0; transform-origin:50% 50%; will-change:transform; }
 
 /* Footage */
-.is-video .film-content { background:#1b1c19; }
 .is-video video,.is-video .film-poster { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
 
 /* Photos flown through in depth */
@@ -23,12 +30,12 @@
 .fly-world { position:absolute; left:50%; top:50%; width:0; height:0; transform-style:preserve-3d; }
 .fly-item { position:absolute; left:0; top:0; width:var(--w,210px); margin:0; visibility:hidden; will-change:transform,opacity; backface-visibility:hidden; }
 .fly-item img { display:block; width:100%; height:auto; }
-.fly-item.is-card { padding:10px; border-radius:20px; background:#fff; box-shadow:0 26px 50px -26px rgba(22,22,19,.4); }
-.fly-item.is-card img { aspect-ratio:1; object-fit:contain; border-radius:12px; }
 .fly-item.is-hero { width:var(--hw,260px); }
 
 /* The website, in a browser window */
-.film-site .film-content { transform-origin:var(--wx,50%) var(--wy,50%); }
+.film-site { background:transparent; }
+.site-backdrop { position:absolute; inset:0; background:var(--beige); opacity:0; }
+.film-site .film-content { transform-origin:0 0; }
 .site-window { position:absolute; overflow:hidden; border:1px solid var(--line); border-radius:16px; background:#fff; box-shadow:0 50px 90px -46px rgba(22,22,19,.5); }
 .site-bar { position:absolute; left:0; right:0; top:0; height:34px; display:flex; align-items:center; gap:7px; padding:0 14px; background:var(--beige-raised); border-bottom:1px solid var(--line); }
 .site-bar i { width:10px; height:10px; border-radius:50%; background:rgba(22,22,19,.14); }

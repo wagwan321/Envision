@@ -40,6 +40,8 @@
   <noscript><style>.contact-form>label,.contact-form>.form-row,.contact-form>.submit-button,.contact-form>.form-hint{display:none}</style></noscript>
   <script src="script.js" defer></script>
   <script src="experience.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
+  <script src="smooth.js" defer></script>
   <script src="film.js" defer></script>
   <script src="brief.js" defer></script>
 </head>
@@ -69,7 +71,7 @@
     <section class="film" id="home" aria-labelledby="hero-title">
       <span class="film-anchor" id="work" aria-hidden="true"></span>
       <div class="film-stage">
-        <div class="film-layers" aria-hidden="true"><div class="film-layer film-map on"><canvas></canvas></div></div>
+        <div class="film-layers" aria-hidden="true"><div class="film-layer film-map on"><div class="map-atmo"></div><canvas class="map-base"></canvas><canvas class="map-pins"></canvas></div></div>
         <canvas class="film-fx" aria-hidden="true"></canvas>
         <div class="film-caps" aria-hidden="true"></div>
         <div class="film-intro" data-film-intro>
@@ -186,7 +188,7 @@
       <footer><a class="footer-brand" href="#home" aria-label="Envision home"><img src="assets/logo-ev.png?v=4" width="46" height="24" alt=""><span>© <span id="year">2026</span> Envision</span></a><button class="replay-intro" type="button" data-replay-intro>Replay the intro ↻</button><a href="#home">Back to top ↑</a></footer>
     </section>
   </main>
-  <dialog class="brief-dialog" id="brief-dialog" aria-labelledby="brief-question">
+  <dialog class="brief-dialog" id="brief-dialog" data-lenis-prevent aria-labelledby="brief-question">
     <div class="brief-split">
       <div class="brief-ambient" aria-hidden="true"><i></i><i></i><i></i><span></span><span></span><b class="brief-glow"></b></div>
       <header class="brief-header"><p class="brief-label"><img src="assets/logo-ev.png?v=4" width="46" height="24" alt="Envision"><span id="brief-name">Project brief</span></p><button class="brief-close" type="button" data-brief-close>Close <span aria-hidden="true">×</span></button></header>
@@ -260,6 +262,6 @@
     </div>
   </dialog>
   <div class="studio-dock" aria-label="Studio shortcuts"><a href="#services" data-brief aria-haspopup="dialog"><span aria-hidden="true">✳</span> Plan your project</a><span class="dock-divider"></span><button type="button" id="open-command" aria-label="Open quick navigation" aria-haspopup="dialog"><span aria-hidden="true">⌘</span><span class="dock-key">K</span></button></div>
-  <dialog class="command-dialog" id="command-dialog" aria-labelledby="command-title"><div class="command-top"><h2 id="command-title">Where to next?</h2><button type="button" id="close-command" aria-label="Close quick navigation">Esc <span aria-hidden="true">×</span></button></div><label class="visually-hidden" for="command-search">Find a section</label><input id="command-search" type="search" placeholder="Find your next move…" autocomplete="off"><div class="command-links"><a href="#home"><span>Back to the beginning</span><small>Home ↗</small></a><a href="#work"><span>See our work</span><small>Selected work ↗</small></a><a href="#services"><span>Explore our capabilities</span><small>Services ↗</small></a><a href="#services" data-brief><span>Plan your project</span><small>Project brief ↗</small></a><a href="#process"><span>Meet the process</span><small>How we work ↗</small></a><a href="#contact"><span>Start a conversation</span><small>Contact ↗</small></a></div><p class="command-empty" hidden>No match. Try “project”, “services”, or “contact”.</p><p class="command-hint mono">TAB TO EXPLORE <span>ENTER TO GO ↵</span></p></dialog>
+  <dialog class="command-dialog" id="command-dialog" data-lenis-prevent aria-labelledby="command-title"><div class="command-top"><h2 id="command-title">Where to next?</h2><button type="button" id="close-command" aria-label="Close quick navigation">Esc <span aria-hidden="true">×</span></button></div><label class="visually-hidden" for="command-search">Find a section</label><input id="command-search" type="search" placeholder="Find your next move…" autocomplete="off"><div class="command-links"><a href="#home"><span>Back to the beginning</span><small>Home ↗</small></a><a href="#work"><span>See our work</span><small>Selected work ↗</small></a><a href="#services"><span>Explore our capabilities</span><small>Services ↗</small></a><a href="#services" data-brief><span>Plan your project</span><small>Project brief ↗</small></a><a href="#process"><span>Meet the process</span><small>How we work ↗</small></a><a href="#contact"><span>Start a conversation</span><small>Contact ↗</small></a></div><p class="command-empty" hidden>No match. Try “project”, “services”, or “contact”.</p><p class="command-hint mono">TAB TO EXPLORE <span>ENTER TO GO ↵</span></p></dialog>
 </body>
 </html>
