@@ -183,11 +183,11 @@
     dockFrame = null;
     if(dockHiddenByBrief) return;
     if(!dockGeometry) {
-      const clients = document.querySelector('.gh-globe')?.getBoundingClientRect();
+      const clients = document.querySelector('.film')?.getBoundingClientRect();
       dockGeometry = {contactTop:document.getElementById('contact').getBoundingClientRect().top+scrollY, clientsTop:clients ? clients.top+scrollY : 0, clientsBottom:clients ? clients.bottom+scrollY : 0, height:innerHeight};
     }
     const {contactTop,clientsTop,clientsBottom,height} = dockGeometry;
-    // The globe has its own controls and project card, so the dock steps aside while it is on screen.
+    // The film has its own captions and buttons, so the dock steps aside while it plays.
     const previewing = clientsTop-scrollY < height*.85 && clientsBottom-scrollY > height*.15;
     dock.classList.toggle('is-visible', scrollY > height*.45 && contactTop-scrollY > height*.65 && !previewing);
   }

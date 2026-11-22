@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="services.css">
   <link rel="stylesheet" href="experience.css">
   <link rel="stylesheet" href="daylight.css">
-  <link rel="stylesheet" href="globe.css">
+  <link rel="stylesheet" href="film.css">
   <link rel="stylesheet" href="brief.css">
   <link rel="stylesheet" href="theme.css">
   <script>
@@ -40,7 +40,7 @@
   <noscript><style>.contact-form>label,.contact-form>.form-row,.contact-form>.submit-button,.contact-form>.form-hint{display:none}</style></noscript>
   <script src="script.js" defer></script>
   <script src="experience.js" defer></script>
-  <script src="globe.js" defer></script>
+  <script src="film.js" defer></script>
   <script src="brief.js" defer></script>
 </head>
 <body>
@@ -66,24 +66,23 @@
     <div class="reading-progress" aria-hidden="true"><span id="reading-progress"></span></div>
   </header>
   <main id="main">
-    <section class="globe-hero" id="home" aria-labelledby="hero-title">
-      <div class="gh-copy">
-        <p class="gh-kicker"><i class="status-dot"></i> Websites · Software · AI · Video</p>
-        <h1 id="hero-title">Ideas into<br><span>impact.</span></h1>
-        <p class="gh-lede">We build websites, custom software, and AI tools that help your business work better.</p>
-        <div class="gh-actions"><a class="gh-primary" href="#services" data-brief aria-haspopup="dialog">Plan your project <span aria-hidden="true">↗</span></a><a class="gh-link" href="#services">What we do <span aria-hidden="true">↓</span></a></div>
-        <div class="gh-work" id="work">
-          <p>Our work · pick one, or explore the globe</p>
-          <div class="gh-chips"><button type="button" aria-pressed="false"><i></i>The Leisure Club</button><button type="button" aria-pressed="false"><i></i>Enfantillage</button><button type="button" aria-pressed="false"><i></i>Noma Living</button><button type="button" aria-pressed="false"><i></i>First Nutrition</button></div>
+    <section class="film" id="home" aria-labelledby="hero-title">
+      <span class="film-anchor" id="work" aria-hidden="true"></span>
+      <div class="film-stage">
+        <div class="film-layers" aria-hidden="true"><div class="film-layer film-map on"><canvas></canvas></div></div>
+        <canvas class="film-fx" aria-hidden="true"></canvas>
+        <div class="film-caps" aria-hidden="true"></div>
+        <div class="film-intro" data-film-intro>
+          <p class="fi-kicker"><i class="status-dot"></i> Websites · Software · AI · Video</p>
+          <h1 id="hero-title">Ideas into <span>impact.</span></h1>
         </div>
+        <div class="film-foot" data-film-intro>
+          <div><p class="fi-lede">We build websites, custom software, and AI tools that help your business work better.</p><div class="fi-actions"><a class="fi-primary" href="#services" data-brief aria-haspopup="dialog">Plan your project <span aria-hidden="true">↗</span></a><a class="fi-link" href="#services">Skip to our services <span aria-hidden="true">↓</span></a></div></div>
+          <p class="film-cue" aria-hidden="true"><i></i>Scroll to visit our clients</p>
+        </div>
+        <div class="film-outro"><h2>Your business could be <span>next.</span></h2><div class="film-foot"><div><p class="fi-lede">Tell us about it, and we’ll work out the first step together.</p><div class="fi-actions"><a class="fi-primary" href="#services" data-brief aria-haspopup="dialog">Plan your project <span aria-hidden="true">↗</span></a><a class="fi-link" href="#services">See what we do <span aria-hidden="true">↓</span></a></div></div></div></div>
       </div>
-      <div class="gh-globe">
-        <canvas role="img" aria-label="A globe with our clients in Lebanon and Jordan. Use the project buttons to visit each one."></canvas>
-        <div class="gh-pop" hidden></div>
-        <button class="gh-back" type="button" hidden><span aria-hidden="true">←</span> Back</button>
-        <article class="gh-card" aria-live="polite" hidden></article>
-        <p class="gh-hint">Hover a pin · click to zoom in · drag to turn</p>
-      </div>
+      <div class="film-list"><h2>Our work</h2><ol><li><img data-src="assets/film/site-leisure-0.webp" alt="The The Leisure Club website" width="1120" height="700"><h3>The Leisure Club</h3><p>Dik El-Mehdi, Lebanon</p><p>A family country club: fitness, pools, Leisure Island, events and memberships, in one calm website.</p><p>15 pages · 3 languages · 43 weekly classes</p><a href="https://leisure-nu.vercel.app" target="_blank" rel="noopener">Visit the live site ↗</a></li><li><img data-src="assets/film/site-enf-0.webp" alt="The Enfantillage website" width="1120" height="700"><h3>Enfantillage</h3><p>Mazraat Yachouh, Lebanon</p><p>Lebanon’s family toy store, shoppable by age, brand or favourite character.</p><p>592 toys · 6 age groups · 5 ways to browse</p></li><li><img data-src="assets/film/site-noma-0.webp" alt="The Noma Living website" width="1120" height="700"><h3>Noma Living</h3><p>Hamra, Beirut</p><p>Furnished student studios next to LAU, with a 3D walk-through we rendered in Blender.</p><p>3D walk-through · day and night · 3 studio types</p></li><li><img data-src="assets/film/site-fn-0.webp" alt="The First Nutrition website" width="1120" height="700"><h3>First Nutrition</h3><p>Amman, Jordan</p><p>An official supplement store in English and Arabic, with orders sent on WhatsApp.</p><p>69 products · 21 brands · English and Arabic</p><a href="https://first-nutrition.vercel.app" target="_blank" rel="noopener">Visit the live site ↗</a></li></ol></div>
     </section>
     <section class="expertise section-pad" id="services" aria-labelledby="services-title">
       <div class="section-heading reveal">
