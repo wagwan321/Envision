@@ -183,7 +183,7 @@
     dockFrame = null;
     if(dockHiddenByBrief) return;
     if(!dockGeometry) {
-      const clients = document.querySelector('.film')?.getBoundingClientRect();
+      const clients = document.querySelector('.ideas')?.getBoundingClientRect();
       dockGeometry = {contactTop:document.getElementById('contact').getBoundingClientRect().top+scrollY, clientsTop:clients ? clients.top+scrollY : 0, clientsBottom:clients ? clients.bottom+scrollY : 0, height:innerHeight};
     }
     const {contactTop,clientsTop,clientsBottom,height} = dockGeometry;

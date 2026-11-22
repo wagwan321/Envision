@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="services.css">
   <link rel="stylesheet" href="experience.css">
   <link rel="stylesheet" href="daylight.css">
-  <link rel="stylesheet" href="film.css">
+  <link rel="stylesheet" href="hero.css">
   <link rel="stylesheet" href="brief.css">
   <link rel="stylesheet" href="theme.css">
   <script>
@@ -42,7 +42,7 @@
   <script src="experience.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
   <script src="smooth.js" defer></script>
-  <script src="film.js" defer></script>
+  <script src="hero.js" defer></script>
   <script src="brief.js" defer></script>
 </head>
 <body>
@@ -68,96 +68,32 @@
     <div class="reading-progress" aria-hidden="true"><span id="reading-progress"></span></div>
   </header>
   <main id="main">
-    <section class="film" id="home" aria-labelledby="hero-title">
-      <span class="film-anchor" id="work" aria-hidden="true"></span>
-      <div class="film-stage">
-        <div class="film-layers" aria-hidden="true"><div class="film-layer film-map on"><div class="map-atmo"></div><canvas class="map-base"></canvas><canvas class="map-pins"></canvas></div></div>
-        <canvas class="film-fx" aria-hidden="true"></canvas>
-        <div class="film-caps"></div>
-        <div class="film-intro" data-film-intro>
+    <section class="ideas" id="home" aria-labelledby="hero-title">
+      <span class="ideas-anchor" id="services" aria-hidden="true"></span>
+      <div class="ideas-stage">
+        <canvas class="ideas-gl" aria-hidden="true"></canvas>
+        <img class="ideas-fallback" src="assets/logo-ev.png" alt="" width="320" height="164">
+        <div class="film-intro" data-ideas-intro>
           <p class="fi-kicker"><i class="status-dot"></i> Websites · Software · AI · Video</p>
           <h1 id="hero-title">Ideas into <span>impact.</span></h1>
         </div>
-        <div class="film-foot" data-film-intro>
+        <div class="film-foot" data-ideas-intro>
           <div><p class="fi-lede">We build websites, custom software, and AI tools that help your business work better.</p><div class="fi-actions"><a class="fi-primary" href="#services" data-brief aria-haspopup="dialog">Plan your project <span aria-hidden="true">↗</span></a><a class="fi-link" href="#services">Skip to our services <span aria-hidden="true">↓</span></a></div></div>
-          <p class="film-cue" aria-hidden="true"><i></i>Scroll to visit our clients</p>
+          <p class="film-cue" aria-hidden="true"><i></i>Scroll to see what we build</p>
         </div>
-        <nav class="film-chapters" aria-label="Our clients"><p class="chap-label">Our work</p><ol></ol></nav>
-        <div class="film-outro"><h2>Your business could be <span>next.</span></h2><div class="film-foot"><div><p class="fi-lede">Tell us about it, and we’ll work out the first step together.</p><div class="fi-actions"><a class="fi-primary" href="#services" data-brief aria-haspopup="dialog">Plan your project <span aria-hidden="true">↗</span></a><a class="fi-link" href="#services">See what we do <span aria-hidden="true">↓</span></a></div></div></div></div>
+        <div class="ideas-steps"><article class="ideas-step"><p class="step-kicker"><span>01</span>Websites &amp; online stores</p><h2>Turn visitors into <em>customers.</em></h2><p>A clear story, thoughtful design, and an easy path to enquire or buy.</p><a class="step-cta" href="#contact" data-brief="web" aria-haspopup="dialog">Plan your website <span aria-hidden="true">↗</span></a></article><article class="ideas-step"><p class="step-kicker"><span>02</span>Custom software</p><h2>Software that fits <em>your business.</em></h2><p>Dashboards, portals, and tools built around how your team actually works.</p><a class="step-cta" href="#contact" data-brief="software" aria-haspopup="dialog">Plan your software <span aria-hidden="true">↗</span></a></article><article class="ideas-step"><p class="step-kicker"><span>03</span>AI &amp; automation</p><h2>Less busywork. <em>More progress.</em></h2><p>Useful AI assistants and workflows that take repetitive tasks off your hands.</p><a class="step-cta" href="#contact" data-brief="ai" aria-haspopup="dialog">Plan your automation <span aria-hidden="true">↗</span></a></article><article class="ideas-step"><p class="step-kicker"><span>04</span>Video &amp; virtual tours</p><h2>Give customers <em>a closer look.</em></h2><p>Product films, motion graphics, and immersive tours that bring your business to life.</p><a class="step-cta" href="#contact" data-brief="video" aria-haspopup="dialog">Plan your video or tour <span aria-hidden="true">↗</span></a></article></div>
+        <div class="ideas-finale"><a class="fi-primary" href="#contact" data-brief aria-haspopup="dialog">Plan your project <span aria-hidden="true">↗</span></a><a class="fi-link" href="#process">See how we work <span aria-hidden="true">↓</span></a></div>
+        <nav class="ideas-rail" aria-label="What we build"><button type="button"><span>01</span>Websites<i><b></b></i></button><button type="button"><span>02</span>Software<i><b></b></i></button><button type="button"><span>03</span>AI<i><b></b></i></button><button type="button"><span>04</span>Video<i><b></b></i></button></nav>
       </div>
-      <div class="film-list"><h2>All projects</h2><ol><li><img data-src="assets/film/site-leisure-0.webp" alt="The Leisure Club website" width="1120" height="700"><h3>The Leisure Club</h3><p>Dik El-Mehdi, Lebanon</p><p>A family country club: fitness, pools, Leisure Island, events and memberships, in one calm website.</p><p>15 pages · 3 languages · 43 weekly classes</p><a href="https://leisure-nu.vercel.app" target="_blank" rel="noopener">Visit the live site ↗</a></li><li><img data-src="assets/film/site-enf-0.webp" alt="The Enfantillage website" width="1120" height="700"><h3>Enfantillage</h3><p>Mazraat Yachouh, Lebanon</p><p>Lebanon’s family toy store, shoppable by age, brand or favourite character.</p><p>592 toys · 6 age groups · 5 ways to browse</p></li><li><img data-src="assets/film/site-noma-0.webp" alt="The Noma Living website" width="1120" height="700"><h3>Noma Living</h3><p>Hamra, Beirut</p><p>Furnished student studios next to LAU, with a 3D walk-through we rendered in Blender.</p><p>3D walk-through · day and night · 3 studio types</p></li><li><img data-src="assets/film/site-fn-0.webp" alt="The First Nutrition website" width="1120" height="700"><h3>First Nutrition</h3><p>Amman, Jordan</p><p>An official supplement store in English and Arabic, with orders sent on WhatsApp.</p><p>69 products · 21 brands · English and Arabic</p><a href="https://first-nutrition.vercel.app" target="_blank" rel="noopener">Visit the live site ↗</a></li></ol></div>
     </section>
-    <section class="expertise section-pad" id="services" aria-labelledby="services-title">
-      <div class="section-heading reveal">
-        <h2 id="services-title">What we do.<br><span>See it in action.</span></h2>
-        <p>Websites that bring in business. Tools that save time. Experiences that make people look closer.</p>
-      </div>
-      <div class="service-grid">
-        <article class="service-card reveal" aria-labelledby="service-web-title">
-          <div class="service-demo demo-web" aria-hidden="true">
-            <div class="demo-surface">
-              <div class="mini-browser demo-piece" style="--delay:0s">
-                <div class="mini-toolbar"><i></i><i></i><i></i><span>yourbrand.com</span></div>
-                <div class="mini-site">
-                  <div class="mini-nav demo-piece" style="--delay:.25s"><b>your brand.</b><span></span><span></span></div>
-                  <div class="mini-web-layout">
-                    <div class="mini-copy demo-piece" style="--delay:.5s"><strong>A better<br>first impression.</strong><span class="mini-action">Let’s talk <i>↗</i></span></div>
-                    <div class="mini-art demo-piece" style="--delay:.75s"><i></i><i></i><i></i></div>
-                  </div>
-                  <div class="mini-web-tiles"><i class="demo-piece" style="--delay:.95s"></i><i class="demo-piece" style="--delay:1.1s"></i><i class="demo-piece" style="--delay:1.25s"></i></div>
-                </div>
-              </div>
-              <div class="demo-toast demo-piece" style="--delay:1.65s"><span>✓</span> Ready for customers</div>
-            </div>
-          </div>
-          <div class="service-copy"><p class="service-category">Websites &amp; online stores</p><h3 id="service-web-title">Turn visitors into<br><em>customers.</em></h3><p>A clear story, thoughtful design, and an easy path to enquire or buy.</p><a class="service-start" href="#contact" data-brief="web" aria-haspopup="dialog">Plan your website <span aria-hidden="true">↗</span></a></div>
-        </article>
-        <article class="service-card reveal" aria-labelledby="service-software-title">
-          <div class="service-demo demo-software" aria-hidden="true">
-            <div class="demo-surface">
-              <div class="mini-dashboard demo-piece" style="--delay:0s">
-                <div class="dash-sidebar"><b>◈</b><i></i><i></i><i></i></div>
-                <div class="dash-main">
-                  <div class="dash-heading"><strong>Team overview</strong><span>● Live</span></div>
-                  <div class="dash-chart"><span>Weekly activity</span><div class="dash-bars"><i style="--height:32%;--delay:.2s"></i><i style="--height:48%;--delay:.32s"></i><i style="--height:41%;--delay:.44s"></i><i style="--height:68%;--delay:.56s"></i><i style="--height:59%;--delay:.68s"></i><i style="--height:82%;--delay:.8s"></i><i style="--height:96%;--delay:.92s"></i></div></div>
-                  <div class="dash-row demo-piece" style="--delay:1.3s"><i>✓</i><span>Website launch</span><b>Ready</b></div>
-                  <div class="dash-row demo-piece" style="--delay:1.6s"><i>✓</i><span>Team tasks</span><b>In sync</b></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="service-copy"><p class="service-category">Custom software</p><h3 id="service-software-title">Software that fits<br><em>your business.</em></h3><p>Dashboards, portals, and tools built around how your team actually works.</p><a class="service-start" href="#contact" data-brief="software" aria-haspopup="dialog">Plan your software <span aria-hidden="true">↗</span></a></div>
-        </article>
-        <article class="service-card reveal" aria-labelledby="service-ai-title">
-          <div class="service-demo demo-ai" aria-hidden="true">
-            <div class="demo-surface">
-              <div class="flow-request demo-piece" style="--delay:0s"><i></i> A new customer enquiry</div>
-              <div class="flow-path"><span class="flow-packet"></span></div>
-              <div class="flow-nodes">
-                <div class="flow-node flow-inbox"><span><svg viewBox="0 0 32 32" fill="none"><rect x="5" y="8" width="22" height="16" rx="3"/><path d="m6 10 10 8 10-8"/></svg></span><small>Receive</small></div>
-                <div class="flow-node flow-assistant"><span>✳</span><small>Understand</small></div>
-                <div class="flow-node flow-done"><span>✓</span><small>Prepare</small></div>
-              </div>
-              <div class="flow-result demo-piece" style="--delay:2.2s"><span>✓</span> Reply prepared for your team</div>
-            </div>
-          </div>
-          <div class="service-copy"><p class="service-category">AI &amp; automation</p><h3 id="service-ai-title">Less busywork.<br><em>More progress.</em></h3><p>Useful AI assistants and workflows that take repetitive tasks off your hands.</p><a class="service-start" href="#contact" data-brief="ai" aria-haspopup="dialog">Plan your automation <span aria-hidden="true">↗</span></a></div>
-        </article>
-        <article class="service-card reveal" aria-labelledby="service-video-title">
-          <div class="service-demo demo-video" aria-hidden="true">
-            <div class="demo-surface">
-              <div class="mini-film">
-                <div class="video-shot"><div class="video-sun"></div><div class="video-hill hill-back"></div><div class="video-hill hill-front"></div><div class="video-house"><i></i><i></i><i></i></div><div class="video-ground"></div></div>
-                <div class="video-vignette"></div>
-                <div class="video-caption demo-piece" style="--delay:.6s"><small>A DIFFERENT PERSPECTIVE</small><strong>Spaces worth seeing.</strong></div>
-                <div class="video-timeline"><span></span></div>
-              </div>
-            </div>
-          </div>
-          <div class="service-copy"><p class="service-category">Video &amp; virtual tours</p><h3 id="service-video-title">Give customers<br><em>a closer look.</em></h3><p>Product films, motion graphics, and immersive tours that bring your business to life.</p><a class="service-start" href="#contact" data-brief="video" aria-haspopup="dialog">Plan your video or tour <span aria-hidden="true">↗</span></a></div>
-        </article>
-      </div>
-      <a class="text-link services-link" href="#contact" data-brief aria-haspopup="dialog">Not sure which you need? Let’s work it out <span aria-hidden="true">↗</span></a>
+    <section class="clients" id="work" aria-labelledby="clients-title">
+      <h2 id="clients-title">Businesses we’ve worked with</h2>
+      <ul>
+        <li><img src="assets/clients/leisure-club.png" alt="The Leisure Club" width="196" height="178" style="--h:74px" loading="lazy"></li>
+        <li><img src="assets/clients/enfantillage.png" alt="Enfantillage" width="280" height="160" style="--h:64px" loading="lazy"></li>
+        <li><img src="assets/clients/noma-living.svg" alt="Noma Living" width="200" height="58" style="--h:40px" loading="lazy"></li>
+        <li><img src="assets/clients/first-nutrition.svg" alt="First Nutrition" width="211" height="111" style="--h:62px" loading="lazy"></li>
+      </ul>
     </section>
     <div class="daylight">
       <div class="daylight-orbit" aria-hidden="true"></div>
