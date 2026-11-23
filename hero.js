@@ -3,13 +3,13 @@
 // "Ideas into impact", told in particles. Thousands of points drift in as a loose cloud of ideas and
 // gather into the Envision mark. Scrolling reshapes them into each thing we build: a website, a
 // software dashboard, an AI assistant, a film camera, the word "impact.", and last the logos of the
-// businesses we have worked with, which show their own colours when you point at them. Everything
+// businesses we have worked with. Everything
 // moves on the graphics card (WebGL); the page only reads the scroll and the pointer.
 const sec = document.querySelector('.ideas');
 if (!sec) return;
 const stage = sec.querySelector('.ideas-stage'), canvas = sec.querySelector('.ideas-gl');
 const steps = [...sec.querySelectorAll('.ideas-step')], intro = [...sec.querySelectorAll('[data-ideas-intro]')], finale = sec.querySelector('.ideas-finale');
-const clientsBox = sec.querySelector('.ideas-clients'), clientsHead = sec.querySelector('.ideas-clients-head'), clients = [...sec.querySelectorAll('.ideas-client')];
+const clientsHead = sec.querySelector('.ideas-clients-head'), clients = [...sec.querySelectorAll('.ideas-client')];
 const reduce = matchMedia('(prefers-reduced-motion: reduce)'), narrowQ = matchMedia('(max-width: 860px)'), fineQ = matchMedia('(pointer: fine)');
 const STATIC = reduce.matches;
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -227,11 +227,6 @@ const OFF = () => narrowQ.matches ? [[0, -.04], [0, .11], [0, .11], [0, .11], [0
 const mouse = { x:0, y:0, tx:0, ty:0, pull:0, on:false };
 stage.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; const r = stage.getBoundingClientRect(); mouse.tx = (e.clientX - r.left) / r.width * 2 - 1; mouse.ty = 1 - (e.clientY - r.top) / r.height * 2; mouse.on = true; kick(); });
 stage.addEventListener('pointerleave', () => { mouse.on = false; });
-// where a point of the drawing lands on screen, for laying the real logos over their particles
-function project(V, x, y) {
-  const vx = V[0] * x + V[4] * y + V[12], vy = V[1] * x + V[5] * y + V[13], vz = V[2] * x + V[6] * y + V[14];
-  return [(proj[0] * vx / -vz * .5 + .5) * W, (.5 - proj[5] * vy / -vz * .5) * H];
-}
 function view(tx, ty, tz, rx, ry) {
   const cx = Math.cos(rx), sx = Math.sin(rx), cy = Math.cos(ry), sy = Math.sin(ry);
   return new Float32Array([cy, sx * sy, -cx * sy, 0, 0, cx, sx, 0, sy, -sx * cy, cx * cy, 0, tx, ty, tz, 1]);
@@ -270,7 +265,7 @@ function frame(now) {
   const tt = STATIC ? 0 : now / 1000, vw = D * Math.tan(FOV / 2) * 2 * (W / H), vh = D * Math.tan(FOV / 2) * 2;
   // while a shape changes, the camera turns through it, so the change reads in depth
   const turn = from === to ? 0 : Math.sin(Math.PI * smooth(mix)) * .42;
-  // on the logos the camera holds almost still, so each real logo sits exactly over its particles
+  // on the logos the camera holds almost still
   const Lg = to === LOGOS ? (from === LOGOS ? 1 : e) : 0, calm = 1 - .85 * Lg;
   const ry = (mouse.x * .28 + Math.sin(tt * .25) * .07) * calm + turn, rx = (-mouse.y * .16 + Math.sin(tt * .19) * .04) * calm - turn * .25;
   const V = view(ox * vw, oy * vh, -D, rx, ry);
@@ -278,7 +273,7 @@ function frame(now) {
   gl.uniformMatrix4fv(U.proj, false, proj);
   gl.uniformMatrix4fv(U.view, false, V);
   gl.uniform1f(U.mix, from === to ? 0 : mix); gl.uniform1f(U.time, tt);
-  gl.uniform1f(U.size, (narrowQ.matches ? 2.2 : 2.3) * DPR); gl.uniform1f(U.aspect, W / H); gl.uniform1f(U.pull, mouse.pull * (1 + .9 * Lg));
+  gl.uniform1f(U.size, (narrowQ.matches ? 2.2 : 2.3) * DPR); gl.uniform1f(U.aspect, W / H); gl.uniform1f(U.pull, mouse.pull * (1 - Lg));   // the logos stay still under the pointer
   gl.uniform2f(U.mouse, mouse.x, mouse.y);
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers[from]); gl.enableVertexAttribArray(A.from); gl.vertexAttribPointer(A.from, 3, gl.FLOAT, false, 0, 0);
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers[to]); gl.enableVertexAttribArray(A.to); gl.vertexAttribPointer(A.to, 3, gl.FLOAT, false, 0, 0);
@@ -289,13 +284,8 @@ function frame(now) {
   for (const el of intro) setOp(el, ia, -30);
   steps.forEach((el, i) => { const h = HOLD[i + 1]; setOp(el, smooth(seg(s, h[0] - .3, h[0] + .02)) * (1 - smooth(seg(s, h[1] + .02, h[1] + .32))), 22); });
   setOp(finale, smooth(seg(s, HOLD[5][0] - .2, HOLD[5][0] + .1)) * (1 - smooth(seg(s, HOLD[5][1], HOLD[5][1] + .3))), 18);
-  // the logos: a heading, and each real logo laid over its particles, shown in colour on hover
-  const la = smooth(seg(s, HOLD[6][0] - .25, HOLD[6][0] + .05));
-  setOp(clientsHead, la, 18); clientsBox.classList.toggle('is-live', la > .9);
-  if (la > .01) clients.forEach((fig, i) => {
-    const [cx, cy, bw, bh] = CELLS[i], a = project(V, cx - bw / 2 - 500, 500 - cy + bh / 2), b = project(V, cx + bw / 2 - 500, 500 - cy - bh / 2);
-    css(fig, 'transform', `translate(${a[0].toFixed(1)}px,${a[1].toFixed(1)}px)`); css(fig, 'width', (b[0] - a[0]).toFixed(1) + 'px'); css(fig, 'height', (b[1] - a[1]).toFixed(1) + 'px');
-  });
+  // the logos: just a heading above them
+  setOp(clientsHead, smooth(seg(s, HOLD[6][0] - .25, HOLD[6][0] + .05)), 18);
   if (onScreen && !STATIC) raf = requestAnimationFrame(frame);
 }
 function kick() { if (!raf && (onScreen || STATIC)) raf = requestAnimationFrame(frame); }

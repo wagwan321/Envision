@@ -37,9 +37,10 @@
     // scroll progress: a small ring in the header draws itself as you go
     progressBar.style.strokeDashoffset = String(100 - 100 * (total > 0 ? clamp(y / total) : 0));
     header.classList.toggle('is-scrolled', y > 20);
-    let active = '';
+    // the link whose section starts last above the reading line wins, whatever order the links are in
+    let active = '', best = -Infinity;
     sectionTops.forEach((top, index) => {
-      if (top-y < viewport * .45) active = sections[index].id;
+      if (top-y < viewport * .45 && top > best) { best = top; active = sections[index].id; }
     });
     if(active !== lastActive) {
       lastActive = active;
