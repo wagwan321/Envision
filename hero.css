@@ -15,14 +15,15 @@ html { scrollbar-gutter:stable; }
 .ideas-fallback { display:none; }
 .ideas-anchor-work { top:calc(8.8 * 100svh); }
 
-/* The businesses we've worked with: their logos drawn in particles, with a heading above. The logo
-   images only feed the particles; they are never shown or touched. */
+/* The businesses we've worked with: the particles fly into each logo's shape, then give way to the
+   real logo, which comes in sharpening and rising and then floats gently. Nothing to hover or drag. */
 .ideas-clients { position:absolute; inset:0; z-index:5; pointer-events:none; }
 .ideas-clients-head { position:absolute; left:0; right:0; top:clamp(92px,11vh,124px); text-align:center; opacity:0; visibility:hidden; }
 .ideas-clients-head p { margin:0 0 12px; color:var(--accent); font:600 .76rem/1.4 var(--display); letter-spacing:.1em; text-transform:uppercase; }
 .ideas-clients-head h2 { margin:0; font:500 clamp(2.4rem,4.4vw,4.4rem)/.95 var(--display); letter-spacing:-.06em; }
 .ideas-clients-head h2 span { background:var(--logo-gradient); -webkit-background-clip:text; background-clip:text; color:transparent; }
-.ideas-client { position:absolute; left:0; top:0; width:1px; height:1px; margin:0; overflow:hidden; opacity:0; pointer-events:none; }
+.ideas-client { position:absolute; left:0; top:0; margin:0; opacity:0; pointer-events:none; transform-origin:50% 50%; will-change:transform,opacity,filter; }
+.ideas-client img { display:block; width:100%; height:100%; object-fit:contain; -webkit-user-drag:none; user-select:none; }
 /* when the particle film runs, the plain row below is only for screen readers */
 .ideas:not(.is-static):not(.no-gl) ~ .clients { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
 
