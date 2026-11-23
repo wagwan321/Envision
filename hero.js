@@ -10,7 +10,7 @@ if (!sec) return;
 const stage = sec.querySelector('.ideas-stage'), canvas = sec.querySelector('.ideas-gl');
 const steps = [...sec.querySelectorAll('.ideas-step')], intro = [...sec.querySelectorAll('[data-ideas-intro]')], finale = sec.querySelector('.ideas-finale');
 const clientsHead = sec.querySelector('.ideas-clients-head'), clients = [...sec.querySelectorAll('.ideas-client')];
-const reduce = matchMedia('(prefers-reduced-motion: reduce)'), narrowQ = matchMedia('(max-width: 860px)'), fineQ = matchMedia('(pointer: fine)');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)'), narrowQ = matchMedia('(max-width: 860px)');
 const STATIC = reduce.matches;
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const seg = (s, a, b) => clamp((s - a) / (b - a));
@@ -58,7 +58,7 @@ void main() {
   // the pointer gently pushes particles aside
   vec2 ndc = c.xy / c.w, d = (ndc - uMouse) * vec2(uAspect, 1.);
   float dist = length(d);
-  ndc += d / max(dist, 1e-4) * vec2(1. / uAspect, 1.) * .018 * uPull * smoothstep(.065, 0., dist);
+  ndc += d / max(dist, 1e-4) * vec2(1. / uAspect, 1.) * .045 * uPull * smoothstep(.085, 0., dist);
   gl_Position = vec4(ndc * c.w, c.z, c.w);
   gl_PointSize = uSize * (.65 + aSeed.z * .7) * (1. + arc * .5) * 1000. / -mv.z;
   float g = clamp((p.x + 460.) / 920., 0., 1.);
@@ -261,13 +261,13 @@ function frame(now) {
   const s = sC;
   let [from, to, mix] = stateAt(s);
   // the opening: the cloud of ideas gathers into the mark, on its own, as the page loads
-  const gather = STATIC ? 1 : seg(now - t0, 60, 2100);
+  const gather = STATIC ? 1 : seg(now - t0, 150, 2900);
   if (gather < 1 && from === 0 && to === 0) { from = CLOUD; to = 0; mix = gather; }
   // camera: placed for the shape, swaying a touch, following the pointer
   const off = OFF(), e = smooth(mix), ox = lerp(off[from === CLOUD ? 0 : from][0], off[to][0], e), oy = lerp(off[from === CLOUD ? 0 : from][1], off[to][1], e);
   const k = 1 - Math.exp(-dt / 220);
   mouse.x += (mouse.tx * (mouse.on ? 1 : 0) - mouse.x) * k; mouse.y += (mouse.ty * (mouse.on ? 1 : 0) - mouse.y) * k;
-  mouse.pull += ((mouse.on && fineQ.matches ? 1 : 0) - mouse.pull) * k;
+  mouse.pull += ((mouse.on ? 1 : 0) - mouse.pull) * k;   // only ever set by a real mouse (see pointermove)
   const tt = STATIC ? 0 : now / 1000, vw = D * Math.tan(FOV / 2) * 2 * (W / H), vh = D * Math.tan(FOV / 2) * 2;
   // while a shape changes, the camera turns through it, so the change reads in depth
   const turn = from === to ? 0 : Math.sin(Math.PI * smooth(mix)) * .42;
