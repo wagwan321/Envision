@@ -38,7 +38,7 @@ attribute vec3 aFrom; attribute vec3 aTo; attribute vec4 aSeed;
 uniform mat4 uProj; uniform mat4 uView;
 uniform float uMix; uniform float uTime; uniform float uSize; uniform float uAspect; uniform float uPull;
 uniform float uFade; uniform float uSpread;
-uniform vec2 uMouse;
+uniform vec2 uMouse; uniform vec2 uVel;
 varying vec3 vC; varying float vA;
 const vec3 DEEP = vec3(.035, .22, .15);
 const vec3 MID = vec3(.09, .40, .27);
@@ -55,10 +55,14 @@ void main() {
   p += vec3(sin(uTime * .8 + aSeed.x * 40.), cos(uTime * .7 + aSeed.y * 40.), sin(uTime * .6 + aSeed.z * 40.)) * 2.6;
   vec4 mv = uView * vec4(p, 1.);
   vec4 c = uProj * mv;
-  // the pointer gently pushes particles aside
+  // the pointer stirs the particles: a small vortex that twists them around it with a shimmer, and a
+  // smear along its movement; each particle reacts a little differently, so the shape bends and
+  // ripples instead of opening a clean hole
   vec2 ndc = c.xy / c.w, d = (ndc - uMouse) * vec2(uAspect, 1.);
-  float dist = length(d);
-  ndc += d / max(dist, 1e-4) * vec2(1. / uAspect, 1.) * .045 * uPull * smoothstep(.085, 0., dist);
+  float dist = length(d), f = smoothstep(.17, 0., dist) * uPull * (.35 + .65 * aSeed.y);
+  vec2 dir = d / max(dist, 1e-4), tang = vec2(-dir.y, dir.x);
+  vec2 stir = tang * (.044 + .02 * sin(uTime * 2.2 + aSeed.x * 25.)) + dir * .008 * sin(uTime * 3. + aSeed.z * 30.) + uVel;
+  ndc += stir * f * vec2(1. / uAspect, 1.);
   gl_Position = vec4(ndc * c.w, c.z, c.w);
   gl_PointSize = uSize * (.65 + aSeed.z * .7) * (1. + arc * .5) * 1000. / -mv.z;
   float g = clamp((p.x + 460.) / 920., 0., 1.);
@@ -80,7 +84,7 @@ if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { sec.classList.add('no-gl');
 gl.useProgram(prog);
 const loc = n => gl.getAttribLocation(prog, n), uni = n => gl.getUniformLocation(prog, n);
 const A = { from:loc('aFrom'), to:loc('aTo'), seed:loc('aSeed') };
-const U = { proj:uni('uProj'), view:uni('uView'), mix:uni('uMix'), time:uni('uTime'), size:uni('uSize'), aspect:uni('uAspect'), pull:uni('uPull'), mouse:uni('uMouse'), fade:uni('uFade'), spread:uni('uSpread') };
+const U = { proj:uni('uProj'), view:uni('uView'), mix:uni('uMix'), time:uni('uTime'), size:uni('uSize'), aspect:uni('uAspect'), pull:uni('uPull'), mouse:uni('uMouse'), vel:uni('uVel'), fade:uni('uFade'), spread:uni('uSpread') };
 gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); gl.disable(gl.DEPTH_TEST);
 
 // ---- The shapes, drawn on a hidden canvas and turned into points ----
@@ -225,7 +229,7 @@ new ResizeObserver(size).observe(stage);
 new ResizeObserver(measure).observe(document.body);
 // where each shape sits: to the right of the words on wide screens, above them on phones
 const OFF = () => narrowQ.matches ? [[0, -.04], [0, .11], [0, .11], [0, .11], [0, .11], [0, .06], [0, .02]] : [[0, -.05], [.2, 0], [.2, 0], [.2, 0], [.2, 0], [0, .03], [0, -.045]];
-const mouse = { x:0, y:0, tx:0, ty:0, pull:0, on:false };
+const mouse = { x:0, y:0, tx:0, ty:0, pull:0, on:false, px:0, py:0, vx:0, vy:0 };
 stage.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; const r = stage.getBoundingClientRect(); mouse.tx = (e.clientX - r.left) / r.width * 2 - 1; mouse.ty = 1 - (e.clientY - r.top) / r.height * 2; mouse.on = true; kick(); });
 stage.addEventListener('pointerleave', () => { mouse.on = false; });
 // where a point of the drawing lands on screen, for laying each real logo over its particles
@@ -280,7 +284,11 @@ function frame(now) {
   gl.uniformMatrix4fv(U.view, false, V);
   gl.uniform1f(U.mix, from === to ? 0 : mix); gl.uniform1f(U.time, tt);
   gl.uniform1f(U.size, (narrowQ.matches ? 2.2 : 2.3) * DPR); gl.uniform1f(U.aspect, W / H); gl.uniform1f(U.pull, mouse.pull * (1 - Lg));   // the logos stay still under the pointer
-  gl.uniform2f(U.mouse, mouse.x, mouse.y);
+  // how fast the pointer is moving, smoothed, so a sweep of the mouse drags the particles with it
+  const ms = Math.max(dt, 1) / 1000, kv = 1 - Math.exp(-dt / 140);
+  mouse.vx += (clamp((mouse.x - mouse.px) / ms, -4, 4) - mouse.vx) * kv; mouse.vy += (clamp((mouse.y - mouse.py) / ms, -4, 4) - mouse.vy) * kv;
+  mouse.px = mouse.x; mouse.py = mouse.y;
+  gl.uniform2f(U.mouse, mouse.x, mouse.y); gl.uniform2f(U.vel, mouse.vx * .028, mouse.vy * .028);
   // at the logos, the particles burst gently outward and fade as the real logos come in
   const R0 = HOLD[6][0] - .15;
   gl.uniform1f(U.fade, 1 - smooth(seg(s, R0, R0 + .45))); gl.uniform1f(U.spread, smooth(seg(s, R0, R0 + .55)));
