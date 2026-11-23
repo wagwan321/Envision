@@ -25,18 +25,6 @@
   <link rel="stylesheet" href="hero.css">
   <link rel="stylesheet" href="brief.css">
   <link rel="stylesheet" href="theme.css">
-  <script>
-    // A failed script or slow connection must never trap visitors in the intro.
-    try {
-      if (!sessionStorage.getItem('envision-intro') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        document.documentElement.classList.add('intro-pending');
-        window.envisionIntroFallback = setTimeout(function () {
-          document.documentElement.classList.remove('intro-pending');
-          document.dispatchEvent(new CustomEvent('envision:intro-visibility',{detail:{open:false}}));
-        }, 4500);
-      }
-    } catch (_) {}
-  </script>
   <noscript><style>.contact-form>label,.contact-form>.form-row,.contact-form>.submit-button,.contact-form>.form-hint{display:none}</style></noscript>
   <script src="script.js" defer></script>
   <script src="experience.js" defer></script>
@@ -46,15 +34,6 @@
   <script src="brief.js" defer></script>
 </head>
 <body>
-  <section class="site-loader" id="site-loader" aria-label="Welcome to Envision" aria-hidden="true">
-    <div class="loader-top"><span class="loader-brand">Envision<span>®</span></span><span class="mono">INDEPENDENT MINDS. CONNECTED.</span></div>
-    <div class="loader-center">
-      <div class="loader-orbit" aria-hidden="true"><div class="loader-axis axis-one"></div><div class="loader-axis axis-two"></div><div class="loader-axis axis-three"></div><img src="assets/logo-ev.png?v=4" width="158" height="82" alt=""></div>
-      <p class="loader-kicker mono">A LITTLE VISION. INFINITE POSSIBILITY.</p>
-      <div class="loader-word" aria-hidden="true"><span>Ideas into</span> <em>impact.</em></div>
-    </div>
-    <div class="loader-bottom"><div><span class="mono" id="loader-status">Connecting the dots</span><div class="loader-track"><span id="loader-progress"></span></div></div><span class="loader-count" id="loader-count" aria-hidden="true">00</span><button type="button" id="skip-intro">Enter site <span aria-hidden="true">↗</span></button></div>
-  </section>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar" id="topbar">
     <a class="brand" href="#home" aria-label="Envision home"><img src="assets/logo-ev.png?v=4" width="46" height="24" alt=""><span>Envision</span></a>

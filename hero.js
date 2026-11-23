@@ -58,7 +58,7 @@ void main() {
   // the pointer gently pushes particles aside
   vec2 ndc = c.xy / c.w, d = (ndc - uMouse) * vec2(uAspect, 1.);
   float dist = length(d);
-  ndc += d / max(dist, 1e-4) * vec2(1. / uAspect, 1.) * .03 * uPull * smoothstep(.13, 0., dist);
+  ndc += d / max(dist, 1e-4) * vec2(1. / uAspect, 1.) * .018 * uPull * smoothstep(.065, 0., dist);
   gl_Position = vec4(ndc * c.w, c.z, c.w);
   gl_PointSize = uSize * (.65 + aSeed.z * .7) * (1. + arc * .5) * 1000. / -mv.z;
   float g = clamp((p.x + 460.) / 920., 0., 1.);
@@ -202,7 +202,7 @@ Promise.all([decoded(mark), ...clients.map(f => decoded(f.querySelector('img')))
   upload(CLOUD, cloud());
   DRAW.forEach((d, k) => upload(k, sample(d, mark)));
   upload(LOGOS, logos());
-  ready = true; t0 = performance.now(); sec.classList.add('is-ready'); kick();
+  ready = true; t0 = performance.now(); sec.classList.add('is-ready', 'is-intro'); kick();
 }).catch(() => sec.classList.add('no-gl'));
 
 // ---- Size, camera and pointer ----
@@ -261,7 +261,7 @@ function frame(now) {
   const s = sC;
   let [from, to, mix] = stateAt(s);
   // the opening: the cloud of ideas gathers into the mark, on its own, as the page loads
-  const gather = STATIC ? 1 : seg(now - t0, 150, 2900);
+  const gather = STATIC ? 1 : seg(now - t0, 60, 2100);
   if (gather < 1 && from === 0 && to === 0) { from = CLOUD; to = 0; mix = gather; }
   // camera: placed for the shape, swaying a touch, following the pointer
   const off = OFF(), e = smooth(mix), ox = lerp(off[from === CLOUD ? 0 : from][0], off[to][0], e), oy = lerp(off[from === CLOUD ? 0 : from][1], off[to][1], e);
@@ -312,5 +312,11 @@ if (STATIC) sec.classList.add('is-static');
 new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; if (onScreen) { last = 0; kick(); } }).observe(sec);
 addEventListener('scroll', kick, { passive:true });
 addEventListener('load', measure);
+// "Replay the intro": back to the top, where the cloud gathers into the mark once more
+document.addEventListener('envision:replay-intro', () => {
+  const l = window.envisionLenis;
+  if (l) l.scrollTo(0, { immediate:true, force:true }); else scrollTo({ top:0, behavior:'instant' });
+  sC = 0; t0 = performance.now(); sec.classList.remove('is-intro'); void sec.offsetWidth; sec.classList.add('is-intro'); kick();
+});
 size();
 })();
